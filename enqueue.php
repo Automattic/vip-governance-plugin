@@ -356,7 +356,7 @@ class AddAssets {
 	 * @param array $selectors  List of selectors per block.
 	 * @return array
 	 */
-	protected static function get_nested_setting_nodes( $nested_settings, $selectors ) {
+	protected static function get_nested_setting_nodes( $nested_settings ) {
 		$nodes = array();
 		$registry = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		$valid_block_names = array_keys( $registry );
