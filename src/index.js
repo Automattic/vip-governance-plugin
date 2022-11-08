@@ -22,22 +22,26 @@ function setup() {
 	addFilter(
 		'blockEditor.useSetting.before',
 		`wpcomvip-governance/nested-block-settings`,
-		( result, blockName, normalizedPath, candidates ) => {
-			const hasCustomSetting = nestedSettingPaths[blockName] !== undefined && nestedSettingPaths[blockName][normalizedPath] === true;
+		( result, path, clientId, blockName ) => {
+			const hasCustomSetting = nestedSettingPaths[blockName] !== undefined && nestedSettingPaths[blockName][path] === true;
 
 			if ( result !== undefined || !hasCustomSetting ) {
 				return result;
 			}
 
 			const blockNamePath = [
-				...candidates.map( ( candidateId ) =>
-					select( blockEditorStore ).getBlockName( candidateId )
+				clientId,
+				...select( blockEditorStore ).getBlockParents(
+					clientId,
+					/* ascending */ true
 				),
-			].reverse();
+			].map( ( candidateId ) =>
+					select( blockEditorStore ).getBlockName( candidateId )
+				).reverse();
 
 			( { value: result } = getNestedSetting(
 				blockNamePath,
-				normalizedPath,
+				path,
 				nestedSettings
 			) );
 
