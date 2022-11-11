@@ -5,6 +5,7 @@ namespace WPCOMVIP\Governance;
 use JsonException;
 use WP_Theme_JSON;
 use WP_Theme_JSON_Gutenberg;
+use WP_Block_Type_Registry;
 
 defined('ABSPATH') or die();
 
@@ -285,8 +286,7 @@ class AddAssets {
 			];
 		}
 
-		$block_metadata = WP_Theme_JSON_Gutenberg::get_blocks_metadata();
-		$setting_nodes = self::get_nested_setting_nodes($nested_settings, $block_metadata);
+		$setting_nodes = self::get_nested_setting_nodes($nested_settings);
 
 		$nested_settings_and_css = self::apply_settings_transformations($nested_settings, $setting_nodes);
 		return $nested_settings_and_css;
@@ -356,11 +356,12 @@ class AddAssets {
 	 * @param array $selectors  List of selectors per block.
 	 * @return array
 	 */
-	protected static function get_nested_setting_nodes( $nested_settings, $selectors ) {
+	protected static function get_nested_setting_nodes( $nested_settings ) {
 		$nodes = array();
-		$valid_block_names = array_keys( $selectors );
+		$registry = WP_Block_Type_Registry::get_instance()->get_all_registered();
+		$valid_block_names = array_keys( $registry );
 
-		return static::get_settings_of_blocks( $selectors, $valid_block_names, $nodes, $nested_settings );
+		return static::get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );
 	}
 
 	/**
@@ -385,13 +386,15 @@ class AddAssets {
 	 * @param array $current_path      The current path to the block.
 	 * @return array
 	 */
-	protected static function get_settings_of_blocks( $selectors, $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
+	protected static function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
 		foreach ( $current_block as $block_name => $block ) {
 			if ( in_array( $block_name, $valid_block_names, true ) ) {
 
 				$selector = is_null( $current_selector ) ? null : $current_selector;
-				if ( isset( $selectors[ $block_name ]['selector'] ) ) {
-					$selector = $selector . ' ' . $selectors[ $block_name ]['selector'];
+
+				$looked_up_selector = wp_theme_get_css_selector_for_block( $block_name );
+				if ( ! is_null( $looked_up_selector ) ) {
+					$selector = $selector . ' ' . $looked_up_selector;
 				}
 
 				$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
@@ -402,7 +405,7 @@ class AddAssets {
 					'selector' => $selector,
 				);
 
-				$nodes = static::get_settings_of_blocks( $selectors, $valid_block_names, $nodes, $block, $selector, $path );
+				$nodes = static::get_settings_of_blocks( $valid_block_names, $nodes, $block, $selector, $path );
 			}
 		}
 
