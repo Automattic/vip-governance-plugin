@@ -365,6 +365,29 @@ class AddAssets {
 	}
 
 	/**
+	 * Get the CSS selector for a block using the block name
+	 */
+	protected static function get_css_selector_for_block( $block_name ) {
+		$registry = WP_Block_Type_Registry::get_instance();
+		$blocks   = $registry->get_all_registered();
+
+		if ( isset( $blocks[ $block_name ] ) ) {
+			$block = $blocks[ $block_name ];
+			if (
+				isset( $block->supports['__experimentalSelector'] ) &&
+				is_string( $block->supports['__experimentalSelector'] )
+			) {
+				return $block->supports['__experimentalSelector'];
+			} else {
+				return '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
+			}
+		}
+
+		// Selector for the block was not found.
+		return null;
+	}
+
+	/**
 	 * Builds the metadata for settings.blocks, whilst ensuring support for nested blocks. This returns in the form of:
 	 *
 	 *     [
@@ -392,7 +415,7 @@ class AddAssets {
 
 				$selector = is_null( $current_selector ) ? null : $current_selector;
 
-				$looked_up_selector = wp_theme_get_css_selector_for_block( $block_name );
+				$looked_up_selector = self::get_css_selector_for_block( $block_name );
 				if ( ! is_null( $looked_up_selector ) ) {
 					$selector = $selector . ' ' . $looked_up_selector;
 				}
