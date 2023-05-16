@@ -7,12 +7,12 @@ use WP_Theme_JSON;
 use WP_Theme_JSON_Gutenberg;
 use WP_Block_Type_Registry;
 
-defined('ABSPATH') or die();
+defined( 'ABSPATH' ) || die();
 
 class AddAssets {
 	public static function init() {
 		// Backend assets
-		add_action('enqueue_block_assets', [__CLASS__, 'enqueue_block_assets']);
+		add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_block_assets' ] );
 	}
 
 	#region Backend assets
@@ -22,7 +22,7 @@ class AddAssets {
 
 		wp_register_script(
 			'wpcomvip-governance',
-			plugins_url('build/index.js', __FILE__),
+			plugins_url( 'build/index.js', __FILE__ ),
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true /* in_footer */
@@ -30,29 +30,29 @@ class AddAssets {
 
 		$nested_settings_and_css = self::get_nested_settings();
 
-		if (isset($nested_settings_and_css['error'])) {
-			$nested_settings_error = $nested_settings_and_css['error'];
+		if ( isset( $nested_settings_and_css['error'] ) ) {
+			$nested_settings_error   = $nested_settings_and_css['error'];
 			$nested_settings_and_css = array();
-		} else if(empty($nested_settings_and_css)) {
+		} elseif ( empty( $nested_settings_and_css ) ) {
 			return;
 		} else {
 			$nested_settings_error = false;
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings' => $nested_settings_and_css['settings'],
+			'nestedSettings'      => $nested_settings_and_css['settings'],
 			'nestedSettingsError' => $nested_settings_error,
 		]);
-		wp_enqueue_script('wpcomvip-governance');
+		wp_enqueue_script( 'wpcomvip-governance' );
 
 		wp_register_style(
 			'wpcomvip-governance',
-			plugins_url('css/vip-governance.css', __FILE__),
+			plugins_url( 'css/vip-governance.css', __FILE__ ),
 			/* dependencies */ array(),
 			WPCOMVIP_GOVERNANCE_VERSION
 		);
-		wp_add_inline_style('wpcomvip-governance', $nested_settings_and_css['css']);
-		wp_enqueue_style('wpcomvip-governance');
+		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
+		wp_enqueue_style( 'wpcomvip-governance' );
 	}
 
 	#endregion Backend assets
@@ -85,11 +85,11 @@ class AddAssets {
 	}
 
 	protected static function compute_preset_classes( $settings, $selector, $origins ) {
-		if (class_exists('WP_Theme_JSON_Gutenberg')) {
-			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
+		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
+			$presets_metadata    = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 			$root_block_selector = WP_Theme_JSON_Gutenberg::ROOT_BLOCK_SELECTOR;
 		} else {
-			$presets_metadata = WP_Theme_JSON::PRESETS_METADATA;
+			$presets_metadata    = WP_Theme_JSON::PRESETS_METADATA;
 			$root_block_selector = WP_Theme_JSON::ROOT_BLOCK_SELECTOR;
 		}
 
@@ -159,7 +159,7 @@ class AddAssets {
 	}
 
 	protected static function compute_preset_vars( $settings, $origins ) {
-		if (class_exists('WP_Theme_JSON_Gutenberg')) {
+		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
 			$presets_metadata = WP_Theme_JSON::PRESETS_METADATA;
@@ -267,33 +267,35 @@ class AddAssets {
 	}
 
 	private static function get_nested_settings() {
-		$governance_file_path = get_theme_file_path(WPCOMVIP_GOVERNANCE_SOURCE_FILENAME);
+		$governance_file_path = get_theme_file_path( WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
 
-		if (! file_exists($governance_file_path)) {
+		if ( ! file_exists( $governance_file_path ) ) {
 			return array();
 		}
 
-		$nested_settings_contents = file_get_contents($governance_file_path);
+		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+		$nested_settings_contents = file_get_contents( $governance_file_path );
 
 		try {
-			$nested_settings = json_decode($nested_settings_contents, /* associative */ true, /* depth */ 512, /* flags */ JSON_THROW_ON_ERROR);
-		} catch (JsonException $e) {
-			$json_error = sprintf("%s at %s:%d", $e->getMessage(), $e->getFile(), $e->getLine());
-			$error_message = sprintf(__('Block editor settings in %s could not be parsed', 'vip-governance'), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error);
+			$nested_settings = json_decode( $nested_settings_contents, /* associative */ true, /* depth */ 512, /* flags */ JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
+			/* translators: %s: plugin name */
+			$error_message = sprintf( __( 'Block editor settings in %s could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
 
 			return [
 				'error' => $error_message,
 			];
 		}
 
-		$setting_nodes = self::get_nested_setting_nodes($nested_settings);
+		$setting_nodes = self::get_nested_setting_nodes( $nested_settings );
 
-		$nested_settings_and_css = self::apply_settings_transformations($nested_settings, $setting_nodes);
+		$nested_settings_and_css = self::apply_settings_transformations( $nested_settings, $setting_nodes );
 		return $nested_settings_and_css;
 	}
 
-	private static function apply_settings_transformations($nested_settings, $nodes) {
-		if (class_exists('WP_Theme_JSON_Gutenberg')) {
+	private static function apply_settings_transformations( $nested_settings, $nodes ) {
+		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
 			$presets_metadata = WP_Theme_JSON::PRESETS_METADATA;
@@ -308,14 +310,16 @@ class AddAssets {
 
 		foreach ( $nodes as $node ) {
 			foreach ( $presets_metadata as $preset_metadata ) {
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 				// Path is merged ['path', 'to', 'setting', 'node'] + ['path', 'to', 'setting'] e.g.
 				// ['settings', 'blocks', 'core/heading'] + ['color', 'palette']
-				$path   = array_merge( $node['path'], $preset_metadata['path'] );
+				$path = array_merge( $node['path'], $preset_metadata['path'] );
 
 				$preset = _wp_array_get( $theme_json, $path, null );
 				if ( null !== $preset ) {
 					// If the preset is not already keyed with an origin.
 					if ( isset( $preset[0] ) || empty( $preset ) ) {
+						// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 						// Under $path, add ['theme' => '<original option value>']
 						_wp_array_set( $theme_json, $path, array( 'theme' => $preset ) );
 					}
@@ -326,13 +330,13 @@ class AddAssets {
 		// Unwrap nested settings from theme.json path
 		$nested_settings = $theme_json['settings']['blocks'];
 
-		$extra_css_variables = self::get_css_variables($theme_json, $nodes, ['default', 'theme', 'custom']);
+		$extra_css_variables = self::get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
-		$extra_css_variables .= self::get_preset_classes($theme_json, $nodes, ['default', 'theme', 'custom']);
+		$extra_css_variables .= self::get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
 		return array(
 			'settings' => $nested_settings,
-			'css' => $extra_css_variables,
+			'css'      => $extra_css_variables,
 		);
 	}
 
@@ -357,8 +361,8 @@ class AddAssets {
 	 * @return array
 	 */
 	protected static function get_nested_setting_nodes( $nested_settings ) {
-		$nodes = array();
-		$registry = WP_Block_Type_Registry::get_instance()->get_all_registered();
+		$nodes             = array();
+		$registry          = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		$valid_block_names = array_keys( $registry );
 
 		return static::get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );

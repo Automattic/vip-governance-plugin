@@ -2,7 +2,7 @@
 
 namespace WPCOMVIP\Governance;
 
-defined('ABSPATH') or die();
+defined( 'ABSPATH' ) || die();
 
 class BlockEditorFilters {
 	public static function init() {
