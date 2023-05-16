@@ -1,3 +1,6 @@
+.idea
+.DS_Store
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
@@ -5,6 +8,10 @@ yarn-error.log*
 
 # Dependency directories
 node_modules/
+
+# Composer
+/vendor/
+/output/
 
 # Optional npm cache directory
 .npm

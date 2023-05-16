@@ -1,0 +1,9 @@
+{
+    "*.php": [
+        "phplint",
+        "vendor/bin/phpcs"
+    ],
+    "*.js": [
+        "eslint . --ext .js"
+    ]
+}
