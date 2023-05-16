@@ -2,8 +2,5 @@
     "*.php": [
         "phplint",
         "vendor/bin/phpcs"
-    ],
-    "*.js": [
-        "eslint --quiet . --ext .js"
     ]
 }
