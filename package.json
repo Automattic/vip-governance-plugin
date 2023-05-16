@@ -24,7 +24,7 @@
 		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' > /dev/null",
 		"phpcs": "vendor/bin/phpcs --cache",
 		"phpcs:fix": "vendor/bin/phpcbf",
-		"lint": "npm run phplint && npm run phpcs",
+		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
 		"start": "wp-scripts start ./src/index.js",
 		"prepare": "husky install"
 	}

@@ -21,7 +21,9 @@ function setup() {
 		`wpcomvip-governance/nested-block-settings`,
 		( result, path, clientId, blockName ) => {
 			const hasCustomSetting =
+				// eslint-disable-next-line security/detect-object-injection
 				nestedSettingPaths[ blockName ] !== undefined &&
+				// eslint-disable-next-line security/detect-object-injection
 				nestedSettingPaths[ blockName ][ path ] === true;
 
 			if ( result !== undefined || ! hasCustomSetting ) {
@@ -55,7 +57,9 @@ const getNestedSettingPaths = ( nestedSettings, nestedMetadata = {}, currentBloc
 			// This is a leaf block, add setting paths to nestedMetadata
 			const settingPaths = flattenSettingPaths( settingValue, `${ settingKey }.` );
 
+			// eslint-disable-next-line security/detect-object-injection
 			nestedMetadata[ currentBlock ] = {
+				// eslint-disable-next-line security/detect-object-injection
 				...( nestedMetadata[ currentBlock ] ?? {} ),
 				...settingPaths,
 			};
@@ -113,6 +117,7 @@ const getNestedSetting = (
 	depth = 1,
 ) => {
 	const [ currentBlockName, ...remainingBlockNames ] = blockNamePath;
+	// eslint-disable-next-line security/detect-object-injection
 	const blockSettings = settings[ currentBlockName ];
 
 	if ( remainingBlockNames.length === 0 ) {
