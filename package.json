@@ -10,6 +10,7 @@
 		"@wordpress/data": "^9.3.0",
 		"@wordpress/hooks": "^3.33.0",
 		"@wordpress/notices": "^4.1.0",
+		"@wordpress/scripts": "^26.4.0",
 		"eslint": "8.37.0",
 		"husky": "8.0.3",
 		"lint-staged": "^13.0.0",
