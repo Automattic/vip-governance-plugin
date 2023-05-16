@@ -6,12 +6,9 @@ import { store as noticeStore } from '@wordpress/notices';
 
 function setup() {
 	if ( VIP_GOVERNANCE.nestedSettingsError ) {
-		dispatch( noticeStore ).createErrorNotice(
-			VIP_GOVERNANCE.nestedSettingsError,
-			{
-				isDismissible: true
-			}
-		);
+		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.nestedSettingsError, {
+			isDismissible: true,
+		} );
 
 		return;
 	}
@@ -23,30 +20,25 @@ function setup() {
 		'blockEditor.useSetting.before',
 		`wpcomvip-governance/nested-block-settings`,
 		( result, path, clientId, blockName ) => {
-			const hasCustomSetting = nestedSettingPaths[blockName] !== undefined && nestedSettingPaths[blockName][path] === true;
+			const hasCustomSetting =
+				nestedSettingPaths[ blockName ] !== undefined &&
+				nestedSettingPaths[ blockName ][ path ] === true;
 
-			if ( result !== undefined || !hasCustomSetting ) {
+			if ( result !== undefined || ! hasCustomSetting ) {
 				return result;
 			}
 
 			const blockNamePath = [
 				clientId,
-				...select( blockEditorStore ).getBlockParents(
-					clientId,
-					/* ascending */ true
-				),
-			].map( ( candidateId ) =>
-					select( blockEditorStore ).getBlockName( candidateId )
-				).reverse();
+				...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
+			]
+				.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
+				.reverse();
 
-			( { value: result } = getNestedSetting(
-				blockNamePath,
-				path,
-				nestedSettings
-			) );
+			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
 			return result;
-		}
+		},
 	);
 }
 
@@ -56,8 +48,8 @@ const getNestedSettingPaths = ( nestedSettings, nestedMetadata = {}, currentBloc
 
 		if ( isNestedBlock ) {
 			// This setting contains another block, look at child for metadata
-			Object.entries( nestedSettings ).forEach( ( [ blockName, nestedSettings ] ) => {
-				getNestedSettingPaths( nestedSettings, nestedMetadata, blockName );
+			Object.entries( nestedSettings ).forEach( ( [ blockName, blockNestedSettings ] ) => {
+				getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
 			} );
 		} else if ( currentBlock !== false ) {
 			// This is a leaf block, add setting paths to nestedMetadata
@@ -71,25 +63,24 @@ const getNestedSettingPaths = ( nestedSettings, nestedMetadata = {}, currentBloc
 	}
 
 	return nestedMetadata;
-}
+};
 
 const flattenSettingPaths = ( settings, prefix = '' ) => {
 	const result = {};
 
-	Object.entries(settings).forEach( ( [key, value] ) => {
-		const isRegularObject = typeof value === 'object' && !!value && !Array.isArray( value );
+	Object.entries( settings ).forEach( ( [ key, value ] ) => {
+		const isRegularObject = typeof value === 'object' && !! value && ! Array.isArray( value );
 
 		if ( isRegularObject ) {
-			result[ `${prefix}${key}` ] = true;
-			Object.assign( result, flattenSettingPaths( value, `${prefix}${key}.` ) );
+			result[ `${ prefix }${ key }` ] = true;
+			Object.assign( result, flattenSettingPaths( value, `${ prefix }${ key }.` ) );
 		} else {
-			result[ `${prefix}${key}` ] = true;
+			result[ `${ prefix }${ key }` ] = true;
 		}
-	});
+	} );
 
 	return result;
 };
-
 
 /**
  * Find block settings nested in other block settings.
@@ -119,7 +110,7 @@ const getNestedSetting = (
 	normalizedPath,
 	settings,
 	result = { depth: 0, value: undefined },
-	depth = 1
+	depth = 1,
 ) => {
 	const [ currentBlockName, ...remainingBlockNames ] = blockNamePath;
 	const blockSettings = settings[ currentBlockName ];
@@ -140,18 +131,12 @@ const getNestedSetting = (
 			normalizedPath,
 			blockSettings,
 			result,
-			depth + 1
+			depth + 1,
 		);
 	}
 
 	// Continue down the array of blocks
-	return getNestedSetting(
-		remainingBlockNames,
-		normalizedPath,
-		settings,
-		result,
-		depth
-	);
+	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
 };
 
 setup();

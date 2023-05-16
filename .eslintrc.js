@@ -6,4 +6,7 @@ module.exports = {
 		'plugin:@automattic/wpvip/formatting',
 		'plugin:@automattic/wpvip/prettier',
 	],
+	globals: {
+		VIP_GOVERNANCE: 'readonly',
+	},
 };
