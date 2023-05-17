@@ -5,6 +5,8 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 use JsonException;
+use WP_Theme_JSON;
+use WP_Theme_JSON_Gutenberg;
 
 class BlockEditorFilters {
 	public static function init() {
@@ -26,15 +28,17 @@ class BlockEditorFilters {
 
 		$governance_rules = self::get_governance_rules();
 
-		if ( empty( $governance_rules ) ) {
-			return;
+		$interactive_settings_and_css = array();
+		if ( isset( $governance_rules['error'] ) ) {
+			$governance_errors = $governance_rules['error'];
+		} else {
+			$interactive_governance       = new InteractiveGovernance( $governance_rules );
+			$interactive_settings_and_css = $interactive_governance->get_interactive_settings();
 		}
-		
-		$interactive_governance       = new InteractiveGovernance( $governance_rules );
-		$interactive_settings_and_css = $interactive_governance->get_interactive_settings();
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings' => $interactive_settings_and_css['settings'],
+			'nestedSettings'      => $interactive_settings_and_css['settings'],
+			'nestedSettingsError' => $governance_errors,
 		]);
 		wp_enqueue_script( 'wpcomvip-governance' );
 
@@ -52,7 +56,10 @@ class BlockEditorFilters {
 		$governance_file_path = get_theme_file_path( WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
 
 		if ( ! file_exists( $governance_file_path ) ) {
-			return array();
+			return [
+				/* translators: %s: rules file doesn't exist */
+				'error' => sprintf( __( 'Governance rules file %s does not exist', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME ),
+			];
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
@@ -63,14 +70,15 @@ class BlockEditorFilters {
 		} catch ( JsonException $e ) {
 			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
 			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Block editor settings in %s could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
-			add_action( 'admin_notices', static function () use ( $error_message ) {
-				printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html( $error_message ) );
-			} );
-			return;
+			$error_message = sprintf( __( 'Governance rules file in %s could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
+			return [
+				'error' => $error_message,
+			];
 		}
 
-		return $governance_rules;
+		return [
+			'rules' => $governance_rules,
+		];
 	}
 
 	#endregion Block filters
