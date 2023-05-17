@@ -8,12 +8,16 @@ use JsonException;
 
 class InitGovernance {
 	public static function init() {
-		add_action( 'enqueue_block_assets', [ __CLASS__, 'init_governance' ] );
+		// Assets for block editor UI
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'load_settings' ] );
+
+		// Assets for iframed block editor and editor UI
+		add_action( 'enqueue_block_assets', [ __CLASS__, 'load_css' ] );
 	}
 
 	#region Block filters
 
-	public static function init_governance() {
+	public static function load_settings() {
 		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
 
 		wp_register_script(
@@ -26,40 +30,51 @@ class InitGovernance {
 
 		$governance_rules = self::get_governance_rules();
 
-		$interactive_settings_and_css = array();
 		if ( isset( $governance_rules['error'] ) ) {
-			$governance_errors = $governance_rules['error'];
+			$interactive_settings_and_css = array();
+			$governance_errors            = $governance_rules['error'];
 		} else {
+			$governance_errors            = false;
 			$interactions                 = new Interactions( $governance_rules['rules'] );
 			$interactive_settings_and_css = $interactions->get_interactive_settings();
 		}
 
-		if ( ! $interactive_settings_and_css && ! isset( $governance_rules['error'] ) ) {
+		if ( empty( $interactive_settings_and_css ) && ! $governance_errors ) {
 			return;
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings'      => isset( $governance_rules['settings'] ) ? $governance_rules['settings'] : array(),
+			'nestedSettings'      => isset( $interactive_settings_and_css['settings'] ) ? $interactive_settings_and_css['settings'] : array(),
 			'nestedSettingsError' => $governance_errors,
 		]);
+
 		wp_enqueue_script( 'wpcomvip-governance' );
+	}
 
-		wp_register_style(
-			'wpcomvip-governance',
-			plugins_url( 'css/vip-governance.css', __FILE__ ),
-			/* dependencies */ array(),
-			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
-		);
+	public static function load_css() {
+		$governance_rules = self::get_governance_rules();
 
-		if ( isset( $governance_rules['css'] ) && ! isset( $governance_rules['error'] ) ) {
-			wp_add_inline_style( 'wpcomvip-governance', $interactive_settings_and_css['css'] );
+		if ( ! isset( $governance_rules['error'] ) ) {
+			$interactions                 = new Interactions( $governance_rules['rules'] );
+			$interactive_settings_and_css = $interactions->get_interactive_settings();
 		}
 
-		wp_enqueue_style( 'wpcomvip-governance' );
+		if ( isset( $interactive_settings_and_css['css'] ) ) {
+			wp_register_style(
+				'wpcomvip-governance',
+				plugins_url( 'css/vip-governance.css', __FILE__ ),
+				/* dependencies */ array(),
+				WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
+			);
+
+			wp_add_inline_style( 'wpcomvip-governance', $interactive_settings_and_css['css'] );
+
+			wp_enqueue_style( 'wpcomvip-governance' );
+		}
 	}
 
 	private static function get_governance_rules() {
-		$governance_file_path = plugin_dir_path( WPCOMVIP_GOVERNANCE_SOURCE_FILENAME ) . WPCOMVIP_GOVERNANCE_SOURCE_FILENAME;
+		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_SOURCE_FILENAME;
 
 		if ( ! file_exists( $governance_file_path ) ) {
 			return [
