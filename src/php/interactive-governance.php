@@ -2,64 +2,27 @@
 
 namespace WPCOMVIP\Governance;
 
-use JsonException;
 use WP_Theme_JSON;
 use WP_Theme_JSON_Gutenberg;
 use WP_Block_Type_Registry;
 
 defined( 'ABSPATH' ) || die();
 
-class AddAssets {
-	public static function init() {
-		// Backend assets
-		add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_block_assets' ] );
+class InteractiveGovernance {
+	protected $governance_rules;
+	
+	public function __construct( $governance_rules ) {
+		$this->$governance_rules = $governance_rules;
 	}
 
-	#region Backend assets
-
-	public static function enqueue_block_assets() {
-		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
-
-		wp_register_script(
-			'wpcomvip-governance',
-			plugins_url( 'build/index.js', __FILE__ ),
-			$asset_file['dependencies'],
-			$asset_file['version'],
-			true /* in_footer */
-		);
-
-		$nested_settings_and_css = self::get_nested_settings();
-
-		if ( isset( $nested_settings_and_css['error'] ) ) {
-			$nested_settings_error   = $nested_settings_and_css['error'];
-			$nested_settings_and_css = array();
-		} elseif ( empty( $nested_settings_and_css ) ) {
-			return;
-		} else {
-			$nested_settings_error = false;
-		}
-
-		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings'      => $nested_settings_and_css['settings'],
-			'nestedSettingsError' => $nested_settings_error,
-		]);
-		wp_enqueue_script( 'wpcomvip-governance' );
-
-		wp_register_style(
-			'wpcomvip-governance',
-			plugins_url( 'css/vip-governance.css', __FILE__ ),
-			/* dependencies */ array(),
-			WPCOMVIP_GOVERNANCE_VERSION
-		);
-		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
-		wp_enqueue_style( 'wpcomvip-governance' );
+	public function get_interactive_settings() {
+		$setting_nodes           = self::get_nested_setting_nodes( $this->$governance_rules );
+		$nested_settings_and_css = self::apply_settings_transformations( $this->$governance_rules, $setting_nodes );
+		
+		return $nested_settings_and_css;
 	}
 
-	#endregion Backend assets
-
-	#region Block settings processing
-
-	protected static function get_preset_classes( $theme_json, $setting_nodes, $origins ) {
+	private function get_preset_classes( $theme_json, $setting_nodes, $origins ) {
 		$preset_rules = '';
 
 		foreach ( $setting_nodes as $metadata ) {
@@ -75,7 +38,7 @@ class AddAssets {
 		return $preset_rules;
 	}
 
-	protected static function append_to_selector( $selector, $to_append, $position = 'right' ) {
+	private function append_to_selector( $selector, $to_append, $position = 'right' ) {
 		$new_selectors = array();
 		$selectors     = explode( ',', $selector );
 		foreach ( $selectors as $sel ) {
@@ -84,7 +47,7 @@ class AddAssets {
 		return implode( ',', $new_selectors );
 	}
 
-	protected static function compute_preset_classes( $settings, $selector, $origins ) {
+	private function compute_preset_classes( $settings, $selector, $origins ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata    = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 			$root_block_selector = WP_Theme_JSON_Gutenberg::ROOT_BLOCK_SELECTOR;
@@ -122,7 +85,7 @@ class AddAssets {
 		return $stylesheet;
 	}
 
-	protected static function get_settings_slugs( $settings, $preset_metadata, $origins ) {
+	private function get_settings_slugs( $settings, $preset_metadata, $origins ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
 
 		$result = array();
@@ -140,7 +103,7 @@ class AddAssets {
 		return $result;
 	}
 
-	protected static function get_css_variables( $theme_json, $nodes, $origins ) {
+	private function get_css_variables( $theme_json, $nodes, $origins ) {
 		$stylesheet = '';
 		foreach ( $nodes as $metadata ) {
 			if ( null === $metadata['selector'] ) {
@@ -158,7 +121,7 @@ class AddAssets {
 		return $stylesheet;
 	}
 
-	protected static function compute_preset_vars( $settings, $origins ) {
+	private function compute_preset_vars( $settings, $origins ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
@@ -179,7 +142,7 @@ class AddAssets {
 		return $declarations;
 	}
 
-	protected static function compute_theme_vars( $settings ) {
+	private function compute_theme_vars( $settings ) {
 		$declarations  = array();
 		$custom_values = _wp_array_get( $settings, array( 'custom' ), array() );
 		$css_vars      = static::flatten_tree( $custom_values );
@@ -193,7 +156,7 @@ class AddAssets {
 		return $declarations;
 	}
 
-	protected static function flatten_tree( $tree, $prefix = '', $token = '--' ) {
+	private function flatten_tree( $tree, $prefix = '', $token = '--' ) {
 		$result = array();
 		foreach ( $tree as $property => $value ) {
 			$new_key = $prefix . str_replace(
@@ -215,7 +178,7 @@ class AddAssets {
 		return $result;
 	}
 
-	protected static function to_ruleset( $selector, $declarations ) {
+	private function to_ruleset( $selector, $declarations ) {
 		if ( empty( $declarations ) ) {
 			return '';
 		}
@@ -230,7 +193,7 @@ class AddAssets {
 		return $selector . '{' . $declaration_block . '}';
 	}
 
-	protected static function get_settings_values_by_slug( $settings, $preset_metadata, $origins ) {
+	private function get_settings_values_by_slug( $settings, $preset_metadata, $origins ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
 
 		$result = array();
@@ -262,39 +225,11 @@ class AddAssets {
 		return $result;
 	}
 
-	protected static function replace_slug_in_string( $input, $slug ) {
+	private function replace_slug_in_string( $input, $slug ) {
 		return strtr( $input, array( '$slug' => $slug ) );
 	}
 
-	private static function get_nested_settings() {
-		$governance_file_path = get_theme_file_path( WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
-
-		if ( ! file_exists( $governance_file_path ) ) {
-			return array();
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
-		$nested_settings_contents = file_get_contents( $governance_file_path );
-
-		try {
-			$nested_settings = json_decode( $nested_settings_contents, /* associative */ true, /* depth */ 512, /* flags */ JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Block editor settings in %s could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
-
-			return [
-				'error' => $error_message,
-			];
-		}
-
-		$setting_nodes = self::get_nested_setting_nodes( $nested_settings );
-
-		$nested_settings_and_css = self::apply_settings_transformations( $nested_settings, $setting_nodes );
-		return $nested_settings_and_css;
-	}
-
-	private static function apply_settings_transformations( $nested_settings, $nodes ) {
+	private function apply_settings_transformations( $nested_settings, $nodes ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
@@ -360,7 +295,7 @@ class AddAssets {
 	 * @param array $selectors  List of selectors per block.
 	 * @return array
 	 */
-	protected static function get_nested_setting_nodes( $nested_settings ) {
+	private function get_nested_setting_nodes( $nested_settings ) {
 		$nodes             = array();
 		$registry          = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		$valid_block_names = array_keys( $registry );
@@ -371,7 +306,7 @@ class AddAssets {
 	/**
 	 * Get the CSS selector for a block using the block name
 	 */
-	protected static function get_css_selector_for_block( $block_name ) {
+	private function get_css_selector_for_block( $block_name ) {
 		$registry = WP_Block_Type_Registry::get_instance();
 		$blocks   = $registry->get_all_registered();
 
@@ -413,7 +348,7 @@ class AddAssets {
 	 * @param array $current_path      The current path to the block.
 	 * @return array
 	 */
-	protected static function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
+	private function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
 		foreach ( $current_block as $block_name => $block ) {
 			if ( in_array( $block_name, $valid_block_names, true ) ) {
 
@@ -439,7 +374,4 @@ class AddAssets {
 		return $nodes;
 	}
 
-	#endregion Block settings processing
 }
-
-AddAssets::init();

@@ -1,17 +1,16 @@
 import { get } from 'lodash';
 import { addFilter } from '@wordpress/hooks';
-import { select, dispatch } from '@wordpress/data';
+import { select } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { store as noticeStore } from '@wordpress/notices';
 
 function setup() {
-	if ( VIP_GOVERNANCE.nestedSettingsError ) {
-		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.nestedSettingsError, {
-			isDismissible: true,
-		} );
+	// if ( VIP_GOVERNANCE.nestedSettingsError ) {
+	// 	dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.nestedSettingsError, {
+	// 		isDismissible: true,
+	// 	} );
 
-		return;
-	}
+	// 	return;
+	// }
 
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );

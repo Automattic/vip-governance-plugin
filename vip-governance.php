@@ -31,5 +31,5 @@ if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
 
 define( 'WPCOMVIP_GOVERNANCE_SOURCE_FILENAME', 'block-governance.json' );
 
-require_once __DIR__ . '/block-editor-filters.php';
-require_once __DIR__ . '/enqueue.php';
+require_once __DIR__ . '/src/php/block-editor-filters.php';
+require_once __DIR__ . '/src/php/interactive-governance.php';
