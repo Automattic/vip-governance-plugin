@@ -20,12 +20,12 @@
 	},
 	"scripts": {
 		"lint:js": "eslint . --ext .js",
-		"build": "wp-scripts build ./src/js/index.js",
+		"build": "wp-scripts build ./src/index.js",
 		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' > /dev/null",
 		"phpcs": "vendor/bin/phpcs --cache",
 		"phpcs:fix": "vendor/bin/phpcbf",
 		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
-		"start": "wp-scripts start ./src/js/index.js",
+		"start": "wp-scripts start ./src/index.js",
 		"prepare": "husky install"
 	}
 }

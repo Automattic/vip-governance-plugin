@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: VIP Governance Plugin
  * Plugin URI: https://wpvip.com
@@ -17,24 +18,20 @@
 
 namespace WPCOMVIP\Governance;
 
-if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
-	defined( 'ABSPATH' ) || die();
+defined( 'ABSPATH' ) || die();
 
-	define( 'VIP_GOVERNANCE_LOADED', true );
+define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '0.1.0' );
 
-	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '0.1.0' );
-
-	if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {
-		define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE', __FILE__ );
-	}
-	
-	if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
-		define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ );
-	}
-
-	define( 'WPCOMVIP_GOVERNANCE_SOURCE_FILENAME', 'block-governance.json' );
-
-	require_once __DIR__ . '/src/php/block-editor-filters.php';
-
-	require_once __DIR__ . '/src/php/interactive-governance.php';
+if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {
+	define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE', __FILE__ );
 }
+
+if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
+	define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ );
+}
+
+define( 'WPCOMVIP_GOVERNANCE_SOURCE_FILENAME', 'block-governance.json' );
+
+require_once __DIR__ . '/src/init-governance.php';
+
+require_once __DIR__ . '/src/interactions.php';

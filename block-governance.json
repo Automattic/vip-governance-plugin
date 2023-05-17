@@ -1,0 +1,27 @@
+{
+	"core/paragraph": {
+		"color": {
+			"text": true,
+			"palette": [
+				{
+					"slug": "custom-green",
+					"color": "#568203",
+					"name": "Custom Green"
+				}
+			]
+		}
+	},
+	"core/media-text": {
+		"core/heading": {
+			"color": {
+				"palette": [
+					{
+						"slug": "custom-green",
+						"color": "#568203",
+						"name": "Custom Green"
+					}
+				]
+			}
+		}
+	}
+}

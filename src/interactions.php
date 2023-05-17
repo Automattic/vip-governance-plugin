@@ -8,17 +8,17 @@ use WP_Block_Type_Registry;
 
 defined( 'ABSPATH' ) || die();
 
-class InteractiveGovernance {
+class Interactions {
 	protected $governance_rules;
 	
 	public function __construct( $governance_rules ) {
-		$this->$governance_rules = $governance_rules;
+		$this->governance_rules = $governance_rules;
 	}
 
 	public function get_interactive_settings() {
-		$setting_nodes           = self::get_nested_setting_nodes( $this->$governance_rules );
-		$nested_settings_and_css = self::apply_settings_transformations( $this->$governance_rules, $setting_nodes );
-		
+		$setting_nodes           = $this->get_nested_setting_nodes( $this->governance_rules );
+		$nested_settings_and_css = $this->apply_settings_transformations( $this->governance_rules, $setting_nodes );
+
 		return $nested_settings_and_css;
 	}
 
@@ -32,7 +32,7 @@ class InteractiveGovernance {
 
 			$selector      = $metadata['selector'];
 			$node          = _wp_array_get( $theme_json, $metadata['path'], array() );
-			$preset_rules .= static::compute_preset_classes( $node, $selector, $origins );
+			$preset_rules .= $this->compute_preset_classes( $node, $selector, $origins );
 		}
 
 		return $preset_rules;
@@ -64,13 +64,13 @@ class InteractiveGovernance {
 
 		$stylesheet = '';
 		foreach ( $presets_metadata as $preset_metadata ) {
-			$slugs = static::get_settings_slugs( $settings, $preset_metadata, $origins );
+			$slugs = $this->get_settings_slugs( $settings, $preset_metadata, $origins );
 			foreach ( $preset_metadata['classes'] as $class => $property ) {
 				foreach ( $slugs as $slug ) {
-					$css_var     = static::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
-					$class_name  = static::replace_slug_in_string( $class, $slug );
-					$stylesheet .= static::to_ruleset(
-						static::append_to_selector( $selector, $class_name ),
+					$css_var     = $this->replace_slug_in_string( $preset_metadata['css_vars'], $slug );
+					$class_name  = $this->replace_slug_in_string( $class, $slug );
+					$stylesheet .= $this->to_ruleset(
+						$this->append_to_selector( $selector, $class_name ),
 						array(
 							array(
 								'name'  => $property,
@@ -113,9 +113,9 @@ class InteractiveGovernance {
 			$selector = $metadata['selector'];
 
 			$node         = _wp_array_get( $theme_json, $metadata['path'], array() );
-			$declarations = array_merge( static::compute_preset_vars( $node, $origins ), static::compute_theme_vars( $node ) );
+			$declarations = array_merge( $this->compute_preset_vars( $node, $origins ), $this->compute_theme_vars( $node ) );
 
-			$stylesheet .= static::to_ruleset( $selector, $declarations );
+			$stylesheet .= $this->to_ruleset( $selector, $declarations );
 		}
 
 		return $stylesheet;
@@ -130,10 +130,10 @@ class InteractiveGovernance {
 
 		$declarations = array();
 		foreach ( $presets_metadata as $preset_metadata ) {
-			$values_by_slug = static::get_settings_values_by_slug( $settings, $preset_metadata, $origins );
+			$values_by_slug = $this->get_settings_values_by_slug( $settings, $preset_metadata, $origins );
 			foreach ( $values_by_slug as $slug => $value ) {
 				$declarations[] = array(
-					'name'  => static::replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
+					'name'  => $this->replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
 					'value' => $value,
 				);
 			}
@@ -145,7 +145,7 @@ class InteractiveGovernance {
 	private function compute_theme_vars( $settings ) {
 		$declarations  = array();
 		$custom_values = _wp_array_get( $settings, array( 'custom' ), array() );
-		$css_vars      = static::flatten_tree( $custom_values );
+		$css_vars      = $this->flatten_tree( $custom_values );
 		foreach ( $css_vars as $key => $value ) {
 			$declarations[] = array(
 				'name'  => '--wp--custom--' . $key,
@@ -169,7 +169,7 @@ class InteractiveGovernance {
 				$new_prefix = $new_key . $token;
 				$result     = array_merge(
 					$result,
-					static::flatten_tree( $value, $new_prefix, $token )
+					$this->flatten_tree( $value, $new_prefix, $token )
 				);
 			} else {
 				$result[ $new_key ] = $value;
@@ -265,9 +265,9 @@ class InteractiveGovernance {
 		// Unwrap nested settings from theme.json path
 		$nested_settings = $theme_json['settings']['blocks'];
 
-		$extra_css_variables = self::get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
+		$extra_css_variables = $this->get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
-		$extra_css_variables .= self::get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
+		$extra_css_variables .= $this->get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
 		return array(
 			'settings' => $nested_settings,
@@ -300,7 +300,7 @@ class InteractiveGovernance {
 		$registry          = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		$valid_block_names = array_keys( $registry );
 
-		return static::get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );
+		return $this->get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );
 	}
 
 	/**
@@ -354,7 +354,7 @@ class InteractiveGovernance {
 
 				$selector = is_null( $current_selector ) ? null : $current_selector;
 
-				$looked_up_selector = self::get_css_selector_for_block( $block_name );
+				$looked_up_selector = $this->get_css_selector_for_block( $block_name );
 				if ( ! is_null( $looked_up_selector ) ) {
 					$selector = $selector . ' ' . $looked_up_selector;
 				}
@@ -367,7 +367,7 @@ class InteractiveGovernance {
 					'selector' => $selector,
 				);
 
-				$nodes = static::get_settings_of_blocks( $valid_block_names, $nodes, $block, $selector, $path );
+				$nodes = $this->get_settings_of_blocks( $valid_block_names, $nodes, $block, $selector, $path );
 			}
 		}
 
