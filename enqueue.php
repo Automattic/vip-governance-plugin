@@ -11,13 +11,17 @@ defined( 'ABSPATH' ) || die();
 
 class AddAssets {
 	public static function init() {
-		// Backend assets
+		// Assets for block editor UI
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
+
+		// Assets for iframed block editor and editor UI
 		add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_block_assets' ] );
 	}
 
-	#region Backend assets
+	#region Editor UI assets
 
-	public static function enqueue_block_assets() {
+	public static function enqueue_block_editor_assets() {
+		// Governance rules are loaded with the block editor UI, and not in the iframe
 		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
 
 		wp_register_script(
@@ -39,20 +43,28 @@ class AddAssets {
 			$nested_settings_error = false;
 		}
 
-		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
+		wp_localize_script( 'wpcomvip-governance', 'VIP_GOVERNANCE', [
 			'nestedSettings'      => $nested_settings_and_css['settings'],
 			'nestedSettingsError' => $nested_settings_error,
-		]);
+		] );
 		wp_enqueue_script( 'wpcomvip-governance' );
+	}
 
-		wp_register_style(
-			'wpcomvip-governance',
-			plugins_url( 'css/vip-governance.css', __FILE__ ),
-			/* dependencies */ array(),
-			WPCOMVIP_GOVERNANCE_VERSION
-		);
-		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
-		wp_enqueue_style( 'wpcomvip-governance' );
+	public static function enqueue_block_assets() {
+		// Insert CSS into the iframe and main editor UI. We only need it for the iframe, but
+		// this filter will add CSS in both places.
+		$nested_settings_and_css = self::get_nested_settings();
+
+		if ( isset( $nested_settings_and_css['css'] ) ) {
+			wp_register_style(
+				'wpcomvip-governance',
+				plugins_url( 'css/vip-governance.css', __FILE__ ),
+				/* dependencies */ array(),
+				WPCOMVIP_GOVERNANCE_VERSION
+			);
+			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
+			wp_enqueue_style( 'wpcomvip-governance' );
+		}
 	}
 
 	#endregion Backend assets
@@ -266,7 +278,13 @@ class AddAssets {
 		return strtr( $input, array( '$slug' => $slug ) );
 	}
 
+	private static $nested_settings_and_css = null;
+
 	private static function get_nested_settings() {
+		if ( null !== self::$nested_settings_and_css ) {
+			return self::$nested_settings_and_css;
+		}
+
 		$governance_file_path = get_theme_file_path( WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
 
 		if ( ! file_exists( $governance_file_path ) ) {
@@ -290,8 +308,8 @@ class AddAssets {
 
 		$setting_nodes = self::get_nested_setting_nodes( $nested_settings );
 
-		$nested_settings_and_css = self::apply_settings_transformations( $nested_settings, $setting_nodes );
-		return $nested_settings_and_css;
+		self::$nested_settings_and_css = self::apply_settings_transformations( $nested_settings, $setting_nodes );
+		return self::$nested_settings_and_css;
 	}
 
 	private static function apply_settings_transformations( $nested_settings, $nodes ) {
