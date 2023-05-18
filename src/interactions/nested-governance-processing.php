@@ -265,9 +265,9 @@ class NestedGovernanceProcessing {
 		// Unwrap nested settings from theme.json path
 		$nested_settings = $theme_json['settings']['blocks'];
 
-		$extra_css_variables = static::get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
+		$extra_css_variables = self::get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
-		$extra_css_variables .= static::get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
+		$extra_css_variables .= self::get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
 		return array(
 			'settings' => $nested_settings,
@@ -354,7 +354,7 @@ class NestedGovernanceProcessing {
 
 				$selector = is_null( $current_selector ) ? null : $current_selector;
 
-				$looked_up_selector = static::get_css_selector_for_block( $block_name );
+				$looked_up_selector = self::get_css_selector_for_block( $block_name );
 				if ( ! is_null( $looked_up_selector ) ) {
 					$selector = $selector . ' ' . $looked_up_selector;
 				}
