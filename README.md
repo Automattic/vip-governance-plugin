@@ -1,6 +1,6 @@
 # VIP Governance plugin
 
-This is a plugin that's meant to add in Governance features into Gutenberg. At the moment, it adds the ability to style nested blocks using a file called `block-governance.json` within your site's theme.
+This is a plugin that's meant to add in Governance features into Gutenberg. At the moment, it adds the ability to style nested blocks using a file called `insteractions-governance.json` at the root of the plugin itself.
 
 ## Setup
 

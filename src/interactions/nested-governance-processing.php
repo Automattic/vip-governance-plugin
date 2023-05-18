@@ -2,74 +2,25 @@
 
 namespace WPCOMVIP\Governance;
 
-use JsonException;
 use WP_Theme_JSON;
 use WP_Theme_JSON_Gutenberg;
 use WP_Block_Type_Registry;
 
 defined( 'ABSPATH' ) || die();
 
-class AddAssets {
-	public static function init() {
-		// Assets for block editor UI
-		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
+class NestedGovernanceProcessing {
+	private static $nested_settings_and_css = null;
 
-		// Assets for iframed block editor and editor UI
-		add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_block_assets' ] );
-	}
-
-	#region Editor UI assets
-
-	public static function enqueue_block_editor_assets() {
-		// Governance rules are loaded with the block editor UI, and not in the iframe
-		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
-
-		wp_register_script(
-			'wpcomvip-governance',
-			plugins_url( 'build/index.js', __FILE__ ),
-			$asset_file['dependencies'],
-			$asset_file['version'],
-			true /* in_footer */
-		);
-
-		$nested_settings_and_css = self::get_nested_settings();
-
-		if ( isset( $nested_settings_and_css['error'] ) ) {
-			$nested_settings_error   = $nested_settings_and_css['error'];
-			$nested_settings_and_css = array();
-		} elseif ( empty( $nested_settings_and_css ) ) {
-			return;
-		} else {
-			$nested_settings_error = false;
+	public static function get_nested_settings_and_css( $governance_rules ) {
+		if ( null !== self::$nested_settings_and_css ) {
+			return self::$nested_settings_and_css;
 		}
 
-		wp_localize_script( 'wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings'      => $nested_settings_and_css['settings'],
-			'nestedSettingsError' => $nested_settings_error,
-		] );
-		wp_enqueue_script( 'wpcomvip-governance' );
+		$setting_nodes                 = static::get_nested_setting_nodes( $governance_rules );
+		self::$nested_settings_and_css = static::apply_settings_transformations( $governance_rules, $setting_nodes );
+
+		return self::$nested_settings_and_css;
 	}
-
-	public static function enqueue_block_assets() {
-		// Insert CSS into the iframe and main editor UI. We only need it for the iframe, but
-		// this filter will add CSS in both places.
-		$nested_settings_and_css = self::get_nested_settings();
-
-		if ( isset( $nested_settings_and_css['css'] ) ) {
-			wp_register_style(
-				'wpcomvip-governance',
-				plugins_url( 'css/vip-governance.css', __FILE__ ),
-				/* dependencies */ array(),
-				WPCOMVIP_GOVERNANCE_VERSION
-			);
-			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
-			wp_enqueue_style( 'wpcomvip-governance' );
-		}
-	}
-
-	#endregion Backend assets
-
-	#region Block settings processing
 
 	protected static function get_preset_classes( $theme_json, $setting_nodes, $origins ) {
 		$preset_rules = '';
@@ -278,40 +229,6 @@ class AddAssets {
 		return strtr( $input, array( '$slug' => $slug ) );
 	}
 
-	private static $nested_settings_and_css = null;
-
-	private static function get_nested_settings() {
-		if ( null !== self::$nested_settings_and_css ) {
-			return self::$nested_settings_and_css;
-		}
-
-		$governance_file_path = get_theme_file_path( WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
-
-		if ( ! file_exists( $governance_file_path ) ) {
-			return array();
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
-		$nested_settings_contents = file_get_contents( $governance_file_path );
-
-		try {
-			$nested_settings = json_decode( $nested_settings_contents, /* associative */ true, /* depth */ 512, /* flags */ JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Block editor settings in %s could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
-
-			return [
-				'error' => $error_message,
-			];
-		}
-
-		$setting_nodes = self::get_nested_setting_nodes( $nested_settings );
-
-		self::$nested_settings_and_css = self::apply_settings_transformations( $nested_settings, $setting_nodes );
-		return self::$nested_settings_and_css;
-	}
-
 	private static function apply_settings_transformations( $nested_settings, $nodes ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
@@ -457,7 +374,4 @@ class AddAssets {
 		return $nodes;
 	}
 
-	#endregion Block settings processing
 }
-
-AddAssets::init();

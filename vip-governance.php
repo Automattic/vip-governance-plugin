@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: VIP Governance Plugin
  * Plugin URI: https://wpvip.com
@@ -19,7 +20,7 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-define( 'WPCOMVIP_GOVERNANCE_VERSION', '0.1.0' );
+define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '0.1.0' );
 
 if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {
 	define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE', __FILE__ );
@@ -29,7 +30,9 @@ if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
 	define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ );
 }
 
-define( 'WPCOMVIP_GOVERNANCE_SOURCE_FILENAME', 'block-governance.json' );
+define( 'WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME', 'interactions-governance.json' );
+define( 'WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME', 'insertions-governance.json' );
 
-require_once __DIR__ . '/block-editor-filters.php';
-require_once __DIR__ . '/enqueue.php';
+require_once __DIR__ . '/src/init-governance.php';
+
+require_once __DIR__ . '/src/interactions/nested-governance-processing.php';

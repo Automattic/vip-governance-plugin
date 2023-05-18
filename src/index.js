@@ -5,16 +5,25 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { store as noticeStore } from '@wordpress/notices';
 
 function setup() {
-	if ( VIP_GOVERNANCE.nestedSettingsError ) {
-		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.nestedSettingsError, {
+	if ( VIP_GOVERNANCE.errors ) {
+		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.errors, {
 			isDismissible: true,
 		} );
 
 		return;
 	}
 
+	const insertionRules = VIP_GOVERNANCE.insertionRules;
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
+
+	addFilter(
+		'blockEditor.__unstableCanInsertBlockType',
+		`wpcomvip-governance/block-insertion`,
+		( canInsert, blockType, rootClientId ) => {
+			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules );
+		},
+	);
 
 	addFilter(
 		'blockEditor.useSetting.before',
@@ -43,6 +52,16 @@ function setup() {
 		},
 	);
 }
+
+const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules ) => {
+	// Returns the default value if no rules can be found
+	if ( ! insertionRules ) {
+		return canInsert;
+	}
+
+	// At the moment doesn't really do any kind of filtering
+	return canInsert;
+};
 
 const getNestedSettingPaths = ( nestedSettings, nestedMetadata = {}, currentBlock = false ) => {
 	for ( const [ settingKey, settingValue ] of Object.entries( nestedSettings ) ) {
