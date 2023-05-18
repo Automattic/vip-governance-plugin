@@ -22,7 +22,7 @@ class InitGovernance {
 
 		wp_register_script(
 			'wpcomvip-governance',
-			plugins_url( 'build/index.js', __FILE__ ),
+			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.js',
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true /* in_footer */
@@ -62,7 +62,7 @@ class InitGovernance {
 		if ( isset( $interactive_settings_and_css['css'] ) ) {
 			wp_register_style(
 				'wpcomvip-governance',
-				plugins_url( 'css/vip-governance.css', __FILE__ ),
+				WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
 				/* dependencies */ array(),
 				WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 			);
