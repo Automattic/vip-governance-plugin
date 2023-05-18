@@ -34,4 +34,4 @@ define( 'WPCOMVIP_GOVERNANCE_SOURCE_FILENAME', 'block-governance.json' );
 
 require_once __DIR__ . '/src/init-governance.php';
 
-require_once __DIR__ . '/src/interactions.php';
+require_once __DIR__ . '/src/interactions/nested-governance-processing.php';

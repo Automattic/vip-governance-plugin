@@ -8,14 +8,14 @@ use WP_Block_Type_Registry;
 
 defined( 'ABSPATH' ) || die();
 
-class Interactions {
+class NestedGovernanceProcessing {
 	protected $governance_rules;
 	
 	public function __construct( $governance_rules ) {
 		$this->governance_rules = $governance_rules;
 	}
 
-	public function get_interactive_settings() {
+	public function get_nested_settings_and_css() {
 		$setting_nodes           = $this->get_nested_setting_nodes( $this->governance_rules );
 		$nested_settings_and_css = $this->apply_settings_transformations( $this->governance_rules, $setting_nodes );
 

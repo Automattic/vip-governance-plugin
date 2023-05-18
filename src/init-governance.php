@@ -31,20 +31,20 @@ class InitGovernance {
 		$governance_rules = self::get_governance_rules();
 
 		if ( isset( $governance_rules['error'] ) ) {
-			$interactive_settings_and_css = array();
-			$governance_errors            = $governance_rules['error'];
+			$nested_settings_and_css = array();
+			$governance_errors       = $governance_rules['error'];
 		} else {
 			$governance_errors            = false;
-			$interactions                 = new Interactions( $governance_rules['rules'] );
-			$interactive_settings_and_css = $interactions->get_interactive_settings();
+			$nested_governance_processing = new NestedGovernanceProcessing( $governance_rules['rules'] );
+			$nested_settings_and_css      = $nested_governance_processing->get_nested_settings_and_css();
 		}
 
-		if ( empty( $interactive_settings_and_css ) && ! $governance_errors ) {
+		if ( empty( $nested_settings_and_css ) && ! $governance_errors ) {
 			return;
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings'      => isset( $interactive_settings_and_css['settings'] ) ? $interactive_settings_and_css['settings'] : array(),
+			'nestedSettings'      => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
 			'nestedSettingsError' => $governance_errors,
 		]);
 
@@ -55,11 +55,11 @@ class InitGovernance {
 		$governance_rules = self::get_governance_rules();
 
 		if ( ! isset( $governance_rules['error'] ) ) {
-			$interactions                 = new Interactions( $governance_rules['rules'] );
-			$interactive_settings_and_css = $interactions->get_interactive_settings();
+			$nested_governance_processing = new NestedGovernanceProcessing( $governance_rules['rules'] );
+			$nested_settings_and_css      = $nested_governance_processing->get_nested_settings_and_css();
 		}
 
-		if ( isset( $interactive_settings_and_css['css'] ) ) {
+		if ( isset( $nested_settings_and_css['css'] ) ) {
 			wp_register_style(
 				'wpcomvip-governance',
 				WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
@@ -67,7 +67,7 @@ class InitGovernance {
 				WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 			);
 
-			wp_add_inline_style( 'wpcomvip-governance', $interactive_settings_and_css['css'] );
+			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
 
 			wp_enqueue_style( 'wpcomvip-governance' );
 		}
