@@ -9,20 +9,20 @@ use WP_Block_Type_Registry;
 defined( 'ABSPATH' ) || die();
 
 class NestedGovernanceProcessing {
-	protected $governance_rules;
-	
-	public function __construct( $governance_rules ) {
-		$this->governance_rules = $governance_rules;
+	private static $nested_settings_and_css = null;
+
+	public static function get_nested_settings_and_css( $governance_rules ) {
+		if ( null !== self::$nested_settings_and_css ) {
+			return self::$nested_settings_and_css;
+		}
+
+		$setting_nodes                 = self::get_nested_setting_nodes( $governance_rules );
+		self::$nested_settings_and_css = self::apply_settings_transformations( $governance_rules, $setting_nodes );
+
+		return self::$nested_settings_and_css;
 	}
 
-	public function get_nested_settings_and_css() {
-		$setting_nodes           = $this->get_nested_setting_nodes( $this->governance_rules );
-		$nested_settings_and_css = $this->apply_settings_transformations( $this->governance_rules, $setting_nodes );
-
-		return $nested_settings_and_css;
-	}
-
-	private function get_preset_classes( $theme_json, $setting_nodes, $origins ) {
+	protected static function get_preset_classes( $theme_json, $setting_nodes, $origins ) {
 		$preset_rules = '';
 
 		foreach ( $setting_nodes as $metadata ) {
@@ -32,13 +32,13 @@ class NestedGovernanceProcessing {
 
 			$selector      = $metadata['selector'];
 			$node          = _wp_array_get( $theme_json, $metadata['path'], array() );
-			$preset_rules .= $this->compute_preset_classes( $node, $selector, $origins );
+			$preset_rules .= self::compute_preset_classes( $node, $selector, $origins );
 		}
 
 		return $preset_rules;
 	}
 
-	private function append_to_selector( $selector, $to_append, $position = 'right' ) {
+	protected static function append_to_selector( $selector, $to_append, $position = 'right' ) {
 		$new_selectors = array();
 		$selectors     = explode( ',', $selector );
 		foreach ( $selectors as $sel ) {
@@ -47,7 +47,7 @@ class NestedGovernanceProcessing {
 		return implode( ',', $new_selectors );
 	}
 
-	private function compute_preset_classes( $settings, $selector, $origins ) {
+	protected static function compute_preset_classes( $settings, $selector, $origins ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata    = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 			$root_block_selector = WP_Theme_JSON_Gutenberg::ROOT_BLOCK_SELECTOR;
@@ -64,13 +64,13 @@ class NestedGovernanceProcessing {
 
 		$stylesheet = '';
 		foreach ( $presets_metadata as $preset_metadata ) {
-			$slugs = $this->get_settings_slugs( $settings, $preset_metadata, $origins );
+			$slugs = self::get_settings_slugs( $settings, $preset_metadata, $origins );
 			foreach ( $preset_metadata['classes'] as $class => $property ) {
 				foreach ( $slugs as $slug ) {
-					$css_var     = $this->replace_slug_in_string( $preset_metadata['css_vars'], $slug );
-					$class_name  = $this->replace_slug_in_string( $class, $slug );
-					$stylesheet .= $this->to_ruleset(
-						$this->append_to_selector( $selector, $class_name ),
+					$css_var     = self::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
+					$class_name  = self::replace_slug_in_string( $class, $slug );
+					$stylesheet .= self::to_ruleset(
+						self::append_to_selector( $selector, $class_name ),
 						array(
 							array(
 								'name'  => $property,
@@ -85,7 +85,7 @@ class NestedGovernanceProcessing {
 		return $stylesheet;
 	}
 
-	private function get_settings_slugs( $settings, $preset_metadata, $origins ) {
+	protected static function get_settings_slugs( $settings, $preset_metadata, $origins ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
 
 		$result = array();
@@ -103,7 +103,7 @@ class NestedGovernanceProcessing {
 		return $result;
 	}
 
-	private function get_css_variables( $theme_json, $nodes, $origins ) {
+	protected static function get_css_variables( $theme_json, $nodes, $origins ) {
 		$stylesheet = '';
 		foreach ( $nodes as $metadata ) {
 			if ( null === $metadata['selector'] ) {
@@ -113,15 +113,15 @@ class NestedGovernanceProcessing {
 			$selector = $metadata['selector'];
 
 			$node         = _wp_array_get( $theme_json, $metadata['path'], array() );
-			$declarations = array_merge( $this->compute_preset_vars( $node, $origins ), $this->compute_theme_vars( $node ) );
+			$declarations = array_merge( self::compute_preset_vars( $node, $origins ), self::compute_theme_vars( $node ) );
 
-			$stylesheet .= $this->to_ruleset( $selector, $declarations );
+			$stylesheet .= self::to_ruleset( $selector, $declarations );
 		}
 
 		return $stylesheet;
 	}
 
-	private function compute_preset_vars( $settings, $origins ) {
+	protected static function compute_preset_vars( $settings, $origins ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
@@ -130,10 +130,10 @@ class NestedGovernanceProcessing {
 
 		$declarations = array();
 		foreach ( $presets_metadata as $preset_metadata ) {
-			$values_by_slug = $this->get_settings_values_by_slug( $settings, $preset_metadata, $origins );
+			$values_by_slug = self::get_settings_values_by_slug( $settings, $preset_metadata, $origins );
 			foreach ( $values_by_slug as $slug => $value ) {
 				$declarations[] = array(
-					'name'  => $this->replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
+					'name'  => self::replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
 					'value' => $value,
 				);
 			}
@@ -142,10 +142,10 @@ class NestedGovernanceProcessing {
 		return $declarations;
 	}
 
-	private function compute_theme_vars( $settings ) {
+	protected static function compute_theme_vars( $settings ) {
 		$declarations  = array();
 		$custom_values = _wp_array_get( $settings, array( 'custom' ), array() );
-		$css_vars      = $this->flatten_tree( $custom_values );
+		$css_vars      = self::flatten_tree( $custom_values );
 		foreach ( $css_vars as $key => $value ) {
 			$declarations[] = array(
 				'name'  => '--wp--custom--' . $key,
@@ -156,7 +156,7 @@ class NestedGovernanceProcessing {
 		return $declarations;
 	}
 
-	private function flatten_tree( $tree, $prefix = '', $token = '--' ) {
+	protected static function flatten_tree( $tree, $prefix = '', $token = '--' ) {
 		$result = array();
 		foreach ( $tree as $property => $value ) {
 			$new_key = $prefix . str_replace(
@@ -169,7 +169,7 @@ class NestedGovernanceProcessing {
 				$new_prefix = $new_key . $token;
 				$result     = array_merge(
 					$result,
-					$this->flatten_tree( $value, $new_prefix, $token )
+					self::flatten_tree( $value, $new_prefix, $token )
 				);
 			} else {
 				$result[ $new_key ] = $value;
@@ -178,7 +178,7 @@ class NestedGovernanceProcessing {
 		return $result;
 	}
 
-	private function to_ruleset( $selector, $declarations ) {
+	protected static function to_ruleset( $selector, $declarations ) {
 		if ( empty( $declarations ) ) {
 			return '';
 		}
@@ -193,7 +193,7 @@ class NestedGovernanceProcessing {
 		return $selector . '{' . $declaration_block . '}';
 	}
 
-	private function get_settings_values_by_slug( $settings, $preset_metadata, $origins ) {
+	protected static function get_settings_values_by_slug( $settings, $preset_metadata, $origins ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
 
 		$result = array();
@@ -225,11 +225,11 @@ class NestedGovernanceProcessing {
 		return $result;
 	}
 
-	private function replace_slug_in_string( $input, $slug ) {
+	protected static function replace_slug_in_string( $input, $slug ) {
 		return strtr( $input, array( '$slug' => $slug ) );
 	}
 
-	private function apply_settings_transformations( $nested_settings, $nodes ) {
+	private static function apply_settings_transformations( $nested_settings, $nodes ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
@@ -265,9 +265,9 @@ class NestedGovernanceProcessing {
 		// Unwrap nested settings from theme.json path
 		$nested_settings = $theme_json['settings']['blocks'];
 
-		$extra_css_variables = $this->get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
+		$extra_css_variables = self::get_css_variables( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
-		$extra_css_variables .= $this->get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
+		$extra_css_variables .= self::get_preset_classes( $theme_json, $nodes, [ 'default', 'theme', 'custom' ] );
 
 		return array(
 			'settings' => $nested_settings,
@@ -295,18 +295,18 @@ class NestedGovernanceProcessing {
 	 * @param array $selectors  List of selectors per block.
 	 * @return array
 	 */
-	private function get_nested_setting_nodes( $nested_settings ) {
+	protected static function get_nested_setting_nodes( $nested_settings ) {
 		$nodes             = array();
 		$registry          = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		$valid_block_names = array_keys( $registry );
 
-		return $this->get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );
+		return self::get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );
 	}
 
 	/**
 	 * Get the CSS selector for a block using the block name
 	 */
-	private function get_css_selector_for_block( $block_name ) {
+	protected static function get_css_selector_for_block( $block_name ) {
 		$registry = WP_Block_Type_Registry::get_instance();
 		$blocks   = $registry->get_all_registered();
 
@@ -348,13 +348,13 @@ class NestedGovernanceProcessing {
 	 * @param array $current_path      The current path to the block.
 	 * @return array
 	 */
-	private function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
+	protected static function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
 		foreach ( $current_block as $block_name => $block ) {
 			if ( in_array( $block_name, $valid_block_names, true ) ) {
 
 				$selector = is_null( $current_selector ) ? null : $current_selector;
 
-				$looked_up_selector = $this->get_css_selector_for_block( $block_name );
+				$looked_up_selector = self::get_css_selector_for_block( $block_name );
 				if ( ! is_null( $looked_up_selector ) ) {
 					$selector = $selector . ' ' . $looked_up_selector;
 				}
@@ -367,7 +367,7 @@ class NestedGovernanceProcessing {
 					'selector' => $selector,
 				);
 
-				$nodes = $this->get_settings_of_blocks( $valid_block_names, $nodes, $block, $selector, $path );
+				$nodes = self::get_settings_of_blocks( $valid_block_names, $nodes, $block, $selector, $path );
 			}
 		}
 

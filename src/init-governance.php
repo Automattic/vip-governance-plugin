@@ -34,9 +34,8 @@ class InitGovernance {
 			$nested_settings_and_css = array();
 			$governance_errors       = $governance_rules['error'];
 		} else {
-			$governance_errors            = false;
-			$nested_governance_processing = new NestedGovernanceProcessing( $governance_rules['rules'] );
-			$nested_settings_and_css      = $nested_governance_processing->get_nested_settings_and_css();
+			$governance_errors       = false;
+			$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $governance_rules['rules'] );
 		}
 
 		if ( empty( $nested_settings_and_css ) && ! $governance_errors ) {
@@ -55,8 +54,7 @@ class InitGovernance {
 		$governance_rules = self::get_governance_rules();
 
 		if ( ! isset( $governance_rules['error'] ) ) {
-			$nested_governance_processing = new NestedGovernanceProcessing( $governance_rules['rules'] );
-			$nested_settings_and_css      = $nested_governance_processing->get_nested_settings_and_css();
+			$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $governance_rules['rules'] );
 		}
 
 		if ( isset( $nested_settings_and_css['css'] ) ) {
