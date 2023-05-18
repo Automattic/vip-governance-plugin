@@ -2,6 +2,7 @@
 	"core/media-text": {
 		"core/heading": {
 			"color": {
+				"text": true,
 				"palette": [
 					{
 						"color": "#ff0000",

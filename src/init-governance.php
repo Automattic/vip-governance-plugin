@@ -5,6 +5,7 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 use JsonException;
+use Exception;
 
 class InitGovernance {
 	public static function init() {
@@ -28,57 +29,48 @@ class InitGovernance {
 			true /* in_footer */
 		);
 
-		$governance_rules = self::get_governance_rules();
-
-		if ( isset( $governance_rules['error'] ) ) {
-			$nested_settings_and_css = array();
-			$governance_errors       = $governance_rules['error'];
-		} else {
-			$governance_errors       = false;
-			$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $governance_rules['rules'] );
-		}
-
-		if ( empty( $nested_settings_and_css ) && ! $governance_errors ) {
-			return;
+		try {
+			$interactions_governance_rules = self::get_governance_rules( WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME );
+			$insertion_governance_rules    = self::get_governance_rules( WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME );
+			$governance_errors             = false;
+			$nested_settings_and_css       = NestedGovernanceProcessing::get_nested_settings_and_css( $interactions_governance_rules );
+		} catch ( Exception $e ) {
+			$governance_errors = $e->getMessage();
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'nestedSettings'      => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
-			'nestedSettingsError' => $governance_errors,
+			'errors'         => $governance_errors,
+			'insertionRules' => empty( $insertion_governance_rules ) ? array() : $insertion_governance_rules,
+			'nestedSettings' => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
 		]);
 
 		wp_enqueue_script( 'wpcomvip-governance' );
 	}
 
 	public static function load_css() {
-		$governance_rules = self::get_governance_rules();
-
-		if ( ! isset( $governance_rules['error'] ) ) {
-			$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $governance_rules['rules'] );
-		}
-
-		if ( isset( $nested_settings_and_css['css'] ) ) {
+		try {
+			$interactions_governance_rules = self::get_governance_rules( WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME );
+			$nested_settings_and_css       = NestedGovernanceProcessing::get_nested_settings_and_css( $interactions_governance_rules );
 			wp_register_style(
 				'wpcomvip-governance',
 				WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
 				/* dependencies */ array(),
 				WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 			);
-
 			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
-
 			wp_enqueue_style( 'wpcomvip-governance' );
+		} catch ( Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( $e->getMessage() );
 		}
 	}
 
-	private static function get_governance_rules() {
-		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_SOURCE_FILENAME;
+	private static function get_governance_rules( $file_name ) {
+		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
 
 		if ( ! file_exists( $governance_file_path ) ) {
-			return [
-				/* translators: %s: rules file doesn't exist */
-				'error' => sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME ),
-			];
+			/* translators: %s: rules file doesn't exist */
+			throw new Exception( sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $file_name ) );
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
@@ -89,15 +81,11 @@ class InitGovernance {
 		} catch ( JsonException $e ) {
 			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
 			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Governance rules (%s) could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
-			return [
-				'error' => $error_message,
-			];
+			$error_message = sprintf( __( 'Governance rules (%s) could not be parsed', 'vip-governance' ), $file_name, $json_error );
+			throw new Exception( $error_message );
 		}
 
-		return [
-			'rules' => $governance_rules,
-		];
+		return $governance_rules;
 	}
 
 	#endregion Block filters
