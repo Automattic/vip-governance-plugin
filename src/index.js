@@ -20,8 +20,10 @@ function setup() {
 	addFilter(
 		'blockEditor.__unstableCanInsertBlockType',
 		`wpcomvip-governance/block-insertion`,
-		( canInsert, blockType, rootClientId ) => {
-			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules );
+		( canInsert, blockType, rootClientId, { getBlock } ) => {
+			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules, {
+				getBlock,
+			} );
 		},
 	);
 
@@ -53,14 +55,38 @@ function setup() {
 	);
 }
 
-const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules ) => {
+const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules, { getBlock } ) => {
 	// Returns the default value if no rules can be found
 	if ( ! insertionRules ) {
 		return canInsert;
 	}
 
-	// At the moment doesn't really do any kind of filtering
-	return canInsert;
+	const { allowed } = insertionRules;
+
+	if ( ! rootClientId ) {
+		return allowed.some( allowedBlock => allowedBlock.blockName === blockType.name );
+	}
+
+	const parentBlock = getBlock( rootClientId );
+
+	// Need a basic set of rules here
+	// 1 - for core/quote -> paragraph and citation is allowed
+	// 2 - for media/text -> image and paragraph is allowed
+
+	for ( const allowedBlock of allowed ) {
+		// This only works one layer deep, need to ensure we go n layers deep
+		// Recursion is needed here
+		if ( allowedBlock.blockName === parentBlock.name && allowedBlock.children?.length > 0 ) {
+			return allowedBlock.children.some(
+				allowedChild => allowedChild.blockName === blockType.name,
+			);
+		}
+	}
+
+	console.log( `This block ${ blockType.name } is not allowed` );
+
+	// By default do not insert it unless its allowed within the rules
+	return false;
 };
 
 const getNestedSettingPaths = ( nestedSettings, nestedMetadata = {}, currentBlock = false ) => {
