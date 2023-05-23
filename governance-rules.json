@@ -1,0 +1,27 @@
+{
+    "rules": {
+        "insertions": {
+            "allowed": [
+                {}
+            ]
+        },
+        "interactions": [
+            {
+                "core/media-text": {
+                    "core/heading": {
+                        "color": {
+                            "text": true,
+                            "palette": [
+                                {
+                                    "color": "#ff0000",
+                                    "name": "Custom red",
+                                    "slug": "custom-red"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

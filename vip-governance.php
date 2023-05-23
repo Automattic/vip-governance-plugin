@@ -30,6 +30,8 @@ if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
 	define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ );
 }
 
+define( 'WPCOMVIP_GOVERNANCE_SOURCE_FILENAME', 'governance-rules.json' );
+
 define( 'WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME', 'interactions-governance.json' );
 define( 'WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME', 'insertions-governance.json' );
 
