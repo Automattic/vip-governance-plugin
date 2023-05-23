@@ -61,29 +61,38 @@ const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules, { g
 		return canInsert;
 	}
 
+	// assume that either you will have allowed or blocked in the rules
+	// both cannot exist at the same time
 	const { allowed } = insertionRules;
 
+	// if there's no parent just go by the root level block names in the rules
 	if ( ! rootClientId ) {
 		return allowed.some( allowedBlock => allowedBlock.blockName === blockType.name );
 	}
 
 	const parentBlock = getBlock( rootClientId );
 
-	// Need a basic set of rules here
-	// 1 - for core/quote -> paragraph and citation is allowed
+	// Need a basic set of rules here for some blocks
+	// 1 - for core/quote -> paragraph is allowed
 	// 2 - for media/text -> image and paragraph is allowed
+	if ( parentBlock.name === 'core/quote' && blockType.name === 'core/paragraph' ) {
+		return canInsert;
+	} else if (
+		parentBlock.name === 'core/media-text' &&
+		blockType.name in [ 'core/image', 'core/paragraph' ]
+	) {
+		return canInsert;
+	}
 
+	// Go over the allowed blocks and match up to what's being inserted
 	for ( const allowedBlock of allowed ) {
-		// This only works one layer deep, need to ensure we go n layers deep
-		// Recursion is needed here
+		// This currently goes one layer deep, but we can make it recursive if needed
 		if ( allowedBlock.blockName === parentBlock.name && allowedBlock.children?.length > 0 ) {
 			return allowedBlock.children.some(
 				allowedChild => allowedChild.blockName === blockType.name,
 			);
 		}
 	}
-
-	console.log( `This block ${ blockType.name } is not allowed` );
 
 	// By default do not insert it unless its allowed within the rules
 	return false;
