@@ -63,18 +63,22 @@ const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules, { g
 
 	// assume that either you will have allowed or blocked in the rules
 	// both cannot exist at the same time
-	const { allowed } = insertionRules;
+	const isInAllowedMode = insertionRules.allowed ? true : false;
 
 	// if there's no parent just go by the root level block names in the rules
 	if ( ! rootClientId ) {
-		return allowed.some( allowedBlock => allowedBlock.blockName === blockType.name );
+		return isRootBlockAllowed(
+			blockType.name,
+			insertionRules[ isInAllowedMode ? 'allowed' : 'blocked' ],
+			isInAllowedMode,
+		);
 	}
 
 	const parentBlock = getBlock( rootClientId );
 
 	// Need a basic set of rules here for some blocks
-	// 1 - for core/quote -> paragraph is allowed
-	// 2 - for media/text -> image and paragraph is allowed
+	// 1 - for core/quote -> paragraph is always allowed
+	// 2 - for media/text -> image and paragraph is always allowed
 	if ( parentBlock.name === 'core/quote' && blockType.name === 'core/paragraph' ) {
 		return canInsert;
 	} else if (
@@ -85,17 +89,22 @@ const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules, { g
 	}
 
 	// Go over the allowed blocks and match up to what's being inserted
-	for ( const allowedBlock of allowed ) {
-		// This currently goes one layer deep, but we can make it recursive if needed
-		if ( allowedBlock.blockName === parentBlock.name && allowedBlock.children?.length > 0 ) {
-			return allowedBlock.children.some(
-				allowedChild => allowedChild.blockName === blockType.name,
-			);
+	for ( const ruleBlock of isInAllowedMode ? insertionRules.allowed : insertionRules.blocked ) {
+		if ( ruleBlock.blockName === parentBlock.name && ruleBlock.children?.length > 0 ) {
+			return isRootBlockAllowed( blockType.name, ruleBlock.children, isInAllowedMode );
 		}
 	}
 
-	// By default do not insert it unless its allowed within the rules
-	return false;
+	// By default, for allowed its false and for blocked its true
+	return ! isInAllowedMode;
+};
+
+const isRootBlockAllowed = ( blockName, rules, isInAllowedMode ) => {
+	if ( isInAllowedMode ) {
+		return rules.some( rule => rule.blockName === blockName );
+	}
+
+	return ! rules.some( rule => rule.blockName === blockName && ! rule.children );
 };
 
 const getNestedSettingPaths = ( nestedSettings, nestedMetadata = {}, currentBlock = false ) => {
