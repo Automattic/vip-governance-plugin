@@ -65,49 +65,6 @@ class InitGovernance {
 		}
 	}
 
-	private static function get_combined_governance_rules() {
-		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_SOURCE_FILENAME;
-
-		if ( ! file_exists( $governance_file_path ) ) {
-			/* translators: %s: rules file doesn't exist */
-			throw new Exception( sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME ) );
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
-		$governance_rules_json = file_get_contents( $governance_file_path );
-
-		try {
-			$governance_rules = json_decode( $governance_rules_json, /* associative */ true, /* depth */ 512, /* flags */ JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Governance rules (%s) could not be parsed', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME, $json_error );
-			throw new Exception( $error_message );
-		}
-
-		// check if json has rules set at the root
-		if ( ! isset( $governance_rules['rules'] ) ) {
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Governance rules (%s) are not in the correct format', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
-			throw new Exception( $error_message );
-		}
-
-		// check if under the rules property in json, insertions or interactions exist
-		if ( ! isset( $governance_rules['rules']['insertions'] ) && ! isset( $governance_rules['rules']['interactions'] ) ) {
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Governance rules (%s) are not in the correct format', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
-			throw new Exception( $error_message );
-		}
-
-		if ( isset( $governance_rules['rules']['insertions'] ) && ( ! isset( $governance_rules['rules']['insertions']['allowed'] ) && ! isset( $governance_rules['rules']['insertions']['blocked'] ) ) ) {
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Governance rules (%s) are not in the correct format', 'vip-governance' ), WPCOMVIP_GOVERNANCE_SOURCE_FILENAME );
-			throw new Exception( $error_message );
-		}
-
-		return $governance_rules;
-	}
-
 	private static function get_governance_rules( $file_name ) {
 		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
 
