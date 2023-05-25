@@ -1,0 +1,12 @@
+{
+	"blockLockingRules": [
+		{
+			"capability": "edit_blocks_photography",
+			"ruleType": "allow",
+			"allowedBlocks": [
+				"core/image",
+				"core/gallery"
+			]
+		}
+	]
+}

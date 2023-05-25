@@ -36,3 +36,4 @@ define( 'WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME', 'insertions-governance
 require_once __DIR__ . '/src/init-governance.php';
 
 require_once __DIR__ . '/src/interactions/nested-governance-processing.php';
+require_once __DIR__ . '/src/interactions/block-locking.php';

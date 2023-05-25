@@ -4,6 +4,55 @@ import { select, dispatch } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { store as noticeStore } from '@wordpress/notices';
 
+import { Disabled } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+
+const withDisabledBlocks = createHigherOrderComponent( ( BlockEdit ) => {
+	return ( props ) => {
+		const isMedia = [ 'core/image', 'core/gallery' ].includes( props.name );
+
+		if ( isMedia ) {
+			return <BlockEdit { ...props } />;
+		} else {
+			return (
+				<Disabled>
+					<div style={ { opacity: 0.6, 'background-color': '#eee', border: '2px dashed #999' } }>
+						<BlockEdit { ...props } />
+					</div>
+				</Disabled>
+			);
+		}
+	};
+}, 'withDisabledBlocks' );
+
+wp.hooks.addFilter(
+	'editor.BlockEdit',
+	'wpcomvip-governance/with-disabled-blocks',
+	withDisabledBlocks
+);
+
+const withLockAttribute = ( blockAttributes, blockType, innerHTML, attributes ) => {
+	const isMedia = [ 'core/image', 'core/gallery' ].includes( blockType );
+
+	if ( isMedia ) {
+		return blockAttributes;
+	} else {
+		return {
+			...blockAttributes,
+			"lock": {
+				"move": true,
+				"remove": true,
+			}
+		}
+	}
+};
+
+wp.hooks.addFilter(
+	'blocks.getBlockAttributes',
+	'wpcomvip-governance/with-disabled-move',
+	withLockAttribute
+);
+
 function setup() {
 	if ( VIP_GOVERNANCE.errors ) {
 		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.errors, {
