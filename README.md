@@ -1,6 +1,94 @@
 # VIP Governance plugin
 
-This is a plugin that's meant to add in Governance features into Gutenberg. At the moment, it adds the ability to style nested blocks using a file called `insteractions-governance.json` at the root of the plugin itself.
+This is a plugin meant to enhance Gutenberg to add in governance features, that will provide the following:
+
+- Control the styling available for nested blocks.
+- Control the blocks that are allowed to be inserted, including the children as well.
+
+## Requirements
+
+This plugin requires 2 files at the moment:
+
+`insertions-governance.json`
+
+The format for this can be in two ways:
+
+This format allows you to specify what blocks are allowed. Everything not mentioned here will be blocked.
+
+```json
+{
+    "allowed": [
+        {
+            "blockName": "core/quote",
+            "children": [
+                {
+                    "blockName": "core/paragraph"
+                }
+            ]
+        },
+        {
+            "blockName": "core/paragraph"
+        },
+        {
+            "blockName": "core/heading"
+        },
+        {
+            "blockName": "core/media-text",
+            "children": [
+                {
+                    "blockName": "core/paragraph"
+                },
+                {
+                    "blockName": "core/heading"
+                }
+            ]
+        }
+    ]
+}
+```
+
+This format allows you to specify what blocks are blocked. Everything not mentioned here will be allowed. 
+
+Note: Specifying the children here means that the block itself is allowed, but there's restrictions on what children are allowed within that block.
+
+```json
+{
+    "blocked": [
+        {
+            "blockName": "core/quote"
+        },
+        {
+            "blockName": "core/media-text",
+            "children": [
+                {
+                    "blockName": "core/quote"
+                }
+            ]
+        }
+    ]
+}
+```
+
+`interactions-governance.json`
+
+```json
+{
+	"core/media-text": {
+		"core/heading": {
+			"color": {
+				"text": true,
+				"palette": [
+					{
+						"color": "#ff0000",
+						"name": "Custom red",
+						"slug": "custom-red"
+					}
+				]
+			}
+		}
+	}
+}
+```
 
 ## Setup
 
@@ -13,5 +101,3 @@ $ npm run build
 # For watching and building on change:
 $ npm start
 ```
-
-Ensure that both Gutenberg and this plugin are then activated for your site.

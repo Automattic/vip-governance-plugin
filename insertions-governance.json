@@ -1,1 +1,29 @@
-{}
+{
+    "allowed": [
+        {
+            "blockName": "core/quote",
+            "children": [
+                {
+                    "blockName": "core/paragraph"
+                }
+            ]
+        },
+        {
+            "blockName": "core/paragraph"
+        },
+        {
+            "blockName": "core/heading"
+        },
+        {
+            "blockName": "core/media-text",
+            "children": [
+                {
+                    "blockName": "core/paragraph"
+                },
+                {
+                    "blockName": "core/heading"
+                }
+            ]
+        }
+    ]
+}
