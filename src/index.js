@@ -57,7 +57,7 @@ function setup() {
 
 const isBlockAllowed = ( canInsert, blockType, rootClientId, insertionRules, { getBlock } ) => {
 	// Returns the default value if no rules can be found
-	if ( ! insertionRules ) {
+	if ( ! insertionRules || insertionRules.length === 0 ) {
 		return canInsert;
 	}
 
