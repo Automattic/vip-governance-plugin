@@ -89,7 +89,7 @@ class InitGovernance {
 	}
 
 	private static function get_rules_for_user( $governance_rules ) {
-		if ( empty( $governance_rules ) && isset( $governance_rules['rules'] ) ) {
+		if ( empty( $governance_rules ) || ! isset( $governance_rules['rules'] ) ) {
 			return array();
 		}
 
@@ -100,7 +100,6 @@ class InitGovernance {
 			return isset( $rule['role'] ) && 'insertion' === $rule['type'] && array_intersect( $user_roles, $rule['role'] );
 		} );
 
-		// if $rules_for_user is empty then look for the array element that have no role property set on them
 		if ( empty( $rules_for_user ) ) {
 			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
 				return ! isset( $rule['role'] ) && 'insertion' === $rule['type'];
@@ -108,12 +107,12 @@ class InitGovernance {
 		}
 
 		// ToDo: give back the default set of rules which are nothing is allowed exception core blocks
-
-		return array_map( function( $rule ) {
+		// ToDo: Do this efficiently because this is bad if the rules array is huge
+		return array_values(array_map( function( $rule ) {
 			unset( $rule['type'] );
 			unset( $rule['role'] );
 			return $rule;
-		}, $rules_for_user );
+		}, $rules_for_user ));
 	}
 
 	#endregion Block filters

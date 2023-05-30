@@ -23,7 +23,8 @@ function setup() {
 		'blockEditor.__unstableCanInsertBlockType',
 		`wpcomvip-governance/block-insertion`,
 		( canInsert, blockType, rootClientId, { getBlock } ) => {
-			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules, {
+			// ToDo: Expand this to handle multiple rules per user
+			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules[ 0 ], {
 				getBlock,
 			} );
 		},
