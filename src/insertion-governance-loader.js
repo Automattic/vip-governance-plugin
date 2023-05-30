@@ -5,6 +5,8 @@ export const isBlockAllowed = (
 	insertionRules,
 	{ getBlock },
 ) => {
+	console.log( insertionRules );
+
 	// Returns the default value if no rules can be found
 	if ( ! insertionRules || insertionRules.length === 0 ) {
 		return canInsert;
