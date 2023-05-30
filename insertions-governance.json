@@ -2,7 +2,7 @@
     "rules": [
         {
             "type": "insertion",
-            "role": [
+            "roles": [
                 "editor",
                 "author"
             ],

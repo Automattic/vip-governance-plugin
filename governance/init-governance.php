@@ -97,12 +97,12 @@ class InitGovernance {
 		$user_roles   = $current_user->roles;
 
 		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
-			return isset( $rule['role'] ) && 'insertion' === $rule['type'] && array_intersect( $user_roles, $rule['role'] );
+			return isset( $rule['roles'] ) && 'insertion' === $rule['type'] && array_intersect( $user_roles, $rule['roles'] );
 		} );
 
 		if ( empty( $rules_for_user ) ) {
 			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
-				return ! isset( $rule['role'] ) && 'insertion' === $rule['type'];
+				return ! isset( $rule['roles'] ) && 'insertion' === $rule['type'];
 			} );
 		}
 
@@ -110,7 +110,7 @@ class InitGovernance {
 		// ToDo: Do this efficiently because this is bad if the rules array is huge
 		return array_values(array_map( function( $rule ) {
 			unset( $rule['type'] );
-			unset( $rule['role'] );
+			unset( $rule['roles'] );
 			return $rule;
 		}, $rules_for_user ));
 	}
