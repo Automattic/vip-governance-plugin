@@ -1,12 +1,12 @@
 <?php
 
-namespace WPCOMVIP\Governance\Interactions;
+namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
 class BlockLocking {
-	private static $is_lockdown_mode = false;
-	private static $allowed_blocks   = [
+	public static $is_lockdown_mode = false;
+	public static $allowed_blocks   = [
 		'core/image',
 		'core/gallery',
 	];
@@ -28,7 +28,7 @@ class BlockLocking {
 		return $settings;
 	}
 
-	public static function lockdown_allowed_block_types( $settings, $context ) {
+	public static function lockdown_allowed_block_types() {
 		return self::$allowed_blocks;
 	}
 }
