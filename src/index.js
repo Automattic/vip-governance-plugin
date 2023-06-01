@@ -5,6 +5,7 @@ import { store as noticeStore } from '@wordpress/notices';
 
 import { getNestedSettingPaths, getNestedSetting } from './nested-governance-loader';
 import { isBlockAllowed } from './insertion-governance-loader';
+import { setupBlockLocking } from './block-locking';
 
 function setup() {
 	if ( VIP_GOVERNANCE.errors ) {
@@ -55,6 +56,11 @@ function setup() {
 			return result;
 		},
 	);
+
+	// Block locking
+	if ( VIP_GOVERNANCE.isLockdownMode ) {
+		setupBlockLocking( VIP_GOVERNANCE.allowedBlocks );
+	}
 }
 
 setup();
