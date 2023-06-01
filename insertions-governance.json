@@ -1,56 +1,24 @@
 {
     "rules": [
         {
-            "type": "insertion",
             "roles": [
                 "editor",
                 "author"
             ],
             "allowed": [
-                {
-                    "blockName": "core/quote",
-                    "children": [
-                        {
-                            "blockName": "core/paragraph"
-                        }
-                    ]
-                },
-                {
-                    "blockName": "core/paragraph"
-                },
-                {
-                    "blockName": "core/heading"
-                },
-                {
-                    "blockName": "core/media-text",
-                    "children": [
-                        {
-                            "blockName": "core/paragraph"
-                        },
-                        {
-                            "blockName": "core/heading"
-                        }
-                    ]
-                }
+                "core/quote",
+                "core/paragraph",
+                "core/heading",
+                "core/media-text",
+                "core/image"
             ]
         },
         {
-            "type": "insertion",
             "allowed": [
-                {
-                    "blockName": "core/quote",
-                    "children": [
-                        {
-                            "blockName": "core/paragraph"
-                        }
-                    ]
-                },
-                {
-                    "blockName": "core/paragraph"
-                },
-                {
-                    "blockName": "core/heading"
-                }
+                "core/quote",
+                "core/paragraph",
+                "core/heading",
+                "core/image"
             ]
         }
     ]

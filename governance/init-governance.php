@@ -97,19 +97,18 @@ class InitGovernance {
 		$user_roles   = $current_user->roles;
 
 		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
-			return isset( $rule['roles'] ) && 'insertion' === $rule['type'] && array_intersect( $user_roles, $rule['roles'] );
+			return isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
 		} );
 
 		if ( empty( $rules_for_user ) ) {
 			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
-				return ! isset( $rule['roles'] ) && 'insertion' === $rule['type'];
+				return ! isset( $rule['roles'] );
 			} );
 		}
 
 		// ToDo: give back the default set of rules which are nothing is allowed exception core blocks
 		// ToDo: Do this efficiently because this is bad if the rules array is huge
 		return array_values(array_map( function( $rule ) {
-			unset( $rule['type'] );
 			unset( $rule['roles'] );
 			return $rule;
 		}, $rules_for_user ));
