@@ -1,6 +1,7 @@
 {
     "rules": [
         {
+            "type": "role",
             "roles": [
                 "editor",
                 "author"
@@ -14,6 +15,7 @@
             ]
         },
         {
+            "type": "default",
             "allowed": [
                 "core/quote",
                 "core/paragraph",

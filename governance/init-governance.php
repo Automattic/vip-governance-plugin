@@ -101,12 +101,13 @@ class InitGovernance {
 		$user_roles   = $current_user->roles;
 
 		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
-			return isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
+			$is_role_rule = isset( $rule['type'] ) && 'role' === $rule['type'];
+			return $is_role_rule && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
 		} );
 
 		if ( empty( $rules_for_user ) ) {
 			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
-				return ! isset( $rule['roles'] );
+				return isset( $rule['type'] ) && 'default' === $rule['type'];
 			} );
 		}
 
