@@ -4,6 +4,7 @@ module.exports = {
 	extends: [
 		'plugin:@automattic/wpvip/javascript',
 		'plugin:@automattic/wpvip/formatting',
+		'plugin:@automattic/wpvip/react',
 		'plugin:@automattic/wpvip/prettier',
 	],
 	globals: {

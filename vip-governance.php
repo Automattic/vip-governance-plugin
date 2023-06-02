@@ -34,5 +34,5 @@ define( 'WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME', 'interactions-govern
 define( 'WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME', 'insertions-governance.json' );
 
 require_once __DIR__ . '/governance/init-governance.php';
-
 require_once __DIR__ . '/governance/nested-governance-processing.php';
+require_once __DIR__ . '/governance/block-locking.php';

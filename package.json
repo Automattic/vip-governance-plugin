@@ -7,6 +7,8 @@
 	"devDependencies": {
 		"@automattic/eslint-plugin-wpvip": "0.5.4",
 		"@wordpress/block-editor": "^12.1.0",
+		"@wordpress/components": "^25.0.0",
+		"@wordpress/compose": "^6.11.0",
 		"@wordpress/data": "^9.3.0",
 		"@wordpress/hooks": "^3.33.0",
 		"@wordpress/notices": "^4.1.0",
