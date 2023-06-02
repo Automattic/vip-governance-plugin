@@ -1,28 +1,26 @@
 {
-    "allowed": [
+    "rules": [
         {
-            "blockName": "core/quote",
-            "children": [
-                {
-                    "blockName": "core/paragraph"
-                }
+            "type": "role",
+            "roles": [
+                "editor",
+                "author"
+            ],
+            "allowed": [
+                "core/quote",
+                "core/paragraph",
+                "core/heading",
+                "core/media-text",
+                "core/image"
             ]
         },
         {
-            "blockName": "core/paragraph"
-        },
-        {
-            "blockName": "core/heading"
-        },
-        {
-            "blockName": "core/media-text",
-            "children": [
-                {
-                    "blockName": "core/paragraph"
-                },
-                {
-                    "blockName": "core/heading"
-                }
+            "type": "default",
+            "allowed": [
+                "core/quote",
+                "core/paragraph",
+                "core/heading",
+                "core/image"
             ]
         }
     ]

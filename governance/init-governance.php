@@ -40,7 +40,7 @@ class InitGovernance {
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
 			'errors'         => $governance_errors,
-			'insertionRules' => empty( $insertion_governance_rules ) ? array() : $insertion_governance_rules,
+			'insertionRules' => self::get_rules_for_user( $insertion_governance_rules ),
 			'nestedSettings' => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
 
 			// Temporary hardcoded block locking settings
@@ -90,6 +90,33 @@ class InitGovernance {
 		}
 
 		return $governance_rules;
+	}
+
+	private static function get_rules_for_user( $governance_rules ) {
+		if ( empty( $governance_rules ) || ! isset( $governance_rules['rules'] ) ) {
+			return array();
+		}
+
+		$current_user = wp_get_current_user();
+		$user_roles   = $current_user->roles;
+
+		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
+			$is_role_rule = isset( $rule['type'] ) && 'role' === $rule['type'];
+			return $is_role_rule && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
+		} );
+
+		if ( empty( $rules_for_user ) ) {
+			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
+				return isset( $rule['type'] ) && 'default' === $rule['type'];
+			} );
+		}
+
+		// ToDo: give back the default set of rules which are nothing is allowed exception core blocks
+		// ToDo: Do this efficiently because this is bad if the rules array is huge
+		return array_values(array_map( function( $rule ) {
+			unset( $rule['roles'] );
+			return $rule;
+		}, $rules_for_user ));
 	}
 
 	#endregion Block filters

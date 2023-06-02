@@ -23,6 +23,25 @@ export const isBlockAllowed = (
 		);
 	}
 
+	// if there is a parent, allow the default set otherwise do the root check again
+	return isParentBlockAllowed(
+		rootClientId,
+		blockType,
+		getBlock,
+		canInsert,
+		isInAllowedMode,
+		insertionRules[ isInAllowedMode ? 'allowed' : 'blocked' ],
+	);
+};
+
+function isParentBlockAllowed(
+	rootClientId,
+	blockType,
+	getBlock,
+	canInsert,
+	isInAllowedMode,
+	rules,
+) {
 	const parentBlock = getBlock( rootClientId );
 
 	// Need a basic set of rules here for some blocks
@@ -37,21 +56,11 @@ export const isBlockAllowed = (
 		return canInsert;
 	}
 
-	// Go over the allowed blocks and match up to what's being inserted
-	for ( const ruleBlock of isInAllowedMode ? insertionRules.allowed : insertionRules.blocked ) {
-		if ( ruleBlock.blockName === parentBlock.name && ruleBlock.children?.length > 0 ) {
-			return isRootBlockAllowed( blockType.name, ruleBlock.children, isInAllowedMode );
-		}
-	}
+	return isRootBlockAllowed( blockType.name, rules, isInAllowedMode );
+}
 
-	// By default, for allowed its false and for blocked its true
-	return ! isInAllowedMode;
-};
+function isRootBlockAllowed( blockName, rules, isInAllowedMode ) {
+	const isBlockInRules = rules.some( rule => rule === blockName );
 
-export const isRootBlockAllowed = ( blockName, rules, isInAllowedMode ) => {
-	if ( isInAllowedMode ) {
-		return rules.some( rule => rule.blockName === blockName );
-	}
-
-	return ! rules.some( rule => rule.blockName === blockName && ! rule.children );
-};
+	return isInAllowedMode ? isBlockInRules : ! isBlockInRules;
+}
