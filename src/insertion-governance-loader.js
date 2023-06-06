@@ -10,8 +10,6 @@ export const isBlockAllowed = (
 		return canInsert;
 	}
 
-	let updatedCanInsert = canInsert;
-
 	// ToDo: Is it okay to have the canInsert value be overriden between rules, or should it be rejected via some validation?
 	insertionRules.forEach( insertionRule => {
 		// assume that either you will have allowed or blocked in the rules
@@ -20,25 +18,24 @@ export const isBlockAllowed = (
 
 		// if there's no parent just go by the root level block names in the rules
 		if ( ! rootClientId ) {
-			updatedCanInsert = isRootBlockAllowed(
+			canInsert = isRootBlockAllowed(
 				blockType.name,
 				insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ],
 				isInAllowedMode
 			);
+		} else {
+			canInsert = isParentBlockAllowed(
+				rootClientId,
+				blockType,
+				getBlock,
+				canInsert,
+				isInAllowedMode,
+				insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ]
+			);
 		}
-
-		// if there is a parent, allow the default set otherwise do the root check again
-		updatedCanInsert = isParentBlockAllowed(
-			rootClientId,
-			blockType,
-			getBlock,
-			updatedCanInsert,
-			isInAllowedMode,
-			insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ]
-		);
 	} );
 
-	return updatedCanInsert;
+	return canInsert;
 };
 
 function isParentBlockAllowed(

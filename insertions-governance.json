@@ -4,7 +4,7 @@
             "type": "role",
             "roles": [
                 "editor",
-                "author"
+                "administrator"
             ],
             "allowed": [
                 "core/quote",
