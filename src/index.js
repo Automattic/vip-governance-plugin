@@ -27,7 +27,7 @@ function setup() {
 			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules, {
 				getBlock,
 			} );
-		},
+		}
 	);
 
 	addFilter(
@@ -54,7 +54,7 @@ function setup() {
 			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
 			return result;
-		},
+		}
 	);
 
 	// Block locking

@@ -3,7 +3,7 @@ export const isBlockAllowed = (
 	blockType,
 	rootClientId,
 	insertionRules,
-	{ getBlock },
+	{ getBlock }
 ) => {
 	// Returns the default value if no rules can be found
 	if ( ! insertionRules || insertionRules.length === 0 ) {
@@ -23,7 +23,7 @@ export const isBlockAllowed = (
 			updatedCanInsert = isRootBlockAllowed(
 				blockType.name,
 				insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ],
-				isInAllowedMode,
+				isInAllowedMode
 			);
 		}
 
@@ -34,7 +34,7 @@ export const isBlockAllowed = (
 			getBlock,
 			updatedCanInsert,
 			isInAllowedMode,
-			insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ],
+			insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ]
 		);
 	} );
 
@@ -47,7 +47,7 @@ function isParentBlockAllowed(
 	getBlock,
 	canInsert,
 	isInAllowedMode,
-	rules,
+	rules
 ) {
 	const parentBlock = getBlock( rootClientId );
 

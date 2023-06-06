@@ -5,7 +5,7 @@
 	"author": "VIP Bistro",
 	"main": "build/index.js",
 	"devDependencies": {
-		"@automattic/eslint-plugin-wpvip": "0.5.4",
+		"@automattic/eslint-plugin-wpvip": "0.5.6",
 		"@wordpress/block-editor": "^12.1.0",
 		"@wordpress/components": "^25.0.0",
 		"@wordpress/compose": "^6.11.0",
@@ -23,7 +23,7 @@
 	"scripts": {
 		"lint:js": "eslint . --ext .js",
 		"build": "wp-scripts build ./src/index.js",
-		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' > /dev/null",
+		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' '!build' > /dev/null",
 		"phpcs": "vendor/bin/phpcs --cache",
 		"phpcs:fix": "vendor/bin/phpcbf",
 		"lint": "npm run phplint && npm run phpcs && npm run lint:js",

@@ -3,7 +3,7 @@ import { get } from 'lodash';
 export const getNestedSettingPaths = (
 	nestedSettings,
 	nestedMetadata = {},
-	currentBlock = false,
+	currentBlock = false
 ) => {
 	for ( const [ settingKey, settingValue ] of Object.entries( nestedSettings ) ) {
 		const isNestedBlock = settingKey.includes( '/' );
@@ -74,7 +74,7 @@ export const getNestedSetting = (
 	normalizedPath,
 	settings,
 	result = { depth: 0, value: undefined },
-	depth = 1,
+	depth = 1
 ) => {
 	const [ currentBlockName, ...remainingBlockNames ] = blockNamePath;
 	// eslint-disable-next-line security/detect-object-injection
@@ -96,7 +96,7 @@ export const getNestedSetting = (
 			normalizedPath,
 			blockSettings,
 			result,
-			depth + 1,
+			depth + 1
 		);
 	}
 
