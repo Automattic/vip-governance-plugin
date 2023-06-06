@@ -69,12 +69,20 @@ class InitGovernance {
 		}
 	}
 
+	/**
+	 * Get the governance rules from the private directory, or the plugin directory if not found.
+	 */
 	private static function get_governance_rules( $file_name ) {
-		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
+		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . $file_name;
 
+		// ToDo: Ensure before release the default rule set is just core/heading, core/image and core/paragraph
 		if ( ! file_exists( $governance_file_path ) ) {
-			/* translators: %s: rules file doesn't exist */
-			throw new Exception( sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $file_name ) );
+			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
+
+			if ( ! file_exists( $governance_file_path ) ) {
+				/* translators: %s: rules file doesn't exist */
+				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $file_name ) );
+			}
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
@@ -92,6 +100,10 @@ class InitGovernance {
 		return $governance_rules;
 	}
 
+	/**
+	 * Get the rules for the current user, with a default fallback rule set of 
+	 * allowing core/heading, core/paragraph and core/image
+	 */
 	private static function get_rules_for_user( $governance_rules ) {
 		if ( empty( $governance_rules ) || ! isset( $governance_rules['rules'] ) ) {
 			return array();
@@ -100,6 +112,7 @@ class InitGovernance {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
+		// Only get the rules where the role matches the current role of the user
 		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
 			$is_role_rule = isset( $rule['type'] ) && 'role' === $rule['type'];
 			return $is_role_rule && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
@@ -111,10 +124,15 @@ class InitGovernance {
 			} );
 		}
 
-		// ToDo: give back the default set of rules which are nothing is allowed exception core blocks
+		// If no rules are found, allow everything by default
+		if ( empty( $rules_for_user ) ) {
+			$rules_for_user = array( 'allowed' => array( 'core/heading', 'core/paragraph', 'core/image' ) );
+		}
+
 		// ToDo: Do this efficiently because this is bad if the rules array is huge
 		return array_values(array_map( function( $rule ) {
 			unset( $rule['roles'] );
+			unset( $rule['type'] );
 			return $rule;
 		}, $rules_for_user ));
 	}

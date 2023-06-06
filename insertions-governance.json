@@ -17,10 +17,7 @@
         {
             "type": "default",
             "allowed": [
-                "core/quote",
-                "core/paragraph",
-                "core/heading",
-                "core/image"
+                "core/*"
             ]
         }
     ]

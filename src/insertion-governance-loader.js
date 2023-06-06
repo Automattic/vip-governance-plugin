@@ -10,28 +10,35 @@ export const isBlockAllowed = (
 		return canInsert;
 	}
 
-	// assume that either you will have allowed or blocked in the rules
-	// both cannot exist at the same time
-	const isInAllowedMode = insertionRules.allowed ? true : false;
+	let updatedCanInsert = canInsert;
 
-	// if there's no parent just go by the root level block names in the rules
-	if ( ! rootClientId ) {
-		return isRootBlockAllowed(
-			blockType.name,
-			insertionRules[ isInAllowedMode ? 'allowed' : 'blocked' ],
+	// ToDo: Is it okay to have the canInsert value be overriden between rules, or should it be rejected via some validation?
+	insertionRules.forEach( insertionRule => {
+		// assume that either you will have allowed or blocked in the rules
+		// both cannot exist at the same time
+		const isInAllowedMode = insertionRule.allowed ? true : false;
+
+		// if there's no parent just go by the root level block names in the rules
+		if ( ! rootClientId ) {
+			updatedCanInsert = isRootBlockAllowed(
+				blockType.name,
+				insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ],
+				isInAllowedMode,
+			);
+		}
+
+		// if there is a parent, allow the default set otherwise do the root check again
+		updatedCanInsert = isParentBlockAllowed(
+			rootClientId,
+			blockType,
+			getBlock,
+			updatedCanInsert,
 			isInAllowedMode,
+			insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ],
 		);
-	}
+	} );
 
-	// if there is a parent, allow the default set otherwise do the root check again
-	return isParentBlockAllowed(
-		rootClientId,
-		blockType,
-		getBlock,
-		canInsert,
-		isInAllowedMode,
-		insertionRules[ isInAllowedMode ? 'allowed' : 'blocked' ],
-	);
+	return updatedCanInsert;
 };
 
 function isParentBlockAllowed(
@@ -60,7 +67,29 @@ function isParentBlockAllowed(
 }
 
 function isRootBlockAllowed( blockName, rules, isInAllowedMode ) {
-	const isBlockInRules = rules.some( rule => rule === blockName );
+	const isBlockInRules = rules.some( rule => matchBlockToRule( rule, blockName ) );
 
 	return isInAllowedMode ? isBlockInRules : ! isBlockInRules;
+}
+
+/**
+ * Matches a rule to a block name, with the following cases being possible:
+ *
+ * 1. ['*'] - matches all blocks
+ * 2. '*' can be located somewhere else alongside a string, e.g. 'core/*' - matches all core blocks
+ * 3. ['core/paragraph'] - matches only the core/paragraph block
+ *
+ * @param {*} rule
+ * @param {*} blockName
+ * @returns true, if the block name matches the rule or false otherwise
+ */
+function matchBlockToRule( rule, blockName ) {
+	if ( rule === '*' ) {
+		return true;
+	} else if ( rule.includes( '*' ) ) {
+		const [ stringToMatch ] = rule.split( '*' );
+		return blockName.startsWith( stringToMatch );
+	}
+
+	return rule === blockName;
 }
