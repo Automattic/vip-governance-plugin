@@ -18,15 +18,26 @@ function setup() {
 
 	const governanceRule = VIP_GOVERNANCE.governanceRule;
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
+
+	console.log( nestedSettings );
+
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
+
+	console.log( nestedSettingPaths );
 
 	addFilter(
 		'blockEditor.__unstableCanInsertBlockType',
 		`wpcomvip-governance/block-insertion`,
 		( canInsert, blockType, rootClientId, { getBlock } ) => {
-			return isBlockAllowed( canInsert, blockType, rootClientId, governanceRule, {
-				getBlock,
-			} );
+			return isBlockAllowed(
+				canInsert,
+				blockType,
+				rootClientId,
+				governanceRule.length > 0 ? governanceRule[ 0 ] : governanceRule,
+				{
+					getBlock,
+				}
+			);
 		}
 	);
 
