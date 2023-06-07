@@ -141,7 +141,7 @@ class InitGovernance {
 			unset( $rule['roles'] );
 			unset( $rule['type'] );
 			return $rule;
-		}, $rules_for_user ));
+		}, $rules_for_user ))[0];
 	}
 
 	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
@@ -164,7 +164,7 @@ class InitGovernance {
 		return array_values(array_map( function( $rule ) {
 			unset( $rule['allowedChildren'] );
 			return $rule;
-		}, $interaction_rules ));
+		}, $interaction_rules ))[0];
 	}
 
 	#endregion Block filters
