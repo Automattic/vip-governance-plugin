@@ -9,7 +9,7 @@ export const getNestedSettingPaths = (
 		const isNestedBlock = settingKey.includes( '/' );
 
 		if ( isNestedBlock ) {
-			// This setting contains another block, look at child for metadata
+			// This setting contains another block, look at the child for metadata
 			Object.entries( nestedSettings ).forEach( ( [ blockName, blockNestedSettings ] ) => {
 				getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
 			} );

@@ -5,8 +5,5 @@
     ],
     "*.js": [
         "eslint . --ext .js"
-    ],
-    "*.jsx": [
-        "eslint . --ext .jsx"
     ]
 }
