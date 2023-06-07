@@ -1,0 +1,39 @@
+{
+	"rules": [
+		{
+			"type": "role",
+			"roles": [ "editor", "administrator" ],
+			"allowedBlocks": [
+				"core/quote",
+				"core/paragraph",
+				"core/heading",
+				"core/media-text",
+				"core/image"
+			],
+			"blockSettings": {
+				"core/media-text": {
+					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
+					"core/heading": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#ff0000",
+									"name": "Custom red",
+									"slug": "custom-red"
+								}
+							]
+						}
+					}
+				},
+				"core/quote": {
+					"allowedChildren": [ "core/paragraph", "core/heading" ]
+				}
+			}
+		},
+		{
+			"type": "default",
+			"allowed": [ "core/*" ]
+		}
+	]
+}
