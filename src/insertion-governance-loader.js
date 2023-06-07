@@ -2,40 +2,36 @@ export const isBlockAllowed = (
 	canInsert,
 	blockType,
 	rootClientId,
-	insertionRules,
+	governanceRule,
 	{ getBlock }
 ) => {
 	// Returns the default value if no rules can be found
-	if ( ! insertionRules || insertionRules.length === 0 ) {
+	if ( ! governanceRule || governanceRule.length === 0 ) {
 		return canInsert;
 	}
 
-	// ToDo: Is it okay to have the canInsert value be overriden between rules, or should it be rejected via some validation?
-	insertionRules.forEach( insertionRule => {
-		// assume that either you will have allowed or blocked in the rules
-		// both cannot exist at the same time
-		const isInAllowedMode = insertionRule.allowed ? true : false;
+	// assume that either you will have allowed or blocked in the rules
+	// both cannot exist at the same time
+	const isInAllowedMode = governanceRule.allowedBlocks ? true : false;
 
-		// if there's no parent just go by the root level block names in the rules
-		if ( ! rootClientId ) {
-			canInsert = isRootBlockAllowed(
-				blockType.name,
-				insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ],
-				isInAllowedMode
-			);
-		} else {
-			canInsert = isParentBlockAllowed(
-				rootClientId,
-				blockType,
-				getBlock,
-				canInsert,
-				isInAllowedMode,
-				insertionRule[ isInAllowedMode ? 'allowed' : 'blocked' ]
-			);
-		}
-	} );
+	// if there's no parent just go by the root level block names in the rules
+	if ( ! rootClientId ) {
+		return isRootBlockAllowed(
+			blockType.name,
+			governanceRule[ isInAllowedMode ? 'allowedBlocks' : 'deniedBlocks' ],
+			isInAllowedMode
+		);
+	}
 
-	return canInsert;
+	// ToDo: Use the allowedChildren property under blockSettings to guard against nested blocks
+	return isParentBlockAllowed(
+		rootClientId,
+		blockType,
+		getBlock,
+		canInsert,
+		isInAllowedMode,
+		governanceRule[ isInAllowedMode ? 'allowedBlocks' : 'deniedBlocks' ]
+	);
 };
 
 function isParentBlockAllowed(

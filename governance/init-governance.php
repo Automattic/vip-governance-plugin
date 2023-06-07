@@ -30,17 +30,18 @@ class InitGovernance {
 		);
 
 		try {
-			$interactions_governance_rules = self::get_governance_rules( WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME );
-			$insertion_governance_rules    = self::get_governance_rules( WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME );
-			$governance_errors             = false;
-			$nested_settings_and_css       = NestedGovernanceProcessing::get_nested_settings_and_css( $interactions_governance_rules );
+			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
+			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$governance_errors           = false;
+			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 		} catch ( Exception $e ) {
 			$governance_errors = $e->getMessage();
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
 			'errors'         => $governance_errors,
-			'insertionRules' => self::get_rules_for_user( $insertion_governance_rules ),
+			'governanceRule' => $governance_rule,
 			'nestedSettings' => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
 
 			// Temporary hardcoded block locking settings
@@ -53,8 +54,10 @@ class InitGovernance {
 
 	public static function load_css() {
 		try {
-			$interactions_governance_rules = self::get_governance_rules( WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME );
-			$nested_settings_and_css       = NestedGovernanceProcessing::get_nested_settings_and_css( $interactions_governance_rules );
+			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
+			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 			wp_register_style(
 				'wpcomvip-governance',
 				WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
@@ -75,13 +78,12 @@ class InitGovernance {
 	private static function get_governance_rules( $file_name ) {
 		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . $file_name;
 
-		// ToDo: Ensure before release the default rule set is just core/heading, core/image and core/paragraph
 		if ( ! file_exists( $governance_file_path ) ) {
 			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
 
 			if ( ! file_exists( $governance_file_path ) ) {
 				/* translators: %s: rules file doesn't exist */
-				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $file_name ) );
+				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found in private, or plugin folders.', 'vip-governance' ), $file_name ) );
 			}
 		}
 
@@ -126,7 +128,12 @@ class InitGovernance {
 
 		// If no rules are found, allow everything by default
 		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array( 'allowed' => array( 'core/heading', 'core/paragraph', 'core/image' ) );
+			$rules_for_user = array( 'allowed' => array( '*' ) );
+		}
+
+		// Only keep the first rule if more than 1 is matched
+		if ( count( $rules_for_user ) > 1 ) {
+			$rules_for_user = array_slice( $rules_for_user, 0, 1 );
 		}
 
 		// ToDo: Do this efficiently because this is bad if the rules array is huge
@@ -135,6 +142,29 @@ class InitGovernance {
 			unset( $rule['type'] );
 			return $rule;
 		}, $rules_for_user ));
+	}
+
+	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
+		if ( ! isset( $governance_rules['blockSettings'] ) ) {
+			return array();
+		}
+
+		$interaction_rules = array_filter( $governance_rules['blockSettings'], function( $rule ) {
+			if ( count( $rule ) === 1 && isset( $rule['allowedChildren'] ) ) {
+				return false;
+			}
+
+			return true;
+		} );
+
+		if ( empty( $interaction_rules ) ) {
+			return array();
+		}
+
+		return array_values(array_map( function( $rule ) {
+			unset( $rule['allowedChildren'] );
+			return $rule;
+		}, $interaction_rules ));
 	}
 
 	#endregion Block filters

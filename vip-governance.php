@@ -30,8 +30,7 @@ if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
 	define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ );
 }
 
-define( 'WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME', 'interactions-governance.json' );
-define( 'WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME', 'insertions-governance.json' );
+define( 'WPCOMVIP_GOVERNANCE_RULES_FILENAME', 'governance-rules.json' );
 
 require_once __DIR__ . '/governance/init-governance.php';
 require_once __DIR__ . '/governance/nested-governance-processing.php';
