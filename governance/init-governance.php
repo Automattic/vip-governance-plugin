@@ -128,7 +128,7 @@ class InitGovernance {
 
 		// If no rules are found, allow everything by default
 		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array( 'allowed' => array( '*' ) );
+			$rules_for_user = array( 'allowedBlocks' => array( '*' ) );
 		}
 
 		// Only keep the first rule if more than 1 is matched

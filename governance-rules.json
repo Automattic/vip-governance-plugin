@@ -45,7 +45,7 @@
 		},
 		{
 			"type": "default",
-			"allowed": [ "core/*" ]
+			"allowedBlock": [ "core/*" ]
 		}
 	]
 }
