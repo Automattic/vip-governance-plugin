@@ -16,7 +16,9 @@ export const getNestedSettingPaths = (
 		if ( isNestedBlock ) {
 			// This setting contains another block, look at the child for metadata
 			Object.entries( nestedSettings ).forEach( ( [ blockName, blockNestedSettings ] ) => {
-				getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
+				if ( ! SETTINGS_TO_SKIP.includes( blockName ) ) {
+					getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
+				}
 			} );
 		} else if ( currentBlock !== false ) {
 			// This is a leaf block, add setting paths to nestedMetadata
