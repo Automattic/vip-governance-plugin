@@ -27,7 +27,19 @@
 					}
 				},
 				"core/quote": {
-					"allowedChildren": [ "core/paragraph", "core/heading" ]
+					"allowedChildren": [ "core/paragraph", "core/heading" ],
+					"core/paragraph": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#ff0000",
+									"name": "Custom red",
+									"slug": "custom-red"
+								}
+							]
+						}
+					}
 				}
 			}
 		},

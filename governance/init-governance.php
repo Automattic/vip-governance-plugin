@@ -145,26 +145,11 @@ class InitGovernance {
 	}
 
 	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
-		if ( ! isset( $governance_rules['blockSettings'] ) ) {
+		if ( ! isset( $governance_rules['blockSettings'] ) || empty( $governance_rules['blockSettings'] ) ) {
 			return array();
 		}
 
-		$interaction_rules = array_filter( $governance_rules['blockSettings'], function( $rule ) {
-			if ( count( $rule ) === 1 && isset( $rule['allowedChildren'] ) ) {
-				return false;
-			}
-
-			return true;
-		} );
-
-		if ( empty( $interaction_rules ) ) {
-			return array();
-		}
-
-		return array_values(array_map( function( $rule ) {
-			unset( $rule['allowedChildren'] );
-			return $rule;
-		}, $interaction_rules ))[0];
+		return $governance_rules['blockSettings'];
 	}
 
 	#endregion Block filters
