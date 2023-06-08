@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
+		"lint": "phpcs",
 		"phpcs": "phpcs",
 		"phpcs-fix": "phpcbf",
 		"test": "wp-env run phpunit 'phpunit -c /var/www/html/wp-content/plugins/vip-governance-plugin/phpunit.xml.dist'",
