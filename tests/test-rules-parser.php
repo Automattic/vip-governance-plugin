@@ -67,6 +67,21 @@ class RulesParserTest extends TestCase {
 		], RulesParser::parse( $rules_content ) );
 	}
 
+	public function test_validate_schema__with_default_rule_with_roles__returns_error() {
+		$rules_content = '{
+			"rules": [
+				{
+					"type": "default",
+					"roles": [ "adminstrator" ],
+					"allowed": [ "core/paragraph" ]
+				}
+			]
+		}';
+
+		// A "default"-type rule should not allow "roles" to be specified
+		$this->assertInstanceOf( 'WP_Error', RulesParser::parse( $rules_content ) );
+	}
+
 	// Utility methods
 	private function assertEqualsRules( $expected, $actual ) {
 		// Enhance assertEquals by returning unexpected WP_Error message in test failure
