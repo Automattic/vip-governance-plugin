@@ -1,9 +1,73 @@
 {
+	"title": "VIP governance rules JSON schema",
 	"$schema": "https://json-schema.org/draft-07/schema",
-	"$id": "http://example.com/example.json",
+	"definitions": {
+		"allowedBlocksArray": {
+			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
+			"type": "array",
+			"items": {
+				"type": "string",
+				"examples": [
+					"core/*",
+					"core/paragraph",
+					"core/heading"
+				]
+			}
+		},
+		"ruleDefaultProperties": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"description": "Default rule - applies additively to all users.",
+					"type": "string",
+					"enum": [ "default" ]
+				},
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				},
+				"blockSettings": {
+					"type": "object",
+					"default": {},
+					"required": [],
+					"properties": {}
+				}
+			},
+			"required": [ "type" ],
+			"additionalProperties": false
+		},
+		"ruleRoleProperties": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"description": "Role rule - applies to one or more specific roles.",
+					"type": "string",
+					"enum": [ "role" ]
+				},
+				"roles": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"examples": [
+						[ "administrator", "editor" ]
+					]
+				},
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				},
+				"blockSettings": {
+					"type": "object",
+					"default": {},
+					"required": [],
+					"properties": {}
+				}
+			},
+			"required": [ "type", "roles" ],
+			"additionalProperties": false
+		}
+	},
 	"type": "object",
 	"default": {},
-	"title": "VIP Governance Rules Schema",
 	"required": [
 		"rules"
 	],
@@ -18,56 +82,10 @@
 			"default": [],
 			"items": {
 				"type": "object",
-				"required": [
-					"type",
-					"allowedBlocks"
-				],
-				"properties": {
-					"type": {
-						"description": "Rule type (default or role)",
-						"type": "string",
-						"enum": [
-							"default",
-							"role"
-						]
-					},
-					"allowedBlocks": {
-						"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching",
-						"type": "array",
-						"items": {
-							"type": "string",
-							"examples": [
-								"core/*",
-								"core/paragraph",
-								"core/heading"
-							]
-						}
-					},
-					"roles": {
-						"type": "array",
-						"default": [],
-						"items": {
-							"type": "string",
-							"examples": [
-								"administrator",
-								"editor"
-							]
-						},
-						"examples": [
-							[
-								"editor",
-								"administrator"
-							]
-						]
-					},
-					"blockSettings": {
-						"type": "object",
-						"default": {},
-						"required": [],
-						"properties": {}
-					}
-				},
-				"additionalProperties": false
+				"oneOf": [
+					{ "$ref": "#/definitions/ruleDefaultProperties" },
+					{ "$ref": "#/definitions/ruleRoleProperties" }
+				]
 			}
 		}
 	},
