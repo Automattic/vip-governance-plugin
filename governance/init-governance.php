@@ -32,7 +32,7 @@ class InitGovernance {
 		try {
 			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
-			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$interactive_governance_rule = $governance_rule['blockSettings'];
 			$governance_errors           = false;
 			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 		} catch ( Exception $e ) {
@@ -56,7 +56,7 @@ class InitGovernance {
 		try {
 			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
-			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$interactive_governance_rule = $governance_rule['blockSettings'];
 			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 			wp_register_style(
 				'wpcomvip-governance',
@@ -114,42 +114,26 @@ class InitGovernance {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
-		// Only get the rules where the role matches the current role of the user
-		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
-			$is_role_rule = isset( $rule['type'] ) && 'role' === $rule['type'];
-			return $is_role_rule && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
-		} );
+		$allowed_blocks = array();
+		$block_settings = array();
 
-		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
-				return isset( $rule['type'] ) && 'default' === $rule['type'];
-			} );
+		foreach ( $governance_rules['rules'] as $rule ) {
+			// The allowed blocks can be merged together with the default role to get a super set
+			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
+			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) { 
+				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings = isset( $rule['blockSettings'] ) ? $rule['blockSettings'] : $block_settings;
+			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
+				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings = isset( $rule['blockSettings'] ) && empty( $block_settings ) ? $rule['blockSettings'] : $block_settings;
+			}
 		}
 
-		// If no rules are found, allow everything by default
-		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array( 'allowedBlocks' => array( '*' ) );
-		}
-
-		// Only keep the first rule if more than 1 is matched
-		if ( count( $rules_for_user ) > 1 ) {
-			$rules_for_user = array_slice( $rules_for_user, 0, 1 );
-		}
-
-		// ToDo: Do this efficiently because this is bad if the rules array is huge
-		return array_values(array_map( function( $rule ) {
-			unset( $rule['roles'] );
-			unset( $rule['type'] );
-			return $rule;
-		}, $rules_for_user ))[0];
-	}
-
-	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
-		if ( ! isset( $governance_rules['blockSettings'] ) || empty( $governance_rules['blockSettings'] ) ) {
-			return array();
-		}
-
-		return $governance_rules['blockSettings'];
+		// return array of allowed_blocks and block_settings
+		return array(
+			'allowedBlocks' => $allowed_blocks,
+			'blockSettings' => $block_settings,
+		);
 	}
 
 	#endregion Block filters
