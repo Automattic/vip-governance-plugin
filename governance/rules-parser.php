@@ -38,11 +38,14 @@ class RulesParser {
 			$result = $parser->lint( $rules_content, JsonParser::DETECT_KEY_CONFLICTS | JsonParser::PARSE_TO_ASSOC );
 
 			if ( $result instanceof ParsingException ) {
-				$error_message = sprintf( 'There was an error parsing governance JSON: %s', $result->getMessage() );
+				/* translators: %s: Technical data - JSON parsing error */
+				$error_message = sprintf( __( 'There was an error parsing JSON: %s', 'vip-governance' ), $result->getMessage() );
 				return new WP_Error( 'parsing-error', $error_message, $result->getDetails() );
 			} else {
 				// If the parser failed to return an error, return default PHP error message.
-				$error_message = sprintf( 'There was an error parsing governance JSON: %s', json_last_error_msg() );
+
+				/* translators: %s: Technical data - JSON parsing error */
+				$error_message = sprintf( __( 'There was an error decoding JSON: %s', 'vip-governance' ), json_last_error_msg() );
 				return new WP_Error( 'parsing-error', $error_message );
 			}
 		}
@@ -52,9 +55,9 @@ class RulesParser {
 			return [];
 		} elseif ( ! isset( $rules_parsed['rules'] ) ) {
 			// If parsed rules contain values but no 'rules' key, return an error.
-			return new WP_Error( 'parsing-error', 'Governance JSON should have a root-level "rules" key.' );
+			return new WP_Error( 'parsing-error', __( 'Governance JSON should have a root-level "rules" key.', 'vip-governance' ) );
 		} elseif ( ! is_array( $rules_parsed['rules'] ) ) {
-			return new WP_Error( 'parsing-error', 'Governance JSON "rules" key should be an array.' );
+			return new WP_Error( 'parsing-error', __( 'Governance JSON "rules" key should be an array.', 'vip-governance' ) );
 		}
 
 		return $rules_parsed['rules'];
