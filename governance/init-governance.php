@@ -32,7 +32,7 @@ class InitGovernance {
 		try {
 			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
-			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$interactive_governance_rule = $governance_rule['blockSettings'];
 			$governance_errors           = false;
 			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 		} catch ( Exception $e ) {
@@ -56,7 +56,7 @@ class InitGovernance {
 		try {
 			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
-			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$interactive_governance_rule = $governance_rule['blockSettings'];
 			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 			wp_register_style(
 				'wpcomvip-governance',
@@ -118,13 +118,17 @@ class InitGovernance {
 		$block_settings = array();
 
 		foreach ( $governance_rules['rules'] as $rule ) {
-			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
-				$allowed_blocks = isset( $rule['allowed_blocks'] ) ? array_merge( $allowed_blocks, $rule['allowed_blocks'] ) : $allowed_blocks;
-				$block_settings = isset( $rule['block_settings'] ) ? $rule['block_settings'] : $block_settings;
+			// The allowed blocks can be merged together with the default role to get a super set
+			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
+			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) { 
+				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings = isset( $rule['blockSettings'] ) ? $rule['blockSettings'] : $block_settings;
 			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
-				$allowed_blocks = isset( $rule['allowed_blocks'] ) ? array_merge( $allowed_blocks, $rule['allowed_blocks'] ) : $allowed_blocks;
-				$block_settings = isset( $rule['block_settings'] ) && empty( $block_settings ) ? $rule['block_settings'] : $block_settings;
+				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings = isset( $rule['blockSettings'] ) && empty( $block_settings ) ? $rule['blockSettings'] : $block_settings;
 			} else {
+				// This is going to ensure that anything not matching the schema will be caught immediately
+				/* translators: %s: plugin name */
 				throw new Exception( __( 'Governance rules do not match the expected schema.', 'vip-governance' ) );
 			}
 		}
@@ -134,14 +138,6 @@ class InitGovernance {
 			'allowedBlocks' => $allowed_blocks,
 			'blockSettings' => $block_settings,
 		);
-	}
-
-	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
-		if ( ! isset( $governance_rules['blockSettings'] ) || empty( $governance_rules['blockSettings'] ) ) {
-			return array();
-		}
-
-		return $governance_rules['blockSettings'];
 	}
 
 	#endregion Block filters
