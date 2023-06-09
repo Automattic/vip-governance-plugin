@@ -114,34 +114,26 @@ class InitGovernance {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
-		// Only get the rules where the role matches the current role of the user
-		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
-			$is_role_rule = isset( $rule['type'] ) && 'role' === $rule['type'];
-			return $is_role_rule && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
-		} );
+		$allowed_blocks = array();
+		$block_settings = array();
 
-		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) {
-				return isset( $rule['type'] ) && 'default' === $rule['type'];
-			} );
+		foreach ( $governance_rules['rules'] as $rule ) {
+			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
+				$allowed_blocks = isset( $rule['allowed_blocks'] ) ? array_merge( $allowed_blocks, $rule['allowed_blocks'] ) : $allowed_blocks;
+				$block_settings = isset( $rule['block_settings'] ) ? $rule['block_settings'] : $block_settings;
+			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
+				$allowed_blocks = isset( $rule['allowed_blocks'] ) ? array_merge( $allowed_blocks, $rule['allowed_blocks'] ) : $allowed_blocks;
+				$block_settings = isset( $rule['block_settings'] ) && empty( $block_settings ) ? $rule['block_settings'] : $block_settings;
+			} else {
+				throw new Exception( __( 'Governance rules do not match the expected schema.', 'vip-governance' ) );
+			}
 		}
 
-		// If no rules are found, allow everything by default
-		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array( 'allowedBlocks' => array( '*' ) );
-		}
-
-		// Only keep the first rule if more than 1 is matched
-		if ( count( $rules_for_user ) > 1 ) {
-			$rules_for_user = array_slice( $rules_for_user, 0, 1 );
-		}
-
-		// ToDo: Do this efficiently because this is bad if the rules array is huge
-		return array_values(array_map( function( $rule ) {
-			unset( $rule['roles'] );
-			unset( $rule['type'] );
-			return $rule;
-		}, $rules_for_user ))[0];
+		// return array of allowed_blocks and block_settings
+		return array(
+			'allowedBlocks' => $allowed_blocks,
+			'blockSettings' => $block_settings,
+		);
 	}
 
 	private static function get_interaction_rules_from_all_rules( $governance_rules ) {

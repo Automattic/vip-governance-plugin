@@ -20,6 +20,8 @@ function setup() {
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
+	console.log( nestedSettings, nestedSettingPaths );
+
 	addFilter(
 		'blockEditor.__unstableCanInsertBlockType',
 		`wpcomvip-governance/block-insertion`,
