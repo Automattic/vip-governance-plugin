@@ -1,0 +1,75 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema",
+	"$id": "http://example.com/example.json",
+	"type": "object",
+	"default": {},
+	"title": "VIP Governance Rules Schema",
+	"required": [
+		"rules"
+	],
+	"properties": {
+		"$schema": {
+			"description": "JSON schema URI for governance JSON",
+			"type": "string"
+		},
+		"rules": {
+			"description": "Array of governance rules",
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object",
+				"required": [
+					"type",
+					"allowedBlocks"
+				],
+				"properties": {
+					"type": {
+						"description": "Rule type (default or role)",
+						"type": "string",
+						"enum": [
+							"default",
+							"role"
+						]
+					},
+					"allowedBlocks": {
+						"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching",
+						"type": "array",
+						"items": {
+							"type": "string",
+							"examples": [
+								"core/*",
+								"core/paragraph",
+								"core/heading"
+							]
+						}
+					},
+					"roles": {
+						"type": "array",
+						"default": [],
+						"items": {
+							"type": "string",
+							"examples": [
+								"administrator",
+								"editor"
+							]
+						},
+						"examples": [
+							[
+								"editor",
+								"administrator"
+							]
+						]
+					},
+					"blockSettings": {
+						"type": "object",
+						"default": {},
+						"required": [],
+						"properties": {}
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	},
+	"additionalProperties": false
+}
