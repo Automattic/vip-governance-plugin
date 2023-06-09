@@ -128,7 +128,7 @@ class InitGovernance {
 
 		// If no rules are found, allow everything by default
 		if ( empty( $rules_for_user ) ) {
-			$rules_for_user = array( 'allowed' => array( '*' ) );
+			$rules_for_user = array( 'allowedBlocks' => array( '*' ) );
 		}
 
 		// Only keep the first rule if more than 1 is matched
@@ -141,30 +141,15 @@ class InitGovernance {
 			unset( $rule['roles'] );
 			unset( $rule['type'] );
 			return $rule;
-		}, $rules_for_user ));
+		}, $rules_for_user ))[0];
 	}
 
 	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
-		if ( ! isset( $governance_rules['blockSettings'] ) ) {
+		if ( ! isset( $governance_rules['blockSettings'] ) || empty( $governance_rules['blockSettings'] ) ) {
 			return array();
 		}
 
-		$interaction_rules = array_filter( $governance_rules['blockSettings'], function( $rule ) {
-			if ( count( $rule ) === 1 && isset( $rule['allowedChildren'] ) ) {
-				return false;
-			}
-
-			return true;
-		} );
-
-		if ( empty( $interaction_rules ) ) {
-			return array();
-		}
-
-		return array_values(array_map( function( $rule ) {
-			unset( $rule['allowedChildren'] );
-			return $rule;
-		}, $interaction_rules ));
+		return $governance_rules['blockSettings'];
 	}
 
 	#endregion Block filters

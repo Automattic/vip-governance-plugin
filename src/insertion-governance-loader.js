@@ -10,17 +10,9 @@ export const isBlockAllowed = (
 		return canInsert;
 	}
 
-	// assume that either you will have allowed or blocked in the rules
-	// both cannot exist at the same time
-	const isInAllowedMode = governanceRule.allowedBlocks ? true : false;
-
 	// if there's no parent just go by the root level block names in the rules
 	if ( ! rootClientId ) {
-		return isRootBlockAllowed(
-			blockType.name,
-			governanceRule[ isInAllowedMode ? 'allowedBlocks' : 'deniedBlocks' ],
-			isInAllowedMode
-		);
+		return isRootBlockAllowed( blockType.name, governanceRule.allowedBlocks );
 	}
 
 	// ToDo: Use the allowedChildren property under blockSettings to guard against nested blocks
@@ -29,19 +21,11 @@ export const isBlockAllowed = (
 		blockType,
 		getBlock,
 		canInsert,
-		isInAllowedMode,
-		governanceRule[ isInAllowedMode ? 'allowedBlocks' : 'deniedBlocks' ]
+		governanceRule.allowedBlocks
 	);
 };
 
-function isParentBlockAllowed(
-	rootClientId,
-	blockType,
-	getBlock,
-	canInsert,
-	isInAllowedMode,
-	rules
-) {
+function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
 	const parentBlock = getBlock( rootClientId );
 
 	// Need a basic set of rules here for some blocks
@@ -56,13 +40,11 @@ function isParentBlockAllowed(
 		return canInsert;
 	}
 
-	return isRootBlockAllowed( blockType.name, rules, isInAllowedMode );
+	return isRootBlockAllowed( blockType.name, rules );
 }
 
-function isRootBlockAllowed( blockName, rules, isInAllowedMode ) {
-	const isBlockInRules = rules.some( rule => matchBlockToRule( rule, blockName ) );
-
-	return isInAllowedMode ? isBlockInRules : ! isBlockInRules;
+function isRootBlockAllowed( blockName, rules ) {
+	return rules.some( rule => matchBlockToRule( rule, blockName ) );
 }
 
 /**

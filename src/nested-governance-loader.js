@@ -5,13 +5,20 @@ export const getNestedSettingPaths = (
 	nestedMetadata = {},
 	currentBlock = false
 ) => {
+	const SETTINGS_TO_SKIP = [ 'allowedBlocks', 'allowedChildren' ];
 	for ( const [ settingKey, settingValue ] of Object.entries( nestedSettings ) ) {
+		if ( SETTINGS_TO_SKIP.includes( settingKey ) ) {
+			continue;
+		}
+
 		const isNestedBlock = settingKey.includes( '/' );
 
 		if ( isNestedBlock ) {
 			// This setting contains another block, look at the child for metadata
 			Object.entries( nestedSettings ).forEach( ( [ blockName, blockNestedSettings ] ) => {
-				getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
+				if ( ! SETTINGS_TO_SKIP.includes( blockName ) ) {
+					getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
+				}
 			} );
 		} else if ( currentBlock !== false ) {
 			// This is a leaf block, add setting paths to nestedMetadata
@@ -27,23 +34,6 @@ export const getNestedSettingPaths = (
 	}
 
 	return nestedMetadata;
-};
-
-export const flattenSettingPaths = ( settings, prefix = '' ) => {
-	const result = {};
-
-	Object.entries( settings ).forEach( ( [ key, value ] ) => {
-		const isRegularObject = typeof value === 'object' && !! value && ! Array.isArray( value );
-
-		if ( isRegularObject ) {
-			result[ `${ prefix }${ key }` ] = true;
-			Object.assign( result, flattenSettingPaths( value, `${ prefix }${ key }.` ) );
-		} else {
-			result[ `${ prefix }${ key }` ] = true;
-		}
-	} );
-
-	return result;
 };
 
 /**
@@ -103,3 +93,20 @@ export const getNestedSetting = (
 	// Continue down the array of blocks
 	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
 };
+
+function flattenSettingPaths( settings, prefix = '' ) {
+	const result = {};
+
+	Object.entries( settings ).forEach( ( [ key, value ] ) => {
+		const isRegularObject = typeof value === 'object' && !! value && ! Array.isArray( value );
+
+		if ( isRegularObject ) {
+			result[ `${ prefix }${ key }` ] = true;
+			Object.assign( result, flattenSettingPaths( value, `${ prefix }${ key }.` ) );
+		} else {
+			result[ `${ prefix }${ key }` ] = true;
+		}
+	} );
+
+	return result;
+}
