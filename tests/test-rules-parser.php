@@ -46,7 +46,7 @@ class RulesParserTest extends TestCase {
 			"rules": [
 				{
 					"type": "default",
-					"allowed": [
+					"allowedBlocks": [
 						"core/paragraph",
 						"core/heading",
 						"core/media-text"
@@ -57,8 +57,8 @@ class RulesParserTest extends TestCase {
 
 		$this->assertEqualsRules( [
 			[
-				'type'    => 'default',
-				'allowed' => [
+				'type'          => 'default',
+				'allowedBlocks' => [
 					'core/paragraph',
 					'core/heading',
 					'core/media-text',

@@ -15,6 +15,7 @@
 		]
 	},
 	"require": {
+		"opis/json-schema": "^2.3",
 		"seld/jsonlint": "^1.10"
 	},
 	"require-dev": {
