@@ -1,6 +1,6 @@
 {
-	"title": "VIP governance rules JSON schema",
 	"$schema": "https://json-schema.org/draft-07/schema",
+	"title": "VIP governance rules JSON schema",
 	"definitions": {
 		"allowedBlocksArray": {
 			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
@@ -17,7 +17,6 @@
 		"blockSettingsProperties": {
 			"description": "Block settings for block or nested inner block types",
 			"type": "object",
-			"default": {},
 			"properties": {
 				"allowedChildren": {
 					"$ref": "#/definitions/allowedBlocksArray"
@@ -30,9 +29,8 @@
 			}
 		},
 		"ruleBlockSettingsProperties": {
-			"description": "Block settings specific to this rule",
+			"description": "Theme.json block settings for this rule. Allows block nesting and allowedBlocks array.",
 			"type": "object",
-			"default": {},
 			"patternProperties": {
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
