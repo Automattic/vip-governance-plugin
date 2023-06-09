@@ -1,12 +1,5 @@
-require( '@automattic/eslint-plugin-wpvip/init' );
-
 module.exports = {
-	extends: [
-		'plugin:@automattic/wpvip/javascript',
-		'plugin:@automattic/wpvip/formatting',
-		'plugin:@automattic/wpvip/react',
-		'plugin:@automattic/wpvip/prettier',
-	],
+	extends: [ 'plugin:@automattic/wpvip/recommended' ],
 	globals: {
 		VIP_GOVERNANCE: 'readonly',
 	},

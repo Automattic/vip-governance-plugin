@@ -16,7 +16,7 @@ function setup() {
 		return;
 	}
 
-	const insertionRules = VIP_GOVERNANCE.insertionRules;
+	const governanceRule = VIP_GOVERNANCE.governanceRule;
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
@@ -24,11 +24,10 @@ function setup() {
 		'blockEditor.__unstableCanInsertBlockType',
 		`wpcomvip-governance/block-insertion`,
 		( canInsert, blockType, rootClientId, { getBlock } ) => {
-			// ToDo: Expand this to handle multiple rules per user
-			return isBlockAllowed( canInsert, blockType, rootClientId, insertionRules[ 0 ], {
+			return isBlockAllowed( canInsert, blockType, rootClientId, governanceRule, {
 				getBlock,
 			} );
-		},
+		}
 	);
 
 	addFilter(
@@ -55,7 +54,7 @@ function setup() {
 			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
 			return result;
-		},
+		}
 	);
 
 	// Block locking

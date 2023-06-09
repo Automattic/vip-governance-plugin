@@ -2,46 +2,30 @@ export const isBlockAllowed = (
 	canInsert,
 	blockType,
 	rootClientId,
-	insertionRules,
-	{ getBlock },
+	governanceRule,
+	{ getBlock }
 ) => {
 	// Returns the default value if no rules can be found
-	if ( ! insertionRules || insertionRules.length === 0 ) {
+	if ( ! governanceRule || governanceRule.length === 0 ) {
 		return canInsert;
 	}
 
-	// assume that either you will have allowed or blocked in the rules
-	// both cannot exist at the same time
-	const isInAllowedMode = insertionRules.allowed ? true : false;
-
 	// if there's no parent just go by the root level block names in the rules
 	if ( ! rootClientId ) {
-		return isRootBlockAllowed(
-			blockType.name,
-			insertionRules[ isInAllowedMode ? 'allowed' : 'blocked' ],
-			isInAllowedMode,
-		);
+		return isRootBlockAllowed( blockType.name, governanceRule.allowedBlocks );
 	}
 
-	// if there is a parent, allow the default set otherwise do the root check again
+	// ToDo: Use the allowedChildren property under blockSettings to guard against nested blocks
 	return isParentBlockAllowed(
 		rootClientId,
 		blockType,
 		getBlock,
 		canInsert,
-		isInAllowedMode,
-		insertionRules[ isInAllowedMode ? 'allowed' : 'blocked' ],
+		governanceRule.allowedBlocks
 	);
 };
 
-function isParentBlockAllowed(
-	rootClientId,
-	blockType,
-	getBlock,
-	canInsert,
-	isInAllowedMode,
-	rules,
-) {
+function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
 	const parentBlock = getBlock( rootClientId );
 
 	// Need a basic set of rules here for some blocks
@@ -56,11 +40,31 @@ function isParentBlockAllowed(
 		return canInsert;
 	}
 
-	return isRootBlockAllowed( blockType.name, rules, isInAllowedMode );
+	return isRootBlockAllowed( blockType.name, rules );
 }
 
-function isRootBlockAllowed( blockName, rules, isInAllowedMode ) {
-	const isBlockInRules = rules.some( rule => rule === blockName );
+function isRootBlockAllowed( blockName, rules ) {
+	return rules.some( rule => matchBlockToRule( rule, blockName ) );
+}
 
-	return isInAllowedMode ? isBlockInRules : ! isBlockInRules;
+/**
+ * Matches a rule to a block name, with the following cases being possible:
+ *
+ * 1. ['*'] - matches all blocks
+ * 2. '*' can be located somewhere else alongside a string, e.g. 'core/*' - matches all core blocks
+ * 3. ['core/paragraph'] - matches only the core/paragraph block
+ *
+ * @param {*} rule
+ * @param {*} blockName
+ * @returns true, if the block name matches the rule or false otherwise
+ */
+function matchBlockToRule( rule, blockName ) {
+	if ( rule === '*' ) {
+		return true;
+	} else if ( rule.includes( '*' ) ) {
+		const [ stringToMatch ] = rule.split( '*' );
+		return blockName.startsWith( stringToMatch );
+	}
+
+	return rule === blockName;
 }

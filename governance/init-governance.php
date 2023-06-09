@@ -30,17 +30,18 @@ class InitGovernance {
 		);
 
 		try {
-			$interactions_governance_rules = self::get_governance_rules( WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME );
-			$insertion_governance_rules    = self::get_governance_rules( WPCOMVIP_INSERTIONS_GOVERNANCE_SOURCE_FILENAME );
-			$governance_errors             = false;
-			$nested_settings_and_css       = NestedGovernanceProcessing::get_nested_settings_and_css( $interactions_governance_rules );
+			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
+			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$governance_errors           = false;
+			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 		} catch ( Exception $e ) {
 			$governance_errors = $e->getMessage();
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
 			'errors'         => $governance_errors,
-			'insertionRules' => self::get_rules_for_user( $insertion_governance_rules ),
+			'governanceRule' => $governance_rule,
 			'nestedSettings' => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
 
 			// Temporary hardcoded block locking settings
@@ -53,8 +54,10 @@ class InitGovernance {
 
 	public static function load_css() {
 		try {
-			$interactions_governance_rules = self::get_governance_rules( WPCOMVIP_INTERACTIONS_GOVERNANCE_SOURCE_FILENAME );
-			$nested_settings_and_css       = NestedGovernanceProcessing::get_nested_settings_and_css( $interactions_governance_rules );
+			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
+			$interactive_governance_rule = self::get_interaction_rules_from_all_rules( $governance_rule );
+			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
 			wp_register_style(
 				'wpcomvip-governance',
 				WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
@@ -69,12 +72,19 @@ class InitGovernance {
 		}
 	}
 
+	/**
+	 * Get the governance rules from the private directory, or the plugin directory if not found.
+	 */
 	private static function get_governance_rules( $file_name ) {
-		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
+		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . $file_name;
 
 		if ( ! file_exists( $governance_file_path ) ) {
-			/* translators: %s: rules file doesn't exist */
-			throw new Exception( sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $file_name ) );
+			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
+
+			if ( ! file_exists( $governance_file_path ) ) {
+				/* translators: %s: rules file doesn't exist */
+				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found in private, or plugin folders.', 'vip-governance' ), $file_name ) );
+			}
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
@@ -92,6 +102,10 @@ class InitGovernance {
 		return $governance_rules;
 	}
 
+	/**
+	 * Get the rules for the current user, with a default fallback rule set of 
+	 * allowing core/heading, core/paragraph and core/image
+	 */
 	private static function get_rules_for_user( $governance_rules ) {
 		if ( empty( $governance_rules ) || ! isset( $governance_rules['rules'] ) ) {
 			return array();
@@ -100,6 +114,7 @@ class InitGovernance {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
+		// Only get the rules where the role matches the current role of the user
 		$rules_for_user = array_filter( $governance_rules['rules'], function( $rule ) use ( $user_roles ) {
 			$is_role_rule = isset( $rule['type'] ) && 'role' === $rule['type'];
 			return $is_role_rule && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] );
@@ -111,12 +126,30 @@ class InitGovernance {
 			} );
 		}
 
-		// ToDo: give back the default set of rules which are nothing is allowed exception core blocks
+		// If no rules are found, allow everything by default
+		if ( empty( $rules_for_user ) ) {
+			$rules_for_user = array( 'allowedBlocks' => array( '*' ) );
+		}
+
+		// Only keep the first rule if more than 1 is matched
+		if ( count( $rules_for_user ) > 1 ) {
+			$rules_for_user = array_slice( $rules_for_user, 0, 1 );
+		}
+
 		// ToDo: Do this efficiently because this is bad if the rules array is huge
 		return array_values(array_map( function( $rule ) {
 			unset( $rule['roles'] );
+			unset( $rule['type'] );
 			return $rule;
-		}, $rules_for_user ));
+		}, $rules_for_user ))[0];
+	}
+
+	private static function get_interaction_rules_from_all_rules( $governance_rules ) {
+		if ( ! isset( $governance_rules['blockSettings'] ) || empty( $governance_rules['blockSettings'] ) ) {
+			return array();
+		}
+
+		return $governance_rules['blockSettings'];
 	}
 
 	#endregion Block filters
