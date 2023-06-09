@@ -14,6 +14,51 @@
 				]
 			}
 		},
+		"blockSettingsProperties": {
+			"description": "Block settings for block or nested inner block types",
+			"type": "object",
+			"default": {},
+			"properties": {
+				"allowedChildren": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				}
+			},
+			"patternProperties": {
+				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				}
+			}
+		},
+		"ruleBlockSettingsProperties": {
+			"description": "Block settings specific to this rule",
+			"type": "object",
+			"default": {},
+			"patternProperties": {
+				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				}
+			},
+			"additionalProperties": false,
+			"examples": [
+				{
+					"core/paragraph": {
+						"color": {
+							"text": false
+						}
+					},
+					"core/quote": {
+						"allowedBlocks": [ "core/paragraph", "core/heading" ]
+					},
+					"core/media-text": {
+						"core/heading": {
+							"typography": {
+								"customFontSize": false
+							}
+						}
+					}
+				}
+			]
+		},
 		"ruleDefaultProperties": {
 			"type": "object",
 			"properties": {
@@ -26,10 +71,7 @@
 					"$ref": "#/definitions/allowedBlocksArray"
 				},
 				"blockSettings": {
-					"type": "object",
-					"default": {},
-					"required": [],
-					"properties": {}
+					"$ref": "#/definitions/ruleBlockSettingsProperties"
 				}
 			},
 			"required": [ "type" ],
@@ -56,10 +98,7 @@
 					"$ref": "#/definitions/allowedBlocksArray"
 				},
 				"blockSettings": {
-					"type": "object",
-					"default": {},
-					"required": [],
-					"properties": {}
+					"$ref": "#/definitions/ruleBlockSettingsProperties"
 				}
 			},
 			"required": [ "type", "roles" ],
