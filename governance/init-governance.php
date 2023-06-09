@@ -126,10 +126,6 @@ class InitGovernance {
 			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
 				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
 				$block_settings = isset( $rule['blockSettings'] ) && empty( $block_settings ) ? $rule['blockSettings'] : $block_settings;
-			} else {
-				// This is going to ensure that anything not matching the schema will be caught immediately
-				/* translators: %s: plugin name */
-				throw new Exception( __( 'Governance rules do not match the expected schema.', 'vip-governance' ) );
 			}
 		}
 
