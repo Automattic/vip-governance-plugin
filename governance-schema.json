@@ -7,11 +7,7 @@
 			"type": "array",
 			"items": {
 				"type": "string",
-				"examples": [
-					"core/*",
-					"core/paragraph",
-					"core/heading"
-				]
+				"examples": [ "core/*", "core/paragraph", "core/heading" ]
 			}
 		},
 		"blockSettingsProperties": {
@@ -88,9 +84,7 @@
 					"items": {
 						"type": "string"
 					},
-					"examples": [
-						[ "administrator", "editor" ]
-					]
+					"examples": [ [ "administrator", "editor" ] ]
 				},
 				"allowedBlocks": {
 					"$ref": "#/definitions/allowedBlocksArray"
@@ -105,13 +99,16 @@
 	},
 	"type": "object",
 	"default": {},
-	"required": [
-		"rules"
-	],
+	"required": [ "rules" ],
 	"properties": {
 		"$schema": {
 			"description": "JSON schema URI for governance JSON",
 			"type": "string"
+		},
+		"version": {
+			"description": "Version of governance JSON",
+			"type": "string",
+			"examples": [ "0.1.0" ]
 		},
 		"rules": {
 			"description": "Array of governance rules",
