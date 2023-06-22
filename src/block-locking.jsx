@@ -37,9 +37,9 @@ export function setupBlockLocking( allowedBlocks ) {
 		};
 	};
 
-	addFilter(
-		'blocks.getBlockAttributes',
-		'wpcomvip-governance/with-disabled-move',
-		withLockAttribute,
-	);
+	// addFilter(
+	// 	'blocks.getBlockAttributes',
+	// 	'wpcomvip-governance/with-disabled-move',
+	// 	withLockAttribute,
+	// );
 }

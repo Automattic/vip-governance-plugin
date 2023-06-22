@@ -58,7 +58,7 @@ function setup() {
 	);
 
 	// Block locking
-	if ( VIP_GOVERNANCE.isLockdownMode ) {
+	if ( VIP_GOVERNANCE.governanceRules.allowedBlocks ) {
 		setupBlockLocking( VIP_GOVERNANCE.allowedBlocks );
 	}
 }
