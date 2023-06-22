@@ -120,7 +120,7 @@ class InitGovernance {
 		$allowed_blocks = array();
 		$block_settings = array();
 
-		foreach ( $governance_rules['rules'] as $rule ) {
+		foreach ( $governance_rules as $rule ) {
 			// The allowed blocks can be merged together with the default role to get a super set
 			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
 			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
