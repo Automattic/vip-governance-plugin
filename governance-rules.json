@@ -1,4 +1,6 @@
 {
+	"$schema": "./governance-schema.json",
+	"version": "0.1.0",
 	"rules": [
 		{
 			"type": "role",

@@ -90,12 +90,15 @@ class InitGovernance {
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$governance_rules_json = file_get_contents( $governance_file_path );
 
-		try {
-			$governance_rules = json_decode( $governance_rules_json, /* associative */ true, /* depth */ 512, /* flags */ JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			$json_error = sprintf( '%s at %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() );
-			/* translators: %s: plugin name */
-			$error_message = sprintf( __( 'Governance rules (%s) could not be parsed', 'vip-governance' ), $file_name, $json_error );
+		$governance_rules = RulesParser::parse( $governance_rules_json );
+
+		if ( is_wp_error( $governance_rules ) ) {
+			$error_message = $governance_rules->get_error_message();
+			$error_details = $governance_rules->get_error_data();
+
+			/* translators: %s: governance file name */
+			$error_message = sprintf( __( 'Governance rules could not be loaded: %s', 'vip-governance' ), $error_message );
+
 			throw new Exception( $error_message );
 		}
 
@@ -103,7 +106,7 @@ class InitGovernance {
 	}
 
 	/**
-	 * Get the rules for the current user, with a default fallback rule set of 
+	 * Get the rules for the current user, with a default fallback rule set of
 	 * allowing core/heading, core/paragraph and core/image
 	 */
 	private static function get_rules_for_user( $governance_rules ) {

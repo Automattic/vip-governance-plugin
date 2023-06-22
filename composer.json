@@ -1,24 +1,38 @@
 {
-    "name": "automattic/vip-governance",
-    "description": "A WordPress plugin that adds governance to the block editor",
-    "type": "wordpress-plugin",
-    "license": "GPL-2.0-or-later",
-    "scripts": {
-        "phpcs": "phpcs",
-        "phpcs-fix": "phpcbf"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "9.6.7",
-        "automattic/vipwpcs": "2.3.3",
-        "phpcompatibility/phpcompatibility-wp": "2.1.4"
-    },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        },
-        "sort-packages": true,
-        "platform": {
-            "php": "7.4"
-        }
-    }
+	"name": "automattic/vip-governance",
+	"description": "A WordPress plugin that adds governance to the block editor",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"lint": "phpcs",
+		"phpcs": "phpcs",
+		"phpcs-fix": "phpcbf",
+		"test": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin /bin/bash -c phpunit",
+		"test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin /bin/bash -c 'WP_MULTISITE=1 phpunit'",
+		"test-watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"nodemon -w ./ --ignore vendor/ -e php --exec 'composer run test'"
+		]
+	},
+	"require": {
+		"opis/json-schema": "^2.3",
+		"seld/jsonlint": "^1.10"
+	},
+	"require-dev": {
+		"automattic/vipwpcs": "2.3.3",
+		"phpcompatibility/phpcompatibility-wp": "2.1.4",
+		"phpunit/phpunit": "9.6.7",
+		"seregazhuk/php-watcher": "^0.5.2",
+		"yoast/phpunit-polyfills": "^2.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"mnsami/composer-custom-directory-installer": false
+		},
+		"sort-packages": true,
+		"platform": {
+			"php": "7.4"
+		}
+	}
 }

@@ -22,3 +22,7 @@ src/build
 
 # Allows us to have multiple json files for local development
 *.json.dist
+
+# PHPUnit files
+.phpunit.cache
+.phpunit.result.cache
