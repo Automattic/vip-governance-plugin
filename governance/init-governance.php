@@ -110,7 +110,7 @@ class InitGovernance {
 	 * allowing core/heading, core/paragraph and core/image
 	 */
 	private static function get_rules_for_user( $governance_rules ) {
-		if ( empty( $governance_rules ) || ! isset( $governance_rules['rules'] ) ) {
+		if ( empty( $governance_rules ) ) {
 			return array();
 		}
 
@@ -120,10 +120,10 @@ class InitGovernance {
 		$allowed_blocks = array();
 		$block_settings = array();
 
-		foreach ( $governance_rules['rules'] as $rule ) {
+		foreach ( $governance_rules as $rule ) {
 			// The allowed blocks can be merged together with the default role to get a super set
 			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
-			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) { 
+			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
 				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
 				$block_settings = isset( $rule['blockSettings'] ) ? $rule['blockSettings'] : $block_settings;
 			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
