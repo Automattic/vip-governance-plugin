@@ -58,8 +58,8 @@ function setup() {
 	);
 
 	// Block locking
-	if ( VIP_GOVERNANCE.governanceRules.allowedBlocks ) {
-		setupBlockLocking( VIP_GOVERNANCE.allowedBlocks );
+	if ( governanceRules?.allowedBlocks ) {
+		setupBlockLocking( governanceRules.allowedBlocks );
 	}
 }
 

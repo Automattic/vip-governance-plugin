@@ -21,25 +21,4 @@ export function setupBlockLocking( allowedBlocks ) {
 	}, 'withDisabledBlocks' );
 
 	addFilter( 'editor.BlockEdit', 'wpcomvip-governance/with-disabled-blocks', withDisabledBlocks );
-
-	const withLockAttribute = ( blockAttributes, blockType, innerHTML, attributes ) => {
-		const isAllowed = allowedBlocks.includes( blockType );
-
-		if ( isAllowed ) {
-			return blockAttributes;
-		}
-		return {
-			...blockAttributes,
-			lock: {
-				move: true,
-				remove: true,
-			},
-		};
-	};
-
-	// addFilter(
-	// 	'blocks.getBlockAttributes',
-	// 	'wpcomvip-governance/with-disabled-move',
-	// 	withLockAttribute,
-	// );
 }

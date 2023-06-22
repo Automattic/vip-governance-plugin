@@ -43,10 +43,6 @@ class InitGovernance {
 			'errors'          => $governance_errors,
 			'governanceRules' => $governance_rules_for_user,
 			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
-
-			// Temporary hardcoded block locking settings
-			'isLockdownMode'  => BlockLocking::$is_lockdown_mode,
-			'allowedBlocks'   => BlockLocking::$allowed_blocks,
 		]);
 
 		wp_enqueue_script( 'wpcomvip-governance' );
