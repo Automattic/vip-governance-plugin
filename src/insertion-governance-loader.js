@@ -2,17 +2,17 @@ export const isBlockAllowed = (
 	canInsert,
 	blockType,
 	rootClientId,
-	governanceRule,
+	governanceRules,
 	{ getBlock }
 ) => {
 	// Returns the default value if no rules can be found
-	if ( ! governanceRule || governanceRule.length === 0 ) {
+	if ( ! governanceRules || governanceRules.length === 0 ) {
 		return canInsert;
 	}
 
 	// if there's no parent just go by the root level block names in the rules
 	if ( ! rootClientId ) {
-		return isRootBlockAllowed( blockType.name, governanceRule.allowedBlocks );
+		return isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
 	}
 
 	// ToDo: Use the allowedChildren property under blockSettings to guard against nested blocks
@@ -21,7 +21,7 @@ export const isBlockAllowed = (
 		blockType,
 		getBlock,
 		canInsert,
-		governanceRule.allowedBlocks
+		governanceRules.allowedBlocks
 	);
 };
 
