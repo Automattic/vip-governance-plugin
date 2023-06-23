@@ -80,29 +80,6 @@ class RulesParser {
 		return $rules_parsed;
 	}
 
-	private static function validate_against_base_rules( $rules ) {
-		$is_default_rule_present = false;
-
-		foreach ( $governance_rules as $rule ) {
-			if ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
-				$is_default_rule_present = true;
-				if ( isset( $rule['roles'] ) ) {
-					return new WP_Error( 'schema-validation', __( 'Schema validation failed: roles cannot be defined in the default rule', 'vip-governance' ) );
-				}
-
-				// Since there's only one rule we are validation, it's fine to stop looking
-				return true;
-			}
-		}
-
-		if ( ! $is_default_rule_present ) {
-			return new WP_Error( 'schema-validation', __( 'Schema validation failed: default rule is missing', 'vip-governance' ) );
-		}
-
-		// At the moment this should never be reached, but it's there for when we add more rules
-		return true;
-	}
-
 	/**
 	 * @param string $rules Parsed contents of a governance rules file.
 	 *
@@ -118,7 +95,9 @@ class RulesParser {
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- File location is hardcoded.
 		$schema_contents = file_get_contents( $schema_file_path );
 
-		$validator         = new Validator();
+		$validator = new Validator();
+		// Ensures that we don't overload the user with errors.
+		$validator->setMaxErrors( 5 );
 		$rules_as_stdclass = Helper::toJSON( $rules );
 		$validation_result = $validator->validate( $rules_as_stdclass, $schema_contents );
 
@@ -128,7 +107,7 @@ class RulesParser {
 			$error = $validation_result->error();
 
 			$formatter       = new ErrorFormatter();
-			$formatted_error = wp_json_encode( $formatter->format( $error, /* multiple */ false ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+			$formatted_error = wp_json_encode( $formatter->format( $error, /* multiple */ true ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 
 			/* translators: %s: Technical data - JSON parsing error */
 			$error_message = sprintf( __( 'Schema validation failed: %s', 'vip-governance' ), $formatted_error );

@@ -41,7 +41,6 @@
 		},
 		{
 			"type": "default",
-			"roles": [ "author" ],
 			"allowedBlocks": [ "core/heading", "core/paragraph" ],
 			"blockSettings": {
 				"core/heading": {
