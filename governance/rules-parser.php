@@ -34,6 +34,8 @@ class RulesParser {
 			return [];
 		}
 
+		
+
 		// Validate against governance rules schema
 		$schema_validation_result = self::validate_rules_schema( $rules_parsed );
 
@@ -76,6 +78,29 @@ class RulesParser {
 		}
 
 		return $rules_parsed;
+	}
+
+	private static function validate_against_base_rules( $rules ) {
+		$is_default_rule_present = false;
+
+		foreach ( $governance_rules as $rule ) {
+			if ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
+				$is_default_rule_present = true;
+				if ( isset( $rule['roles'] ) ) {
+					return new WP_Error( 'schema-validation', __( 'Schema validation failed: roles cannot be defined in the default rule', 'vip-governance' ) );
+				}
+
+				// Since there's only one rule we are validation, it's fine to stop looking
+				return true;
+			}
+		}
+
+		if ( ! $is_default_rule_present ) {
+			return new WP_Error( 'schema-validation', __( 'Schema validation failed: default rule is missing', 'vip-governance' ) );
+		}
+
+		// At the moment this should never be reached, but it's there for when we add more rules
+		return true;
 	}
 
 	/**
