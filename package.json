@@ -23,6 +23,7 @@
 	"scripts": {
 		"lint:js": "eslint . --ext .js",
 		"build": "wp-scripts build ./src/index.js",
+		"build:watch": "wp-scripts build --watch ./src/index.js",
 		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' '!build' > /dev/null",
 		"phpcs": "vendor/bin/phpcs --cache",
 		"phpcs:fix": "vendor/bin/phpcbf",

@@ -30,23 +30,19 @@ class InitGovernance {
 		);
 
 		try {
-			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
-			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
-			$interactive_governance_rule = $governance_rule['blockSettings'];
-			$governance_errors           = false;
-			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
+			$parsed_governance_rules   = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$governance_rules_for_user = self::get_rules_for_user( $parsed_governance_rules );
+			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
+			$governance_errors         = false;
+			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 		} catch ( Exception $e ) {
 			$governance_errors = $e->getMessage();
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'errors'         => $governance_errors,
-			'governanceRule' => $governance_rule,
-			'nestedSettings' => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
-
-			// Temporary hardcoded block locking settings
-			'isLockdownMode' => BlockLocking::$is_lockdown_mode,
-			'allowedBlocks'  => BlockLocking::$allowed_blocks,
+			'errors'          => $governance_errors,
+			'governanceRules' => $governance_rules_for_user,
+			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
 		]);
 
 		wp_enqueue_script( 'wpcomvip-governance' );
@@ -54,10 +50,10 @@ class InitGovernance {
 
 	public static function load_css() {
 		try {
-			$parsed_governance_rule      = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
-			$governance_rule             = self::get_rules_for_user( $parsed_governance_rule );
-			$interactive_governance_rule = $governance_rule['blockSettings'];
-			$nested_settings_and_css     = NestedGovernanceProcessing::get_nested_settings_and_css( $interactive_governance_rule );
+			$parsed_governance_rules   = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$governance_rules_for_user = self::get_rules_for_user( $parsed_governance_rules );
+			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
+			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 			wp_register_style(
 				'wpcomvip-governance',
 				WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
