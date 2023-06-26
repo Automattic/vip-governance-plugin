@@ -1,4 +1,7 @@
-import { Disabled,  } from '@wordpress/components';
+/**
+ * WordPress dependencies
+ */
+import { Disabled } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import {
@@ -6,6 +9,9 @@ import {
 	privateApis as blockEditorPrivateApis,
 } from '@wordpress/block-editor';
 
+/**
+ * Private WordPress dependencies
+ */
 import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
 export const { lock, unlock } =
 	__dangerousOptInToUnstableAPIsOnlyForCoreModules(
@@ -16,10 +22,16 @@ export const { lock, unlock } =
 
 const { useBlockEditingMode } = unlock( blockEditorPrivateApis );
 
+/**
+ * Internal dependencies
+ */
+import { doesBlockNameMatchBlockRegex } from './block-utils';
+
 export function setupBlockLocking( allowedBlocks ) {
 	const withDisabledBlocks = createHigherOrderComponent( BlockEdit => {
 		return props => {
-			const isAllowed = allowedBlocks.includes( props.name );
+			const blockName = props.name;
+			const isAllowed = allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockName, allowedBlock ) );
 
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;

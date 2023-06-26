@@ -1,3 +1,5 @@
+import { doesBlockNameMatchBlockRegex } from './block-utils';
+
 export const isBlockAllowed = (
 	canInsert,
 	blockType,
@@ -44,27 +46,5 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 }
 
 function isRootBlockAllowed( blockName, rules ) {
-	return rules.some( rule => matchBlockToRule( rule, blockName ) );
-}
-
-/**
- * Matches a rule to a block name, with the following cases being possible:
- *
- * 1. ['*'] - matches all blocks
- * 2. '*' can be located somewhere else alongside a string, e.g. 'core/*' - matches all core blocks
- * 3. ['core/paragraph'] - matches only the core/paragraph block
- *
- * @param {*} rule
- * @param {*} blockName
- * @returns true, if the block name matches the rule or false otherwise
- */
-function matchBlockToRule( rule, blockName ) {
-	if ( rule === '*' ) {
-		return true;
-	} else if ( rule.includes( '*' ) ) {
-		const [ stringToMatch ] = rule.split( '*' );
-		return blockName.startsWith( stringToMatch );
-	}
-
-	return rule === blockName;
+	return rules.some( rule => doesBlockNameMatchBlockRegex( blockName, rule ) );
 }
