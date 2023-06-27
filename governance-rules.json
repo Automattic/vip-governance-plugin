@@ -5,7 +5,7 @@
 		{
 			"type": "role",
 			"roles": [ "editor", "administrator" ],
-			"allowedBlocks": [ "core/quote", "core/media-text", "core/image", "core", "core/*" ],
+			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
 				"core/media-text": {
 					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
