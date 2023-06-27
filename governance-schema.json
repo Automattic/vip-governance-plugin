@@ -8,7 +8,8 @@
 			"items": [
 				{
 					"type": "string",
-					"pattern": "^.*/.*$"
+					"pattern": "^.*/.*$",
+					"examples": [ "core/*", "core/paragraph", "core/heading" ]
 				}
 			],
 			"minItems": 1
@@ -70,9 +71,6 @@
 				"blockSettings": {
 					"$ref": "#/definitions/ruleBlockSettingsProperties"
 				}
-			},
-			"error": {
-				"message": "Default rule must have type 'default', can only contain allowedBlocks and blockSettings and cannot have role set"
 			},
 			"required": [ "type" ],
 			"additionalProperties": false,
