@@ -1,11 +1,11 @@
 {
 	"$schema": "./governance-schema.json",
-	"version": "0.1.0",
+	"version": "0.5.9.0",
 	"rules": [
 		{
 			"type": "role",
 			"roles": [ "editor", "administrator" ],
-			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
+			"allowedBlocks": [ "core/quote", "core/media-text", "core/image", "core", "core/*" ],
 			"blockSettings": {
 				"core/media-text": {
 					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],

@@ -9,6 +9,10 @@
 				"type": "string",
 				"examples": [ "core/*", "core/paragraph", "core/heading" ]
 			},
+			"contains": {
+				"type": "string",
+				"pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$"
+			},
 			"minItems": 1
 		},
 		"blockSettingsProperties": {
@@ -90,7 +94,8 @@
 					"items": {
 						"type": "string"
 					},
-					"examples": [ [ "administrator", "editor" ] ]
+					"examples": [ [ "administrator", "editor" ] ],
+					"minItems": 1
 				},
 				"allowedBlocks": {
 					"$ref": "#/definitions/allowedBlocksArray"
@@ -116,7 +121,9 @@
 		"version": {
 			"description": "Version of governance JSON",
 			"type": "string",
-			"examples": [ "0.1.0" ]
+			"examples": [ "0.1.0" ],
+			"default": "0.1.0",
+			"pattern": "^\\d+\\.\\d+\\.\\d+$"
 		},
 		"rules": {
 			"description": "Array of governance rules",
