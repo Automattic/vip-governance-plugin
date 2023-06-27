@@ -1,10 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { Disabled } from '@wordpress/components';
+import { Disabled, Panel } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { store as blockEditorStore, privateApis } from '@wordpress/block-editor';
+import { InspectorControls, store as blockEditorStore, privateApis } from '@wordpress/block-editor';
 import { select } from '@wordpress/data';
 
 /**
@@ -14,8 +14,7 @@ import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/pri
 export const { lock, unlock } =
 	__dangerousOptInToUnstableAPIsOnlyForCoreModules(
 		'I know using unstable features means my plugin or theme will inevitably break on the next WordPress release.',
-		'@wordpress/block-editor' // Name of the package calling __dangerousOptInToUnstableAPIsOnlyForCoreModules,
-		// (not the name of the package whose APIs you want to access)
+		'@wordpress/block-editor'
 	);
 
 const { useBlockEditingMode } = unlock( privateApis );
@@ -56,13 +55,19 @@ export function setupBlockLocking( allowedBlocks ) {
 				// Set 'vip-locked' so that children can detect they're within an existing locked block
 				props.setAttributes({ 'vip-locked': true });
 
-				return (
+				return <div className={ 'vip-locked-panel-wrapper' }>
+					<InspectorControls className={ 'vip-locked-inspector-controls '}>
+						<Panel className={ 'vip-locked-panel' }>
+							<div>Test locked message</div>
+						</Panel>
+					</InspectorControls>
+
 					<Disabled>
 						<div style={ { opacity: 0.6, 'background-color': '#eee', border: '2px dashed #999' } }>
 							<BlockEdit { ...props } />
 						</div>
 					</Disabled>
-				);
+				</div>;
 			}
 		};
 	}, 'withDisabledBlocks' );
