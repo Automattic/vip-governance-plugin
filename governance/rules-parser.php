@@ -105,7 +105,7 @@ class RulesParser {
 			$error = $validation_result->error();
 
 			$formatter       = new ErrorFormatter();
-			$formatted_error = wp_json_encode( $formatter->format( $error, /* multiple */ true ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+			$formatted_error = wp_json_encode( $formatter->format( $error, /* multiple */ false ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 
 			/* translators: %s: Technical data - JSON parsing error */
 			$error_message = sprintf( __( 'Schema validation failed: %s', 'vip-governance' ), $formatted_error );
