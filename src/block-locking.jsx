@@ -8,18 +8,6 @@ import { InspectorControls, store as blockEditorStore, privateApis } from '@word
 import { select } from '@wordpress/data';
 
 /**
- * Private WordPress dependencies
- */
-import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
-export const { lock, unlock } =
-	__dangerousOptInToUnstableAPIsOnlyForCoreModules(
-		'I know using unstable features means my plugin or theme will inevitably break on the next WordPress release.',
-		'@wordpress/block-editor'
-	);
-
-const { useBlockEditingMode } = unlock( privateApis );
-
-/**
  * Internal dependencies
  */
 import { doesBlockNameMatchBlockRegex } from './block-utils';
@@ -47,27 +35,16 @@ export function setupBlockLocking( allowedBlocks ) {
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
 			} else {
-				// Warning: Unstable API.
-				// Valid block editing modes are 'disabled', 'contentOnly', or 'default':
-				// https://github.com/WordPress/gutenberg/blob/075d937/packages/block-editor/src/components/block-editing-mode/index.js#L30-L36
-				useBlockEditingMode( 'disabled' );
-
 				// Set 'vip-locked' so that children can detect they're within an existing locked block
 				props.setAttributes({ 'vip-locked': true });
 
-				return <div className={ 'vip-locked-panel-wrapper' }>
-					<InspectorControls className={ 'vip-locked-inspector-controls '}>
-						<Panel className={ 'vip-locked-panel' }>
-							<div>Test locked message</div>
-						</Panel>
-					</InspectorControls>
-
+				return <>
 					<Disabled>
 						<div style={ { opacity: 0.6, 'background-color': '#eee', border: '2px dashed #999' } }>
 							<BlockEdit { ...props } />
 						</div>
 					</Disabled>
-				</div>;
+				</>;
 			}
 		};
 	}, 'withDisabledBlocks' );
