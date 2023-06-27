@@ -34,8 +34,6 @@ class RulesParser {
 			return [];
 		}
 
-		
-
 		// Validate against governance rules schema
 		$schema_validation_result = self::validate_rules_schema( $rules_parsed );
 

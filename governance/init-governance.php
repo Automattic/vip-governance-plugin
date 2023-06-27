@@ -94,7 +94,6 @@ class InitGovernance {
 
 		if ( is_wp_error( $governance_rules ) ) {
 			$error_message = $governance_rules->get_error_message();
-			$error_details = $governance_rules->get_error_data();
 
 			/* translators: %s: governance file name */
 			$error_message = sprintf( __( 'Governance rules could not be loaded: %s', 'vip-governance' ), $error_message );
@@ -121,6 +120,12 @@ class InitGovernance {
 		$block_settings = array();
 
 		foreach ( $governance_rules as $rule ) {
+
+			if ( isset( $rule['allowedBlocks'] ) && preg_grep( '/^.*\/.*$/gm', $rule['allowedBlocks'], PREG_GREP_INVERT ) ) {
+					/* translators: %s: rules file doesn't exist */
+					throw new Exception( __( 'Invalid block names provided in the allowedBlocks property of the Governance Rules.', 'vip-governance' ) );
+			}
+
 			// The allowed blocks can be merged together with the default role to get a super set
 			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
 			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {

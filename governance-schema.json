@@ -5,14 +5,12 @@
 		"allowedBlocksArray": {
 			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
 			"type": "array",
-			"items": {
-				"type": "string",
-				"examples": [ "core/*", "core/paragraph", "core/heading" ]
-			},
-			"contains": {
-				"type": "string",
-				"pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$"
-			},
+			"items": [
+				{
+					"type": "string",
+					"pattern": "^.*/.*$"
+				}
+			],
 			"minItems": 1
 		},
 		"blockSettingsProperties": {
@@ -121,9 +119,8 @@
 		"version": {
 			"description": "Version of governance JSON",
 			"type": "string",
-			"examples": [ "0.1.0" ],
-			"default": "0.1.0",
-			"pattern": "^\\d+\\.\\d+\\.\\d+$"
+			"enum": [ "0.1.0" ],
+			"default": "0.1.0"
 		},
 		"rules": {
 			"description": "Array of governance rules",
