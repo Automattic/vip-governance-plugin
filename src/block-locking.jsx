@@ -1,10 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { Disabled, Panel } from '@wordpress/components';
+import { Disabled } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls, store as blockEditorStore, privateApis } from '@wordpress/block-editor';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { select } from '@wordpress/data';
 
 /**
