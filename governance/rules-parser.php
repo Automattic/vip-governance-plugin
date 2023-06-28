@@ -93,7 +93,9 @@ class RulesParser {
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- File location is hardcoded.
 		$schema_contents = file_get_contents( $schema_file_path );
 
-		$validator         = new Validator();
+		$validator = new Validator();
+		// Ensures that we don't overload the user with errors.
+		$validator->setMaxErrors( 5 );
 		$rules_as_stdclass = Helper::toJSON( $rules );
 		$validation_result = $validator->validate( $rules_as_stdclass, $schema_contents );
 

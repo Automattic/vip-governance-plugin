@@ -89,7 +89,6 @@ class InitGovernance {
 
 		if ( is_wp_error( $governance_rules ) ) {
 			$error_message = $governance_rules->get_error_message();
-			$error_details = $governance_rules->get_error_data();
 
 			/* translators: %s: governance file name */
 			$error_message = sprintf( __( 'Governance rules could not be loaded: %s', 'vip-governance' ), $error_message );

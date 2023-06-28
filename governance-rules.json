@@ -8,7 +8,7 @@
 			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
 				"core/media-text": {
-					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
+					"allowedChildren": [ "core/paragraph", "core/heading", "core/image", "core/audio" ],
 					"core/heading": {
 						"color": {
 							"text": true,
@@ -23,7 +23,7 @@
 					}
 				},
 				"core/quote": {
-					"allowedChildren": [ "core/paragraph", "core/heading" ],
+					"allowedChildren": [ "core/paragraph", "core/heading", "core/calendar" ],
 					"core/paragraph": {
 						"color": {
 							"text": true,

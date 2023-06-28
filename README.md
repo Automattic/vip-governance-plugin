@@ -1,94 +1,24 @@
 # VIP Governance plugin
 
-This is a plugin meant to enhance Gutenberg to add in governance features, that will provide the following:
+This is a WordPress plugin that's meant to add in governance within the Block Editor, specifically for two dimensions:
 
-- Control the styling available for nested blocks.
-- Control the blocks that are allowed to be inserted, including the children as well.
+- Insertion: This is the ability to control the blocks that are allowed to be inserted.
+- Interaction: This is the ability to control the styling available for nested blocks.
 
 ## Requirements
 
-This plugin requires 2 files at the moment:
+This plugin requires `governance-rules.json` to exist in the private folder, or within the plugin itself to work.
 
-`insertions-governance.json`
+### Example & Schema Validation
 
-The format for this can be in two ways:
+Check out [this sample file](https://github.com/Automattic/vip-governance-plugin/blob/trunk/governance-rules.json) to see an example of what this looks like.
 
-This format allows you to specify what blocks are allowed. Everything not mentioned here will be blocked.
+If that above sample file is used, the rules are as follows:
 
-```json
-{
-    "allowed": [
-        {
-            "blockName": "core/quote",
-            "children": [
-                {
-                    "blockName": "core/paragraph"
-                }
-            ]
-        },
-        {
-            "blockName": "core/paragraph"
-        },
-        {
-            "blockName": "core/heading"
-        },
-        {
-            "blockName": "core/media-text",
-            "children": [
-                {
-                    "blockName": "core/paragraph"
-                },
-                {
-                    "blockName": "core/heading"
-                }
-            ]
-        }
-    ]
-}
-```
+- Default: This is going to apply to everyone as a baseline. Heading/paragraph blocks are allowed, and for a heading a custom red colour will appear as a possible text colour option.
+- Editor/Administrator role: Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A heading sitting inside a media-text will be allowed to have a custom red colour as it's text. But the default rule of custom red for a heading at the root level will nto appear. In addition to that, a media-text block will be allowed to have paragraph, heading, image and audio blocks as children and a quote block will be allowed to have paragraph, heading and calendar blocks as children.
 
-This format allows you to specify what blocks are blocked. Everything not mentioned here will be allowed. 
-
-Note: Specifying the children here means that the block itself is allowed, but there's restrictions on what children are allowed within that block.
-
-```json
-{
-    "blocked": [
-        {
-            "blockName": "core/quote"
-        },
-        {
-            "blockName": "core/media-text",
-            "children": [
-                {
-                    "blockName": "core/quote"
-                }
-            ]
-        }
-    ]
-}
-```
-
-`interactions-governance.json`
-
-```json
-{
-	"core/media-text": {
-		"core/heading": {
-			"color": {
-				"text": true,
-				"palette": [
-					{
-						"color": "#ff0000",
-						"name": "Custom red",
-						"slug": "custom-red"
-					}
-				]
-			}
-		}
-	}
-}
-```
+There's also a schema available [here](https://github.com/Automattic/vip-governance-plugin/blob/trunk/governance-schema.json), to help you craft up a custom rules file.
 
 ## Setup
 

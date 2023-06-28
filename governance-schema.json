@@ -5,10 +5,13 @@
 		"allowedBlocksArray": {
 			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
 			"type": "array",
-			"items": {
-				"type": "string",
-				"examples": [ "core/*", "core/paragraph", "core/heading" ]
-			}
+			"items": [
+				{
+					"type": "string",
+					"examples": [ "*", "core/*", "core/paragraph", "core/heading" ]
+				}
+			],
+			"minItems": 1
 		},
 		"blockSettingsProperties": {
 			"description": "Block settings for block or nested inner block types",
@@ -69,7 +72,9 @@
 				}
 			},
 			"required": [ "type" ],
-			"additionalProperties": false
+			"additionalProperties": false,
+			"minProperties": 2,
+			"maxProperties": 3
 		},
 		"ruleRoleProperties": {
 			"type": "object",
@@ -84,7 +89,8 @@
 					"items": {
 						"type": "string"
 					},
-					"examples": [ [ "administrator", "editor" ] ]
+					"examples": [ [ "administrator", "editor" ] ],
+					"minItems": 1
 				},
 				"allowedBlocks": {
 					"$ref": "#/definitions/allowedBlocksArray"
@@ -94,12 +100,14 @@
 				}
 			},
 			"required": [ "type", "roles" ],
-			"additionalProperties": false
+			"additionalProperties": false,
+			"minProperties": 3,
+			"maxProperties": 4
 		}
 	},
 	"type": "object",
 	"default": {},
-	"required": [ "rules" ],
+	"required": [ "rules", "version" ],
 	"properties": {
 		"$schema": {
 			"description": "JSON schema URI for governance JSON",
@@ -108,7 +116,7 @@
 		"version": {
 			"description": "Version of governance JSON",
 			"type": "string",
-			"examples": [ "0.1.0" ]
+			"enum": [ "0.1.0" ]
 		},
 		"rules": {
 			"description": "Array of governance rules",
