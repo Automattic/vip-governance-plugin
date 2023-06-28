@@ -18,21 +18,16 @@ export const isBlockAllowed = (
 	}
 
 	// ToDo: Use the allowedChildren property under blockSettings to guard against nested blocks
-	return isParentBlockAllowed(
-		rootClientId,
-		blockType,
-		getBlock,
-		canInsert,
-		governanceRules.allowedBlocks
-	);
+	return isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, governanceRules );
 };
 
 function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
 	const parentBlock = getBlock( rootClientId );
 
 	// Need a basic set of rules here for some blocks
-	// 1 - for core/quote -> paragraph is always allowed
+	// 1 - for quote -> paragraph is always allowed
 	// 2 - for media/text -> image and paragraph is always allowed
+	// 3 - for pullquote -> paragraph is always allowed
 	if ( parentBlock.name === 'core/quote' && blockType.name === 'core/paragraph' ) {
 		return canInsert;
 	} else if (
@@ -40,9 +35,26 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 		blockType.name in [ 'core/image', 'core/paragraph' ]
 	) {
 		return canInsert;
+	} else if ( parentBlock.name === 'core/pullquote' && blockType.name === 'core/paragraph' ) {
+		return canInsert;
 	}
 
-	return isRootBlockAllowed( blockType.name, rules );
+	// TODO: Allow adding to the default rules for both and root by the customer, in case they have some custom blocks that they want to take into account.
+
+	if (
+		rules.blockSettings &&
+		rules.blockSettings[ parentBlock.name ] &&
+		rules.blockSettings[ parentBlock.name ].allowedChildren
+	) {
+		return isRootBlockAllowed(
+			blockType.name,
+			rules.blockSettings[ parentBlock.name ].allowedChildren
+		);
+	}
+
+	return false;
+
+	// return isRootBlockAllowed( blockType.name, rules );
 }
 
 function isRootBlockAllowed( blockName, rules ) {
