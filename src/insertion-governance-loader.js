@@ -17,7 +17,6 @@ export const isBlockAllowed = (
 		return isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
 	}
 
-	// ToDo: Use the allowedChildren property under blockSettings to guard against nested blocks
 	return isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, governanceRules );
 };
 
@@ -53,8 +52,6 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 	}
 
 	return false;
-
-	// return isRootBlockAllowed( blockType.name, rules );
 }
 
 function isRootBlockAllowed( blockName, rules ) {
