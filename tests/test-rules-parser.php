@@ -23,6 +23,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_empty_rules_array__returns_empty_rules() {
 		$rules_content = '{
+			"version": "0.1.0",
 			"rules": []
 		}';
 
@@ -43,6 +44,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_allowed_blocks_rule__passes_validation() {
 		$rules_content = '{
+			"version": "0.1.0",
 			"rules": [
 				{
 					"type": "default",
@@ -69,6 +71,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_rule_with_roles__returns_error() {
 		$rules_content = '{
+			"version": "0.1.0",
 			"rules": [
 				{
 					"type": "default",
