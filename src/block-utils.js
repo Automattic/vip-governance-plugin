@@ -10,11 +10,9 @@
  * @returns True if the block name matches the rule, or false otherwise
  */
 export function doesBlockNameMatchBlockRegex( blockName, rule ) {
-	if ( rule === '*' ) {
-		return true;
-	} else if ( rule.includes( '*' ) ) {
-		const [ stringToMatch ] = rule.split( '*' );
-		return blockName.startsWith( stringToMatch );
+	if ( rule.includes( '*' ) ) {
+		// eslint-disable-next-line security/detect-non-literal-regexp
+		return blockName.match( new RegExp( rule.replace( '*', '.*' ) ) );
 	}
 
 	return rule === blockName;

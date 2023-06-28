@@ -8,8 +8,7 @@
 			"items": [
 				{
 					"type": "string",
-					"pattern": "^.*/.*$",
-					"examples": [ "core/*", "core/paragraph", "core/heading" ]
+					"examples": [ "*", "core/*", "core/paragraph", "core/heading" ]
 				}
 			],
 			"minItems": 1
@@ -108,7 +107,7 @@
 	},
 	"type": "object",
 	"default": {},
-	"required": [ "rules" ],
+	"required": [ "rules", "version" ],
 	"properties": {
 		"$schema": {
 			"description": "JSON schema URI for governance JSON",
@@ -117,8 +116,7 @@
 		"version": {
 			"description": "Version of governance JSON",
 			"type": "string",
-			"enum": [ "0.1.0" ],
-			"default": "0.1.0"
+			"enum": [ "0.1.0" ]
 		},
 		"rules": {
 			"description": "Array of governance rules",

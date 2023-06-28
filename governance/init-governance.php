@@ -115,15 +115,6 @@ class InitGovernance {
 		$block_settings = array();
 
 		foreach ( $governance_rules as $rule ) {
-
-			// Ensure that the allowed blocks only contain blocks name in the form of namespace/block-name or namespace/*
-			if ( isset( $rule['allowedBlocks'] ) && preg_grep( '/^.*\/.*$/', $rule['allowedBlocks'], PREG_GREP_INVERT ) ) {
-				/* translators: %s: rules file doesn't exist */
-				throw new Exception( __( 'Invalid block names provided in the allowedBlocks property of the Governance Rules.', 'vip-governance' ) );
-			}
-
-			// TODO: Verify the allowedChildren in the same way as well
-
 			// The allowed blocks can be merged together with the default role to get a super set
 			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
 			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
