@@ -4,7 +4,6 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-use JsonException;
 use Exception;
 
 class InitGovernance {

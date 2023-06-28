@@ -17,8 +17,6 @@ function setup() {
 	}
 
 	const governanceRules = VIP_GOVERNANCE.governanceRules;
-	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
-	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
 	addFilter(
 		'blockEditor.__unstableCanInsertBlockType',
@@ -29,6 +27,9 @@ function setup() {
 			} );
 		}
 	);
+
+	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
+	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
 	addFilter(
 		'blockEditor.useSetting.before',
