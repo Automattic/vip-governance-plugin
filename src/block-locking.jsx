@@ -30,6 +30,7 @@ export function setupBlockLocking( allowedBlocks ) {
 				return <BlockEdit { ...props } />;
 			}
 
+			// ToDo: Make this overridable via a filter
 			const isAllowed = allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockName, allowedBlock ) );
 
 			if ( isAllowed ) {

@@ -171,6 +171,43 @@ With this example, you'll get the following rules:
 
 You can find the schema that's used for validating the rules [here][repo-schema-location]. This will help you in crafting up the custom rules file if the example provided above is not sufficient.
 
+## Code Filters
+
+There are filters in place, that can be applied to change the behaviour for what's allowed and what's not allowed.
+
+### `vip_governance__block_allowed_for_insertion`
+
+Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to further add on any logic you may have to change if its allowed or not.
+
+```js
+/**
+ * Change what blocks are allowed to be inserted in the block editor.
+ * 
+ * @param result Whether or not the block will be allowed
+ * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
+ * @param blockType The block, whose name can be accessed using blockType.name
+ * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
+ * @param governanceRules The governance rules for the current user. The relevant property on this is allowedBlocks and blockSettings
+ */
+return apply_filters( 'vip_governance__block_allowed_for_insertion', result, rootClientId, blockType, getBlock, governanceRules );
+```
+
+For example, this filter can be used to allow the insertion of a custom block even if its not allowed by the governance rules:
+
+```js
+addFilter(
+	'vip_governance__block_allowed_for_insertion',
+	'example/restrict-insertion`,
+	( result, rootClientId, blockType, getBlock, governanceRules ) => {
+		if ( rootClientId && blockType.name === 'custom/my-amazing-block' ) {
+			return true;
+		}
+
+		return result;
+	}
+);
+```
+
 ## Development
 
 In order to ensure no dev dependencies go in, the following can be done while installing the packages:
