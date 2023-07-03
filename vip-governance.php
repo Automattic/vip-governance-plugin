@@ -36,3 +36,4 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/governance/rules-parser.php';
 require_once __DIR__ . '/governance/init-governance.php';
 require_once __DIR__ . '/governance/nested-governance-processing.php';
+require_once __DIR__ . '/governance/wp-admin-panel.php';
