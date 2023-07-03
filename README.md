@@ -61,31 +61,111 @@ To activate the installed plugin:
 2. Select **Plugins** from the lefthand navigation menu.
 3. Locate the "VIP Governance" plugin in the list and select the "Activate" link located below it.
 
-    ![Plugin activation][media-plugin-activate]
-
 ## Usage
 
-In order to start using this plugin, you'll need to create `governance-rules.json` in your private folder. We have provided some examples [here][repo-examples] that you can use as a starting point.
+In order to start using this plugin, you'll need to create `governance-rules.json` in your private folder. Below are some examples that you can use as a starting point for your rules.
 
 ### Examples
 
 #### Default
 
-This is breaking down the default[`governance-rules.json`][repo-default-example].
+This is the default rule set used by the plugin.
+
+```json
+{
+	"$schema": "./governance-schema.json",
+	"version": "0.1.0",
+	"rules": [
+		{
+			"type": "default",
+			"allowedBlocks": [ "*" ]
+		}
+	]
+}
+```
 
 With this default rule set, you'll get the following rules:
 
 - All blocks are allowed to be inserted across all the roles. 
-- There are no restrictions, including on what children are allowed under a block.
+    - There are no restrictions, including on what children are allowed under a block.
 
-#### Example 1
+#### Example
 
-This is breaking down [example-1.json][repo-example-1]. 
+This is an example in which you want to separate the rules on a per role basis, and restrict the children available but not ban them outright.
+
+```json
+{
+	"$schema": "./governance-schema.json",
+	"version": "0.1.0",
+	"rules": [
+		{
+			"type": "role",
+			"roles": [ "editor", "administrator" ],
+			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
+			"blockSettings": {
+				"core/media-text": {
+					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
+					"core/heading": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#ff0000",
+									"name": "Custom red",
+									"slug": "custom-red"
+								}
+							]
+						}
+					}
+				},
+				"core/quote": {
+					"allowedChildren": [ "core/paragraph", "core/heading" ],
+					"core/paragraph": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#ff0000",
+									"name": "Custom red",
+									"slug": "custom-red"
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"type": "default",
+			"allowedBlocks": [ "core/heading", "core/paragraph" ],
+			"blockSettings": {
+				"core/heading": {
+					"color": {
+						"text": true,
+						"palette": [
+							{
+								"color": "#ff0000",
+								"name": "Custom red",
+								"slug": "custom-red"
+							}
+						]
+					}
+				}
+			}
+		}
+	]
+}
+```
 
 With this example, you'll get the following rules:
 
-- Default: This is going to apply to everyone as a baseline. Heading/paragraph blocks are allowed, and for a heading a custom red colour will appear as a possible text colour option.
-- Editor/Administrator role: Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A heading sitting inside a media-text will be allowed to have a custom red colour as it's text. But the default rule of custom red for a heading at the root level will also appear. In addition to that, a media-text block will be allowed to have paragraph, heading, and image as children and a quote block will be allowed to have paragraph, and heading as children.
+- Default: This is going to apply to everyone as a baseline.
+    - Heading/paragraph blocks are allowed
+    - For a heading at the root level, a custom red colour will appear as a possible text colour option.
+- Editor/Administrator role: Since only one `blockSettings` can apply the one mentioned here will be used, and the `allowedBlocks` will be combined. What we will get:
+    - Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A quote block will be allowed to have heading, and paragraph as its children while a media-text block will be allowed to have heading, paragraph and image as its children.
+    - A heading sitting inside a media-text will be allowed to have a custom red colour as it's text.
+    - The heading at the root level will not have custom red colour available.
 
 ### Schema Definition
 
@@ -110,10 +190,7 @@ composer run test
 ```
 
 <!-- Links -->
-[repo-default-example]: governance-rules.json
 [repo-schema-location]: governance-schema.json
-[repo-examples]: docs/examples
-[repo-example-1]: docs/examples/example-1.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
