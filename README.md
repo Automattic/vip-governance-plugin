@@ -14,7 +14,7 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
 - [Usage](#usage)
     - [Examples](#examples)
         - [Default](#default)
-        - [Example 1](#example-1)
+        - [Restrict Children](#restrict-children)
     - [Schema Definition](#schema-definition)    
 - [Development](#development)
 	- [Tests](#tests)
@@ -89,9 +89,9 @@ With this default rule set, you'll get the following rules:
 - All blocks are allowed to be inserted across all the roles. 
     - There are no restrictions, including on what children are allowed under a block.
 
-#### Example
+#### Restrict Children
 
-This is an example in which you want to separate the rules on a per role basis, and restrict the children available but not ban them outright.
+This is an example in which you want to separate the rules on a per role basis, and restrict the children available but not ban them outright. In addition, you want to provide an extra colour option for these children.
 
 ```json
 {
