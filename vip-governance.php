@@ -38,3 +38,4 @@ require_once __DIR__ . '/governance/init-governance.php';
 require_once __DIR__ . '/governance/nested-governance-processing.php';
 require_once __DIR__ . '/governance/block-locking.php';
 require_once __DIR__ . '/governance/analytics.php';
+require_once __DIR__ . '/governance/wp-admin-panel.php';
