@@ -38,6 +38,8 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 			blockType.name,
 			rules.blockSettings[ parentBlock.name ].allowedChildren
 		);
+	} else if ( rules.allowedBlocks.length === 1 && rules.allowedBlocks[0] === '*' ) {
+		return canInsert;
 	}
 
 	return false;
