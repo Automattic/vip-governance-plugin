@@ -2,6 +2,16 @@
 	"$schema": "https://json-schema.org/draft-07/schema",
 	"title": "VIP governance rules JSON schema",
 	"definitions": {
+		"allowedFeaturesArray": {
+			"description": "Array of allowed features for this rule. Supported features are codeEditor and moveBlocks",
+			"type": "array",
+			"items": [
+				{
+					"type": "string",
+					"enum": [ "codeEditor", "moveBlocks" ]
+				}
+			]
+		},
 		"allowedBlocksArray": {
 			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
 			"type": "array",
@@ -64,6 +74,9 @@
 					"type": "string",
 					"enum": [ "default" ]
 				},
+				"allowedFeatures": {
+					"$ref": "#/definitions/allowedFeaturesArray"
+				},
 				"allowedBlocks": {
 					"$ref": "#/definitions/allowedBlocksArray"
 				},
@@ -74,7 +87,7 @@
 			"required": [ "type" ],
 			"additionalProperties": false,
 			"minProperties": 2,
-			"maxProperties": 3
+			"maxProperties": 4
 		},
 		"ruleRoleProperties": {
 			"type": "object",
@@ -92,6 +105,9 @@
 					"examples": [ [ "administrator", "editor" ] ],
 					"minItems": 1
 				},
+				"allowedFeatures": {
+					"$ref": "#/definitions/allowedFeaturesArray"
+				},
 				"allowedBlocks": {
 					"$ref": "#/definitions/allowedBlocksArray"
 				},
@@ -102,7 +118,7 @@
 			"required": [ "type", "roles" ],
 			"additionalProperties": false,
 			"minProperties": 3,
-			"maxProperties": 4
+			"maxProperties": 5
 		}
 	},
 	"type": "object",

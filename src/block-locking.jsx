@@ -12,7 +12,7 @@ import { select } from '@wordpress/data';
  */
 import { doesBlockNameMatchBlockRegex } from './block-utils';
 
-export function setupBlockLocking( allowedBlocks ) {
+export function setupBlockLocking( governanceRules ) {
 	const withDisabledBlocks = createHigherOrderComponent( BlockEdit => {
 		return props => {
 			const { name: blockName, clientId } = props;
@@ -31,7 +31,7 @@ export function setupBlockLocking( allowedBlocks ) {
 			}
 
 			// ToDo: Make this overridable via a filter
-			const isAllowed = allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockName, allowedBlock ) );
+			const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockName, allowedBlock ) );
 
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
@@ -51,4 +51,29 @@ export function setupBlockLocking( allowedBlocks ) {
 	}, 'withDisabledBlocks' );
 
 	addFilter( 'editor.BlockEdit', 'wpcomvip-governance/with-disabled-blocks', withDisabledBlocks );
+
+	if ( ! governanceRules.allowedFeatures || ! governanceRules.allowedFeatures.includes( 'moveBlocks' ) ) {
+		const withLockAttribute = ( blockAttributes, blockType, innerHTML, attributes ) => {
+			// ToDo: Make this overridable via a filter
+			const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockType, allowedBlock ) );
+	
+			if ( isAllowed ) {
+				return blockAttributes;
+			}
+			return {
+				...blockAttributes,
+				lock: {
+					move: true,
+					remove: true,
+				},
+			};
+		};
+	
+		addFilter(
+			'blocks.getBlockAttributes',
+			'wpcomvip-governance/with-disabled-move',
+			withLockAttribute,
+		);
+	}
+
 }

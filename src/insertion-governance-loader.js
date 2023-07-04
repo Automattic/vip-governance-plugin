@@ -19,7 +19,14 @@ export const isBlockAllowed = (
 	}
 
 	// Allow overriding the result using a filter
-	return applyFilters( 'vip_governance__block_allowed_for_insertion', result, rootClientId, blockType, getBlock, governanceRules );
+	return applyFilters(
+		'vip_governance__block_allowed_for_insertion',
+		result,
+		rootClientId,
+		blockType,
+		getBlock,
+		governanceRules
+	);
 };
 
 function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
@@ -38,7 +45,7 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 			blockType.name,
 			rules.blockSettings[ parentBlock.name ].allowedChildren
 		);
-	} else if ( rules.allowedBlocks.length === 1 && rules.allowedBlocks[0] === '*' ) {
+	} else if ( rules.allowedBlocks.length === 1 && rules.allowedBlocks[ 0 ] === '*' ) {
 		return canInsert;
 	}
 

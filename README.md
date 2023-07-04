@@ -8,16 +8,15 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
 ## Table of contents
 
 - [Installation](#installation)
-	- [Install via `git subtree`](#install-via-git-subtree)
-	- [Install via ZIP file](#install-via-zip-file)
-	- [Plugin activation](#plugin-activation)
+  - [Install via `git subtree`](#install-via-git-subtree)
+  - [Install via ZIP file](#install-via-zip-file)
+  - [Plugin activation](#plugin-activation)
 - [Usage](#usage)
-    - [Examples](#examples)
-        - [Default](#default)
-        - [Restrict Children](#restrict-children)
-    - [Schema Definition](#schema-definition)    
+  - [Schema Basics](#schema-basics)
+    - [Default](#default)
+    - [Restrictions](#restrictions)
 - [Development](#development)
-	- [Tests](#tests)
+  - [Tests](#tests)
 
 ## Installation
 
@@ -63,9 +62,23 @@ To activate the installed plugin:
 
 ## Usage
 
-In order to start using this plugin, you'll need to create `governance-rules.json` in your private folder. Below are some examples that you can use as a starting point for your rules.
+In order to start using this plugin, you'll need to create `governance-rules.json` in your private folder.
 
-### Examples
+### Schema Basics
+
+You can find the schema definition that's used for the rules [here][repo-schema-location].
+
+Each rule has two basic identifiers - `type` and `roles`. Setting the `type` to `default` means that it's your default rule. This has to be provided. Setting the `type` to `role` on the other hand, means that you need to specify `roles` that this rule would be matched against.
+
+Below is a short breakdown of some of the items allowed in a rule:
+
+`allowedFeatures`: These are the features that are allowed in the block editor. Currently, there are only two values allowed in here - `codeEditor` and `moveBlocks`. The former disables/enables access to the code editor while the latter enables/disables the ability to move/lock blocks. This can either go in your default rule, or in your role specific rule. The role specific rule takes precedence over the default rule, if the role of the user working in the block editor matches it.
+
+`blockSettings`: These are specific settings related to the styling available for a block, and even for a nested block. There's also an additional capability of mentioning `allowedChildren` to restrict what blocks can be nested in another block. This can either go in your default rule, or in your role specific rule. The role specific rule takes precedence over the default rule, if the role of the user working in the block editor matches it.
+
+`allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor. This can go in your default rule, and in your role specific rule. The role specific rule will be merged with the default rule, if the role of the user working in the block editor matches it.
+
+Below are some examples of some rules that you can adopt:
 
 #### Default
 
@@ -78,6 +91,7 @@ This is the default rule set used by the plugin.
 	"rules": [
 		{
 			"type": "default",
+			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
 			"allowedBlocks": [ "*" ]
 		}
 	]
@@ -86,12 +100,13 @@ This is the default rule set used by the plugin.
 
 With this default rule set, you'll get the following rules:
 
-- All blocks are allowed to be inserted across all the roles. 
-    - There are no restrictions, including on what children are allowed under a block.
+- All blocks are allowed to be inserted across all the roles.
+  - There are no restrictions, including on what children are allowed under a block.
+  - The ability to use the code editor, and to move/unlock blocks is enabled for everyone
 
-#### Restrict Children
+#### Restrictions
 
-This is an example in which you want to separate the rules on a per role basis, and restrict the children available but not ban them outright. In addition, you want to provide an extra colour option for these children.
+This is an example in which we want to apply different restrictions based on whose logged in. This will include restrictions on features available in the block editor, the block available as well as what extra styles are available.
 
 ```json
 {
@@ -100,7 +115,8 @@ This is an example in which you want to separate the rules on a per role basis, 
 	"rules": [
 		{
 			"type": "role",
-			"roles": [ "editor", "administrator" ],
+			"roles": [ "administrator" ],
+			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
 			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
 				"core/media-text": {
@@ -160,16 +176,16 @@ This is an example in which you want to separate the rules on a per role basis, 
 With this example, you'll get the following rules:
 
 - Default: This is going to apply to everyone as a baseline.
-    - Heading/paragraph blocks are allowed
-    - For a heading at the root level, a custom red colour will appear as a possible text colour option.
-- Editor/Administrator role: Since only one `blockSettings` can apply the one mentioned here will be used, and the `allowedBlocks` will be combined. What we will get:
-    - Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A quote block will be allowed to have heading, and paragraph as its children while a media-text block will be allowed to have heading, paragraph and image as its children.
-    - A heading sitting inside a media-text will be allowed to have a custom red colour as it's text.
-    - The heading at the root level will not have custom red colour available.
+  - Heading/paragraph blocks are allowed
+  - For a heading at the root level, a custom red colour will appear as a possible text colour option.
+  - If you aren't an administrator, you will not be able to move any blocks or lock/unlock any blocks if you do not have access to it.
+- Administrator role: Since only one `blockSettings` can apply the one mentioned here will be used, and the `allowedBlocks` will be combined. What we will get:
+  - Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A quote block will be allowed to have heading, and paragraph as its children while a media-text block will be allowed to have heading, paragraph and image as its children.
+  - A heading sitting inside a media-text will be allowed to have a custom red colour as it's text.
+  - The heading at the root level will not have custom red colour available.
+  - You will be able to lock/unlock blocks as well as move them around.
 
-### Schema Definition
-
-You can find the schema that's used for validating the rules [here][repo-schema-location]. This will help you in crafting up the custom rules file if the example provided above is not sufficient.
+In addition to the above, you will also be able to lock any blocks that aren't allowed for a user working in the block editor. This will ensure that they do not interact with any blocks that they shouldn't have access to.
 
 ## Code Filters
 
@@ -182,14 +198,21 @@ Change what blocks are allowed to be inserted in the block editor. By default, r
 ```js
 /**
  * Change what blocks are allowed to be inserted in the block editor.
- * 
+ *
  * @param result Whether or not the block will be allowed
  * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
  * @param blockType The block, whose name can be accessed using blockType.name
  * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
  * @param governanceRules The governance rules for the current user. The relevant property on this is allowedBlocks and blockSettings
  */
-return apply_filters( 'vip_governance__block_allowed_for_insertion', result, rootClientId, blockType, getBlock, governanceRules );
+return apply_filters(
+	'vip_governance__block_allowed_for_insertion',
+	result,
+	rootClientId,
+	blockType,
+	getBlock,
+	governanceRules
+);
 ```
 
 For example, this filter can be used to allow the insertion of a custom block even if its not allowed by the governance rules:
@@ -227,6 +250,7 @@ composer run test
 ```
 
 <!-- Links -->
+
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases

@@ -4,6 +4,7 @@
 	"rules": [
 		{
 			"type": "default",
+			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
 			"allowedBlocks": [ "*" ]
 		}
 	]
