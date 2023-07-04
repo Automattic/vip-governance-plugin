@@ -11,7 +11,7 @@ class Admin {
 	
 	public static function init() {
 		try {
-			InitGovernance::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME, true );
+			GovernanceUtilities::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME, true );
 		} catch ( Exception $e ) {
 			self::$governance_errors = $e->getMessage();
 		}
