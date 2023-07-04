@@ -24,10 +24,9 @@ class Admin {
 	}
 
 	public static function governance_init() {
-		// ToDo: Populate this page with the relevant info:
-		// 1: Debug Info related to the plugin
-		// 2: Schema Validation results
-		// 3: Ability to turn off the plugin without re-deploying
+		// ToDo items still left:
+		// 1. Ability to turn off the plugin without re-deploying
+		// 2: Prettify the HTML that's shown here
 		echo '<div class="wrap">';
 		echo '<h1>VIP Governance</h1>';
 		echo '<h2> Debug Information </h2>';
