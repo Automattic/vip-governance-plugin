@@ -249,12 +249,17 @@ addFilter(
 
 ## Analytics
 
-The plugin currently has 2 data points that it records:
+The plugin records two data points for analytics:
 
-- When it's used which is triggered when the block editor is opened and closed, and
-- When an error occurs from within the plugin
+1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
 
-Both of these data points are simply a counter that is incremented, and does not contain any telemetry or sensitive data. You can see what's being collected [here][analytics-file].
+	When the plugin is used on the [WordPress VIP][wpvip] platform, analytic data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+
+2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up.
+
+	All other usage of this plugin outside of WordPress VIP does not record error analytics.
+
+Both of these data points are a counter that is incremented, and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
 
 ## Development
 
