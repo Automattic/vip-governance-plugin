@@ -1,3 +1,4 @@
+import { applyFilters } from '@wordpress/hooks';
 import { doesBlockNameMatchBlockRegex, doesBlockMatchDefaultBlockRules } from './block-utils';
 
 export const isBlockAllowed = (
@@ -7,17 +8,31 @@ export const isBlockAllowed = (
 	governanceRules,
 	{ getBlock }
 ) => {
-	// Returns the default value if no rules can be found
-	if ( ! governanceRules || governanceRules.length === 0 ) {
-		return canInsert;
+	// Default value will be what Gutenberg has already determined
+	let isAllowed = canInsert;
+
+	if ( governanceRules && ! rootClientId ) {
+		isAllowed = isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
+	} else if ( governanceRules && rootClientId ) {
+		// if there's no parent just go by the root level block names in the rules
+		isAllowed = isParentBlockAllowed(
+			rootClientId,
+			blockType,
+			getBlock,
+			isAllowed,
+			governanceRules
+		);
 	}
 
-	// if there's no parent just go by the root level block names in the rules
-	if ( ! rootClientId ) {
-		return isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
-	}
-
-	return isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, governanceRules );
+	// Allow overriding the result using a filter
+	return applyFilters(
+		'vip_governance__is_block_allowed_for_insertion',
+		isAllowed,
+		blockType,
+		governanceRules,
+		rootClientId,
+		getBlock
+	);
 };
 
 function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
@@ -26,8 +41,6 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 	if ( doesBlockMatchDefaultBlockRules( parentBlock, blockType ) ) {
 		return canInsert;
 	}
-
-	// TODO: Allow adding to the default rules for both and root by the customer, in case they have some custom blocks that they want to take into account.
 
 	if (
 		rules.blockSettings &&
@@ -38,6 +51,8 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 			blockType.name,
 			rules.blockSettings[ parentBlock.name ].allowedChildren
 		);
+	} else if ( rules.allowedBlocks.length === 1 && rules.allowedBlocks[ 0 ] === '*' ) {
+		return canInsert;
 	}
 
 	return false;

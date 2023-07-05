@@ -60,7 +60,7 @@ function setup() {
 
 	// Block locking
 	if ( governanceRules?.allowedBlocks ) {
-		setupBlockLocking( governanceRules.allowedBlocks );
+		setupBlockLocking( governanceRules );
 	}
 }
 

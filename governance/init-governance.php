@@ -28,12 +28,16 @@ class InitGovernance {
 			true /* in_footer */
 		);
 
+		$governance_errors         = false;
+		$governance_rules_for_user = array();
+		$nested_settings_and_css   = array();
+
 		try {
 			$parsed_governance_rules   = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rules_for_user = self::get_rules_for_user( $parsed_governance_rules );
 			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
-			$governance_errors         = false;
 			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
+			BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 		} catch ( Exception $e ) {
 			$governance_errors = $e->getMessage();
 		}
@@ -111,25 +115,29 @@ class InitGovernance {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
-		$allowed_blocks = array();
-		$block_settings = array();
+		$allowed_features = array();
+		$allowed_blocks   = array();
+		$block_settings   = array();
 
 		foreach ( $governance_rules as $rule ) {
 			// The allowed blocks can be merged together with the default role to get a super set
-			// The Block Settings are only to be picked up from the default role, if a role specific one doesn't exist
+			// The Block Settings and Allowed Features are only to be picked up from the default role, if a role specific one doesn't exist
 			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
-				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
-				$block_settings = isset( $rule['blockSettings'] ) ? $rule['blockSettings'] : $block_settings;
+				$allowed_blocks   = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings   = isset( $rule['blockSettings'] ) ? $rule['blockSettings'] : $block_settings;
+				$allowed_features = isset( $rule['allowedFeatures'] ) ? $rule['allowedFeatures'] : $allowed_features;
 			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
-				$allowed_blocks = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
-				$block_settings = isset( $rule['blockSettings'] ) && empty( $block_settings ) ? $rule['blockSettings'] : $block_settings;
+				$allowed_blocks   = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings   = isset( $rule['blockSettings'] ) && empty( $block_settings ) ? $rule['blockSettings'] : $block_settings;
+				$allowed_features = isset( $rule['allowedFeatures'] ) && empty( $allowed_features ) ? $rule['allowedFeatures'] : $allowed_features;
 			}
 		}
 
 		// return array of allowed_blocks and block_settings
 		return array(
-			'allowedBlocks' => $allowed_blocks,
-			'blockSettings' => $block_settings,
+			'allowedBlocks'   => $allowed_blocks,
+			'blockSettings'   => $block_settings,
+			'allowedFeatures' => $allowed_features,
 		);
 	}
 
