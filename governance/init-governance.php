@@ -28,11 +28,14 @@ class InitGovernance {
 			true /* in_footer */
 		);
 
+		$governance_errors         = false;
+		$governance_rules_for_user = array();
+		$nested_settings_and_css   = array();
+
 		try {
 			$parsed_governance_rules   = self::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rules_for_user = self::get_rules_for_user( $parsed_governance_rules );
 			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
-			$governance_errors         = false;
 			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 			BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 		} catch ( Exception $e ) {

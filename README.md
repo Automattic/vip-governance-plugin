@@ -119,6 +119,18 @@ This is an example in which we want to apply different restrictions based on who
 			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
 			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
+				"core/heading": {
+					"color": {
+						"text": true,
+						"palette": [
+							{
+								"color": "#FFFF00",
+								"name": "Custom yellow",
+								"slug": "custom-yellow"
+							}
+						]
+					}
+				},
 				"core/media-text": {
 					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
 					"core/heading": {
@@ -141,9 +153,9 @@ This is an example in which we want to apply different restrictions based on who
 							"text": true,
 							"palette": [
 								{
-									"color": "#ff0000",
-									"name": "Custom red",
-									"slug": "custom-red"
+									"color": "#00FF00",
+									"name": "Custom green",
+									"slug": "custom-green"
 								}
 							]
 						}
@@ -160,9 +172,9 @@ This is an example in which we want to apply different restrictions based on who
 						"text": true,
 						"palette": [
 							{
-								"color": "#ff0000",
-								"name": "Custom red",
-								"slug": "custom-red"
+								"color": "#FFFF00",
+								"name": "Custom yellow",
+								"slug": "custom-yellow"
 							}
 						]
 					}
@@ -175,14 +187,15 @@ This is an example in which we want to apply different restrictions based on who
 
 With this example, you'll get the following rules:
 
-- Default: This is going to apply to everyone as a baseline.
+- Default: The allowedBlocks in this rule will apply to everyone as a baseline.
   - Heading/paragraph blocks are allowed
-  - For a heading at the root level, a custom red colour will appear as a possible text colour option.
+  - For a heading at the root level, a custom yellow colour will appear as a possible text colour option. Any blockSettings in this rule can be overriden by a role specific rule.
   - If you aren't an administrator, you will not be able to move any blocks or lock/unlock any blocks if you do not have access to it.
 - Administrator role: Since only one `blockSettings` can apply the one mentioned here will be used, and the `allowedBlocks` will be combined. What we will get:
   - Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A quote block will be allowed to have heading, and paragraph as its children while a media-text block will be allowed to have heading, paragraph and image as its children.
+  - A heading at the root level will be allowed a custom yellow colour as a possible text colour option. This is done to ensure that any posts made by a non-admin will look the same.
   - A heading sitting inside a media-text will be allowed to have a custom red colour as it's text.
-  - The heading at the root level will not have custom red colour available.
+  - A paragraph sitting inside a quote will be allowed to have a custom green colour as it's text.
   - You will be able to lock/unlock blocks as well as move them around.
 
 In addition to the above, you will also be able to lock any blocks that aren't allowed for a user working in the block editor. This will ensure that they do not interact with any blocks that they shouldn't have access to.
