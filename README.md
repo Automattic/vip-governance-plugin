@@ -10,16 +10,18 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
 ## Table of contents
 
 - [Installation](#installation)
-  - [Install via `git subtree`](#install-via-git-subtree)
-  - [Install via ZIP file](#install-via-zip-file)
-  - [Plugin activation](#plugin-activation)
+	- [Install via `git subtree`](#install-via-git-subtree)
+	- [Install via ZIP file](#install-via-zip-file)
+	- [Plugin activation](#plugin-activation)
 - [Usage](#usage)
-  - [Schema Basics](#schema-basics)
-    - [Default](#default)
-    - [Restrictions](#restrictions)
+	- [Schema Basics](#schema-basics)
+		- [Default](#default)
+		- [Restrictions](#restrictions)
+- [Code Filters](#code-filters)
+	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
 - [Analytics](#analytics)
 - [Development](#development)
-  - [Tests](#tests)
+	- [Tests](#tests)
 
 ## Installation
 
@@ -207,7 +209,7 @@ In addition to the above, you will also be able to lock any blocks that aren't a
 
 There are filters in place, that can be applied to change the behaviour for what's allowed and what's not allowed.
 
-### `vip_governance__block_allowed_for_insertion`
+### `vip_governance__is_block_allowed_for_insertion`
 
 Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to further add on any logic you may have to change if its allowed or not.
 
@@ -215,19 +217,19 @@ Change what blocks are allowed to be inserted in the block editor. By default, r
 /**
  * Change what blocks are allowed to be inserted in the block editor.
  *
- * @param result Whether or not the block will be allowed
- * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
+ * @param isAllowed Whether or not the block will be allowed
  * @param blockType The block, whose name can be accessed using blockType.name
- * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
  * @param governanceRules The governance rules for the current user. The relevant property on this is allowedBlocks and blockSettings
+ * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
+ * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
  */
 return apply_filters(
-	'vip_governance__block_allowed_for_insertion',
-	result,
-	rootClientId,
+	'vip_governance__is_block_allowed_for_insertion',
+	isAllowed,
 	blockType,
-	getBlock,
-	governanceRules
+	governanceRules,
+	rootClientId,
+	getBlock
 );
 ```
 
@@ -235,7 +237,7 @@ For example, this filter can be used to allow the insertion of a custom block ev
 
 ```js
 addFilter(
-	'vip_governance__block_allowed_for_insertion',
+	'vip_governance__is_block_allowed_for_insertion',
 	'example/restrict-insertion`,
 	( result, rootClientId, blockType, getBlock, governanceRules ) => {
 		if ( rootClientId && blockType.name === 'custom/my-amazing-block' ) {

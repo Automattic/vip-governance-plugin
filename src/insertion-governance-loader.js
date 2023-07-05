@@ -9,23 +9,29 @@ export const isBlockAllowed = (
 	{ getBlock }
 ) => {
 	// Default value will be what Gutenberg has already determined
-	let result = canInsert;
+	let isAllowed = canInsert;
 
 	if ( governanceRules && ! rootClientId ) {
-		result = isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
+		isAllowed = isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
 	} else if ( governanceRules && rootClientId ) {
 		// if there's no parent just go by the root level block names in the rules
-		result = isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, governanceRules );
+		isAllowed = isParentBlockAllowed(
+			rootClientId,
+			blockType,
+			getBlock,
+			isAllowed,
+			governanceRules
+		);
 	}
 
 	// Allow overriding the result using a filter
 	return applyFilters(
-		'vip_governance__block_allowed_for_insertion',
-		result,
-		rootClientId,
+		'vip_governance__is_block_allowed_for_insertion',
+		isAllowed,
 		blockType,
-		getBlock,
-		governanceRules
+		governanceRules,
+		rootClientId,
+		getBlock
 	);
 };
 
