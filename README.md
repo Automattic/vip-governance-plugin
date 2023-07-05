@@ -15,6 +15,7 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
   - [Schema Basics](#schema-basics)
     - [Default](#default)
     - [Restrictions](#restrictions)
+- [Analytics](#analytics)
 - [Development](#development)
   - [Tests](#tests)
 
@@ -244,6 +245,15 @@ addFilter(
 );
 ```
 
+## Analytics
+
+The plugin currently has 2 data points that it records:
+
+- When it's used which is triggered when the block editor is opened and closed, and
+- When an error occurs from within the plugin
+
+Both of these data points are simply a counter that is incremented, and does not contain any telemetry or sensitive data. You can see what's being collected [here][analytics-file].
+
 ## Development
 
 In order to ensure no dev dependencies go in, the following can be done while installing the packages:
@@ -264,6 +274,7 @@ composer run test
 
 <!-- Links -->
 
+[analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases

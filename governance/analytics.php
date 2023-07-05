@@ -5,8 +5,7 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 define( 'WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE', 'vip-governance-usage' );
-define( 'WPCOMVIP__GOVERNANCE__STAT_NAME__PLUGIN_ERROR', 'vip-governance-plugin-error' );
-define( 'WPCOMVIP__GOVERNANCE__STAT_NAME__SCHEMA_ERROR', 'vip-governance-schema-error' );
+define( 'WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR', 'vip-governance-error' );
 
 class Analytics {
 	private static $analytics_to_send = [];
@@ -24,22 +23,10 @@ class Analytics {
 	 *
 	 * @return void
 	 */
-	public static function record_plugin_error() {
+	public static function record_error() {
 		if ( self::is_wpvip_site() && defined( 'FILES_CLIENT_SITE_ID' ) ) {
 			// Record error data from WPVIP for follow-up
-			self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME__PLUGIN_ERROR ] = constant( 'FILES_CLIENT_SITE_ID' );
-		}
-	}
-
-		/**
-	 * @param WP_Error $error
-	 *
-	 * @return void
-	 */
-	public static function record_schema_error() {
-		if ( self::is_wpvip_site() && defined( 'FILES_CLIENT_SITE_ID' ) ) {
-			// Record error data from WPVIP for follow-up
-			self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME__SCHEMA_ERROR ] = constant( 'FILES_CLIENT_SITE_ID' );
+			self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR ] = constant( 'FILES_CLIENT_SITE_ID' );
 		}
 	}
 
@@ -48,11 +35,10 @@ class Analytics {
 			return;
 		}
 
-		$has_usage_analytics        = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] );
-		$has_app_error_analytics    = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME__PLUGIN_ERROR ] );
-		$has_schema_error_analytics = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME__SCHEMA_ERROR ] );
+		$has_usage_analytics = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] );
+		$has_error_analytics = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR ] );
 
-		if ( $has_usage_analytics && ( $has_app_error_analytics || $has_schema_error_analytics ) ) {
+		if ( $has_usage_analytics && $has_error_analytics ) {
 			// Do not send usage analytics when errors are present.
 			unset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] );
 		}
