@@ -38,6 +38,7 @@ class InitGovernance {
 			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 			BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
+			Analytics::record_usage();
 		} catch ( Exception $e ) {
 			$governance_errors = $e->getMessage();
 		}
@@ -65,6 +66,7 @@ class InitGovernance {
 			);
 			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
 			wp_enqueue_style( 'wpcomvip-governance' );
+			// not recordng analytics here to avoid double counting
 		} catch ( Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( $e->getMessage() );
@@ -81,6 +83,7 @@ class InitGovernance {
 			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
 
 			if ( ! file_exists( $governance_file_path ) ) {
+				Analytics::record_plugin_error();
 				/* translators: %s: rules file doesn't exist */
 				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found in private, or plugin folders.', 'vip-governance' ), $file_name ) );
 			}
@@ -96,6 +99,8 @@ class InitGovernance {
 
 			/* translators: %s: governance file name */
 			$error_message = sprintf( __( 'Governance rules could not be loaded: %s', 'vip-governance' ), $error_message );
+
+			Analytics::record_schema_error();
 
 			throw new Exception( $error_message );
 		}
