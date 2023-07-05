@@ -1,5 +1,7 @@
 # VIP Governance plugin
 
+# Note: This repo has been moved [here](https://github.com/wpcomvip/vip-governance-plugin), and development is continuing in that repo. This repo is now archived.
+
 This is a WordPress plugin that's meant to add in governance within the Block Editor, specifically for two dimensions:
 
 - Insertion: This adds the ability to restrict what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced or existing ones are modified, they would not be permitted.
