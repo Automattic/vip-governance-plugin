@@ -287,6 +287,7 @@ composer run test
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
 [wp-env]: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/
+[wpvip]: https://wpvip.com/
 [wpvip-page-cache]: https://docs.wpvip.com/technical-references/caching/page-cache/
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/
 [wpvip-plugin-submodules]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-submodules
