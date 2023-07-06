@@ -5,7 +5,6 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 define( 'WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE', 'vip-governance-usage' );
-define( 'WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR', 'vip-governance-error' );
 
 class Analytics {
 	private static $analytics_to_send = [];
@@ -18,29 +17,9 @@ class Analytics {
 		self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] = self::get_identifier();
 	}
 
-	/**
-	 * @param WP_Error $error
-	 *
-	 * @return void
-	 */
-	public static function record_error() {
-		if ( self::is_wpvip_site() && defined( 'FILES_CLIENT_SITE_ID' ) ) {
-			// Record error data from WPVIP for follow-up
-			self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR ] = constant( 'FILES_CLIENT_SITE_ID' );
-		}
-	}
-
 	public static function send_analytics() {
 		if ( empty( self::$analytics_to_send ) ) {
 			return;
-		}
-
-		$has_usage_analytics = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] );
-		$has_error_analytics = isset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR ] );
-
-		if ( $has_usage_analytics && $has_error_analytics ) {
-			// Do not send usage analytics when errors are present.
-			unset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] );
 		}
 
 		self::send_pixel( self::$analytics_to_send );

@@ -40,7 +40,7 @@ class InitGovernance {
 			BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 			Analytics::record_usage();
 		} catch ( Exception $e ) {
-			Analytics::record_error();
+			// ToDo: Revamp the exception handling system as the way its done right now is not friendly
 			$governance_errors = $e->getMessage();
 		}
 
@@ -67,10 +67,9 @@ class InitGovernance {
 			);
 			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
 			wp_enqueue_style( 'wpcomvip-governance' );
-			// not recordng usage analytics here to avoid double counting
+			Analytics::record_usage();
 		} catch ( Exception $e ) {
-			// not recordng error analytics here to avoid double counting
-
+			// ToDo: Revamp the exception handling system as the way its done right now is not friendly
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( $e->getMessage() );
 		}

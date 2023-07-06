@@ -8,18 +8,18 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
 ## Table of contents
 
 - [Installation](#installation)
-	- [Install via `git subtree`](#install-via-git-subtree)
-	- [Install via ZIP file](#install-via-zip-file)
-	- [Plugin activation](#plugin-activation)
+  - [Install via `git subtree`](#install-via-git-subtree)
+  - [Install via ZIP file](#install-via-zip-file)
+  - [Plugin activation](#plugin-activation)
 - [Usage](#usage)
-	- [Schema Basics](#schema-basics)
-		- [Default](#default)
-		- [Restrictions](#restrictions)
+  - [Schema Basics](#schema-basics)
+    - [Default](#default)
+    - [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
-	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+  - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
 - [Analytics](#analytics)
 - [Development](#development)
-	- [Tests](#tests)
+  - [Tests](#tests)
 
 ## Installation
 
@@ -249,17 +249,13 @@ addFilter(
 
 ## Analytics
 
-The plugin records two data points for analytics:
+The plugin records a single data point for analytics:
 
 1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
 
-	When the plugin is used on the [WordPress VIP][wpvip] platform, analytic data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+   When the plugin is used on the [WordPress VIP][wpvip] platform, analytic data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
 
-2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up.
-
-	All other usage of this plugin outside of WordPress VIP does not record error analytics.
-
-Both of these data points are a counter that is incremented, and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
+This data point is a counter that is incremented, and does not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
 
 ## Development
 
