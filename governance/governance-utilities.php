@@ -7,50 +7,39 @@ defined( 'ABSPATH' ) || die();
 use Exception;
 
 class GovernanceUtilities {
+	/**
+	* Retrieve parsed governance rules from the private directory, or the plugin directory if not found.
+	*/
+	public static function get_parsed_governance_rules() {
+		$governance_rules_json = self::get_governance_rules_json();
+		$governance_rules      = RulesParser::parse( $governance_rules_json );
+
+		if ( is_wp_error( $governance_rules ) ) {
+			/* translators: %s: governance file name */
+			throw new Exception( $governance_rules->get_error_message() );
+		}
+
+		return $governance_rules;
+	}
 
 	/**
-	* Get the governance rules from the private directory, or the plugin directory if not found.
+	* Get raw governance rules content from the private directory, or the plugin directory if not found.
 	*/
-	public static function get_governance_rules( $file_name, $validate_for_ui = false ) {
-		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . $file_name;
+	public static function get_governance_rules_json() {
+		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
 
 		if ( ! file_exists( $governance_file_path ) ) {
-			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . $file_name;
+			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
 
 			if ( ! file_exists( $governance_file_path ) ) {
-
-				if ( $validate_for_ui ) {
-					/* translators: %s: governance file name */
-					$error_message = sprintf( __( 'Governance rules (%s) could not be found in private, or plugin folders.', 'vip-governance' ), $file_name );
-				} else {
-					/* translators: %s: governance file name */
-					$error_message = __( 'Error loading the governance rules. Please check the VIP Governance panel for errors.', 'vip-governance' );
-				}
-
-				throw new Exception( $error_message );
+				/* translators: %s: governance file name */
+				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
 			}
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$governance_rules_json = file_get_contents( $governance_file_path );
-
-		$governance_rules = RulesParser::parse( $governance_rules_json );
-
-		if ( is_wp_error( $governance_rules ) ) {
-			$error_message = $governance_rules->get_error_message();
-
-			if ( $validate_for_ui ) {
-				/* translators: %s: governance file name */
-				$error_message = sprintf( __( 'Governance rules will not be loaded. %s', 'vip-governance' ), $error_message );
-			} else {
-				/* translators: %s: governance file name */
-				$error_message = __( 'Error loading the governance rules. Please check the VIP Governance panel for errors.', 'vip-governance' );
-			}
-
-			throw new Exception( $error_message );
-		}
-
-		return $governance_rules;
+		return $governance_rules_json;
 	}
 
 	/**

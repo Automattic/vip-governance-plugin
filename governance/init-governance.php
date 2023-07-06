@@ -37,7 +37,7 @@ class InitGovernance {
 		$nested_settings_and_css   = array();
 
 		try {
-			$parsed_governance_rules   = GovernanceUtilities::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$parsed_governance_rules   = GovernanceUtilities::get_parsed_governance_rules();
 			$governance_rules_for_user = GovernanceUtilities::get_rules_for_user( $parsed_governance_rules );
 			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
@@ -63,7 +63,7 @@ class InitGovernance {
 		}
 
 		try {
-			$parsed_governance_rules   = GovernanceUtilities::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
+			$parsed_governance_rules   = GovernanceUtilities::get_parsed_governance_rules();
 			$governance_rules_for_user = GovernanceUtilities::get_rules_for_user( $parsed_governance_rules );
 			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
