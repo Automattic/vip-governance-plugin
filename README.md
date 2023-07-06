@@ -13,6 +13,8 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
   - [Plugin activation](#plugin-activation)
 - [Usage](#usage)
   - [Schema Basics](#schema-basics)
+    - [Limitations](#limitations)
+  - [Sample Rules](#sample-rules)
     - [Default](#default)
     - [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
@@ -81,7 +83,13 @@ Below is a short breakdown of some of the items allowed in a rule:
 
 `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor. This can go in your default rule, and in your role specific rule. The role specific rule will be merged with the default rule, if the role of the user working in the block editor matches it.
 
-Below are some examples of some rules that you can adopt:
+#### Limitations
+
+- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting them, but if they are already inserted they will be exempt.
+
+### Sample Rules
+
+Below are some examples of some rules that you can use to build your `governance-rules.json`.
 
 #### Default
 
