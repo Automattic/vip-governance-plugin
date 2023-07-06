@@ -19,6 +19,7 @@ export function setupBlockLocking( governanceRules ) {
 
 			const { getBlockParents, getBlockAttributes } = select( blockEditorStore );
 			const parentClientIds = getBlockParents(clientId, true);
+
 			const isParentLocked = parentClientIds.some( parentClientId => {
 				const parentAttributes = getBlockAttributes( parentClientId );
 
@@ -30,8 +31,8 @@ export function setupBlockLocking( governanceRules ) {
 				return <BlockEdit { ...props } />;
 			}
 
-			// ToDo: Make this overridable via a filter
-			const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockName, allowedBlock ) );
+			// ToDo: This doesn't support nested blocks if they aren't specified in the allowedChildren. That needs to be resolved.
+			const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockName, allowedBlock ) || parentClientIds.length > 0 );
 
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
