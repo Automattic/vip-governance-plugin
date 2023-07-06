@@ -1,5 +1,5 @@
 import { applyFilters } from '@wordpress/hooks';
-import { doesBlockNameMatchBlockRegex, doesBlockMatchDefaultBlockRules } from './block-utils';
+import { doesBlockNameMatchBlockRegex } from './block-utils';
 
 export const isBlockAllowed = (
 	canInsert,
@@ -37,10 +37,6 @@ export const isBlockAllowed = (
 
 function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
 	const parentBlock = getBlock( rootClientId );
-
-	if ( doesBlockMatchDefaultBlockRules( parentBlock, blockType ) ) {
-		return canInsert;
-	}
 
 	if (
 		rules.blockSettings &&
