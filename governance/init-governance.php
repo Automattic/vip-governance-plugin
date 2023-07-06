@@ -18,6 +18,10 @@ class InitGovernance {
 	#region Block filters
 
 	public static function load_settings() {
+		if ( ! Settings::is_enabled() ) {
+			return;
+		}
+
 		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
 
 		wp_register_script(
@@ -54,6 +58,10 @@ class InitGovernance {
 	}
 
 	public static function load_css() {
+		if ( ! Settings::is_enabled() ) {
+			return;
+		}
+
 		try {
 			$parsed_governance_rules   = GovernanceUtilities::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME );
 			$governance_rules_for_user = GovernanceUtilities::get_rules_for_user( $parsed_governance_rules );
