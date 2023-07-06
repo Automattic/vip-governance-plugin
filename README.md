@@ -15,6 +15,9 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
   - [Schema Basics](#schema-basics)
     - [Default](#default)
     - [Restrictions](#restrictions)
+- [Code Filters](#code-filters)
+  - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+- [Analytics](#analytics)
 - [Development](#development)
   - [Tests](#tests)
 
@@ -204,7 +207,7 @@ In addition to the above, you will also be able to lock any blocks that aren't a
 
 There are filters in place, that can be applied to change the behaviour for what's allowed and what's not allowed.
 
-### `vip_governance__block_allowed_for_insertion`
+### `vip_governance__is_block_allowed_for_insertion`
 
 Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to further add on any logic you may have to change if its allowed or not.
 
@@ -212,19 +215,19 @@ Change what blocks are allowed to be inserted in the block editor. By default, r
 /**
  * Change what blocks are allowed to be inserted in the block editor.
  *
- * @param result Whether or not the block will be allowed
- * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
+ * @param isAllowed Whether or not the block will be allowed
  * @param blockType The block, whose name can be accessed using blockType.name
- * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
  * @param governanceRules The governance rules for the current user. The relevant property on this is allowedBlocks and blockSettings
+ * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
+ * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
  */
 return apply_filters(
-	'vip_governance__block_allowed_for_insertion',
-	result,
-	rootClientId,
+	'vip_governance__is_block_allowed_for_insertion',
+	isAllowed,
 	blockType,
-	getBlock,
-	governanceRules
+	governanceRules,
+	rootClientId,
+	getBlock
 );
 ```
 
@@ -232,7 +235,7 @@ For example, this filter can be used to allow the insertion of a custom block ev
 
 ```js
 addFilter(
-	'vip_governance__block_allowed_for_insertion',
+	'vip_governance__is_block_allowed_for_insertion',
 	'example/restrict-insertion`,
 	( result, rootClientId, blockType, getBlock, governanceRules ) => {
 		if ( rootClientId && blockType.name === 'custom/my-amazing-block' ) {
@@ -243,6 +246,16 @@ addFilter(
 	}
 );
 ```
+
+## Analytics
+
+The plugin records a single data point for analytics:
+
+1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
+
+   When the plugin is used on the [WordPress VIP][wpvip] platform, analytic data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+
+This data point is a counter that is incremented, and does not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
 
 ## Development
 
@@ -264,11 +277,13 @@ composer run test
 
 <!-- Links -->
 
+[analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
 [wp-env]: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/
+[wpvip]: https://wpvip.com/
 [wpvip-page-cache]: https://docs.wpvip.com/technical-references/caching/page-cache/
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/
 [wpvip-plugin-submodules]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-submodules

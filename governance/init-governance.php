@@ -38,7 +38,9 @@ class InitGovernance {
 			$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 			$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 			BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
+			Analytics::record_usage();
 		} catch ( Exception $e ) {
+			// ToDo: Revamp the exception handling system
 			$governance_errors = $e->getMessage();
 		}
 
@@ -65,7 +67,9 @@ class InitGovernance {
 			);
 			wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
 			wp_enqueue_style( 'wpcomvip-governance' );
+			Analytics::record_usage();
 		} catch ( Exception $e ) {
+			// ToDo: Revamp the exception handling system
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( $e->getMessage() );
 		}

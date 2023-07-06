@@ -5,11 +5,13 @@
 		"allowedFeaturesArray": {
 			"description": "Array of allowed features for this rule. Supported features are codeEditor and moveBlocks",
 			"type": "array",
-			"items": [
-				{
-					"type": "string",
-					"enum": [ "codeEditor", "moveBlocks" ]
-				}
+			"items": {
+				"type": "string",
+				"enum": [ "codeEditor", "moveBlocks" ]
+			},
+			"uniqueItems": true,
+			"examples": [
+				[ "codeEditor", "moveBlocks" ]
 			]
 		},
 		"allowedBlocksArray": {
