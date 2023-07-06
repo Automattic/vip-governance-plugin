@@ -66,7 +66,7 @@ class Settings {
 		$is_enabled = $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
 
 		printf( '<input id="%1$s" name="%2$s[%1$s]" type="checkbox" value="yes" %3$s />', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_attr( self::OPTIONS_KEY ), checked( $is_enabled, true, false ) );
-		printf( '<label for="%s"><p class="description">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable or disable block editor governance rules for all users.' ) );
+		printf( '<label for="%s"><p class="description" style="display: inline-block; margin-left: 0.25rem">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable block editor governance rules for all users.' ) );
 	}
 
 	public static function validate_options( $options ) {
