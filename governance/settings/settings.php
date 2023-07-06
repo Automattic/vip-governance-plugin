@@ -23,7 +23,7 @@ class Settings {
 
 		$section_id = 'plugin-settings';
 		add_settings_section( $section_id, __( 'Plugin Settings' ), '__return_null', self::MENU_SLUG );
-		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable editor rules' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
+		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
 			'label_for' => self::OPTIONS_KEY_IS_ENABLED,
 		] );
 	}
@@ -47,10 +47,11 @@ class Settings {
 	// Views
 
 	public static function render() {
-		$governance_errors = false;
+		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
+		$governance_errors     = false;
 
 		try {
-			GovernanceUtilities::get_governance_rules( WPCOMVIP_GOVERNANCE_RULES_FILENAME, true );
+			GovernanceUtilities::get_parsed_governance_rules();
 		} catch ( Exception $e ) {
 			$governance_errors = $e->getMessage();
 		}
@@ -65,7 +66,7 @@ class Settings {
 		$is_enabled = $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
 
 		printf( '<input id="%1$s" name="%2$s[%1$s]" type="checkbox" value="yes" %3$s />', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_attr( self::OPTIONS_KEY ), checked( $is_enabled, true, false ) );
-		printf( '<label for="%s"><p class="description">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Quickly enable or disable governance rules for all users.' ) );
+		printf( '<label for="%s"><p class="description">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable or disable block editor governance rules for all users.' ) );
 	}
 
 	public static function validate_options( $options ) {

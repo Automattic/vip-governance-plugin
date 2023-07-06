@@ -4,6 +4,12 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
+$is_governance_errors = false !== $governance_errors;
+
+$governance_rules_formatted = join("\n", array_map(function( $line ) {
+	return sprintf( '<code>%s</code>', esc_html( $line ) );
+}, explode( "\n", trim( $governance_rules_json ) )));
+
 ?>
 
 <div class="wrap">
@@ -19,19 +25,31 @@ defined( 'ABSPATH' ) || die();
 
 	<hr/>
 
-	<h2><?php esc_html_e( 'Governance rules' ); ?></h2>
-	<div class="governance-rules-validation">
-		<div class="governance-rules">
-			<pre>
-				<code><?php echo esc_html( 'test' ); ?></code>
-			</pre>
+	<?php /* translators: %s: A ✅ or ❌ emoji */ ?>
+	<h2><?php printf( esc_html__( '%s Governance rules' ), $is_governance_errors ? '❌' : '✅' ); ?></h2>
+
+	<div class="governance-rules <?php echo $is_governance_errors ? 'with-errors' : ''; ?>">
+		<div class="governance-rules-validation">
+			<?php if ( $is_governance_errors ) { ?>
+			<p class="validation-errors"><?php esc_html_e( 'Failed to load:' ); ?></p>
+			<pre><?php echo esc_html( $governance_errors ); ?></pre>
+			<?php } else { ?>
+			<p><?php esc_html_e( 'Rules loaded successfully.' ); ?></p>
+			<?php } ?>
 		</div>
 
-		<div class="governance-validation">
-			<?php if ( false === $governance_errors ) { ?>
-			<p><?php esc_html_e( 'No errors found' ); ?></p>
+		<div class="governance-rules-json">
+			<?php if ( $is_governance_errors ) { ?>
+			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
+			<pre><?php echo $governance_rules_formatted; ?></pre>
 			<?php } else { ?>
-			<pre><?php echo esc_html( $governance_errors ); ?></pre>
+			<details>
+				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
+
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
+				<pre><?php echo $governance_rules_formatted; ?></pre>
+			</details>
 			<?php } ?>
 		</div>
 	</div>
@@ -41,7 +59,7 @@ defined( 'ABSPATH' ) || die();
 	<h2><?php esc_html_e( 'Debug Information' ); ?></h2>
 	<p>
 		<?php
-			// translators: %s - Plugin version number
+			/* translators: %s: Plugin version number */
 			printf( esc_html__( 'Plugin Version: %s' ), esc_html( WPCOMVIP__GOVERNANCE__PLUGIN_VERSION ) );
 		?>
 	</p>
