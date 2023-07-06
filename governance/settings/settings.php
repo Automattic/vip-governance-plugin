@@ -23,13 +23,25 @@ class Settings {
 
 		$section_id = 'plugin-settings';
 		add_settings_section( $section_id, __( 'Plugin Settings' ), '__return_null', self::MENU_SLUG );
-		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, 'Enable plugin', [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
+		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable editor rules' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
 			'label_for' => self::OPTIONS_KEY_IS_ENABLED,
 		] );
 	}
 
 	public static function register_menu() {
-		add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+		$hook = add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
+	}
+
+	// Resources
+
+	public static function enqueue_resources() {
+		wp_enqueue_style(
+			'wpcomvip-governance-settings',
+			__DIR__ . '/settings.css',
+			/* dependencies */ [],
+			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
+		);
 	}
 
 	// Views
@@ -49,10 +61,11 @@ class Settings {
 	// Settings handling
 
 	public static function render_is_enabled() {
-		$options = get_option( self::OPTIONS_KEY );
-
+		$options    = get_option( self::OPTIONS_KEY );
 		$is_enabled = $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
+
 		printf( '<input id="%1$s" name="%2$s[%1$s]" type="checkbox" value="yes" %3$s />', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_attr( self::OPTIONS_KEY ), checked( $is_enabled, true, false ) );
+		printf( '<label for="%s"><p class="description">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Quickly enable or disable governance rules for all users.' ) );
 	}
 
 	public static function validate_options( $options ) {

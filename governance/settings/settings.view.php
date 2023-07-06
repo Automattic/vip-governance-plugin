@@ -19,13 +19,24 @@ defined( 'ABSPATH' ) || die();
 
 	<hr/>
 
-	<h2><?php esc_html_e( 'Schema Validation Result:' ); ?></h2>
+	<h2><?php esc_html_e( 'Governance rules' ); ?></h2>
+	<div class="governance-rules-validation">
+		<div class="governance-rules">
+			<pre>
+				<code><?php echo esc_html( 'test' ); ?></code>
+			</pre>
+		</div>
 
-	<?php if ( false === $governance_errors ) { ?>
-	<p><?php esc_html_e( 'No errors found' ); ?></p>
-	<?php } else { ?>
-	<pre><?php echo esc_html( $governance_errors ); ?></pre>
-	<?php } ?>
+		<div class="governance-validation">
+			<?php if ( false === $governance_errors ) { ?>
+			<p><?php esc_html_e( 'No errors found' ); ?></p>
+			<?php } else { ?>
+			<pre><?php echo esc_html( $governance_errors ); ?></pre>
+			<?php } ?>
+		</div>
+	</div>
+
+	<hr/>
 
 	<h2><?php esc_html_e( 'Debug Information' ); ?></h2>
 	<p>
