@@ -8,17 +8,18 @@ This is a WordPress plugin that's meant to add in governance within the Block Ed
 ## Table of contents
 
 - [Installation](#installation)
-	- [Install via `git subtree`](#install-via-git-subtree)
-	- [Install via ZIP file](#install-via-zip-file)
-	- [Plugin activation](#plugin-activation)
+  - [Install via `git subtree`](#install-via-git-subtree)
+  - [Install via ZIP file](#install-via-zip-file)
+  - [Plugin activation](#plugin-activation)
 - [Usage](#usage)
-	- [Schema Basics](#schema-basics)
-		- [Default](#default)
-		- [Restrictions](#restrictions)
+  - [Schema Basics](#schema-basics)
+    - [Default](#default)
+    - [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
-	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+  - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+- [Analytics](#analytics)
 - [Development](#development)
-	- [Tests](#tests)
+  - [Tests](#tests)
 
 ## Installation
 
@@ -246,6 +247,16 @@ addFilter(
 );
 ```
 
+## Analytics
+
+The plugin records a single data point for analytics:
+
+1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
+
+   When the plugin is used on the [WordPress VIP][wpvip] platform, analytic data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+
+This data point is a counter that is incremented, and does not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
+
 ## Development
 
 In order to ensure no dev dependencies go in, the following can be done while installing the packages:
@@ -266,11 +277,13 @@ composer run test
 
 <!-- Links -->
 
+[analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
 [wp-env]: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/
+[wpvip]: https://wpvip.com/
 [wpvip-page-cache]: https://docs.wpvip.com/technical-references/caching/page-cache/
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/
 [wpvip-plugin-submodules]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-submodules
