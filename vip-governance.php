@@ -33,10 +33,11 @@ if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
 define( 'WPCOMVIP_GOVERNANCE_RULES_FILENAME', 'governance-rules.json' );
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/governance/rules-parser.php';
-require_once __DIR__ . '/governance/init-governance.php';
-require_once __DIR__ . '/governance/nested-governance-processing.php';
+
+require_once __DIR__ . '/governance/analytics.php';
 require_once __DIR__ . '/governance/block-locking.php';
 require_once __DIR__ . '/governance/governance-utilities.php';
-require_once __DIR__ . '/governance/wp-admin-panel.php';
-require_once __DIR__ . '/governance/analytics.php';
+require_once __DIR__ . '/governance/init-governance.php';
+require_once __DIR__ . '/governance/nested-governance-processing.php';
+require_once __DIR__ . '/governance/rules-parser.php';
+require_once __DIR__ . '/governance/settings/settings.php';
