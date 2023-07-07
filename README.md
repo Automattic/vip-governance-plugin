@@ -1,9 +1,13 @@
 # VIP Governance plugin
 
-This is a WordPress plugin that's meant to add in governance within the Block Editor, specifically for two dimensions:
+This WordPress plugin enables additional governance capabilities to the block editor.
 
-- Insertion: This adds the ability to restrict what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced or existing ones are modified, they would not be permitted.
-- Interaction: This adds the ability to control the styling available for blocks at any level. This also has an extra addition on top which we call lockdown mode, that will disable any kind of interaction including block movements, unless you have permission to do so.
+We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severly limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
+
+We consider two dimensions:
+
+- Insertion: restricts what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced they would not be permitted.
+- Interaction: This adds the ability to control the styling available for blocks at any level. 
 
 ## Table of contents
 
@@ -67,25 +71,31 @@ To activate the installed plugin:
 
 ## Usage
 
-In order to start using this plugin, you'll need to create `governance-rules.json` in your private folder.
+In order to start using this plugin, you'll need to create `governance-rules.json` in [your private folder][wpvip-private-dir].
+
+### Your First Rule
+
+Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
 
 ### Schema Basics
 
-You can find the schema definition that's used for the rules [here][repo-schema-location].
+You can find the schema definition that's used for the rules [here][repo-schema-location]. Including a schema entry in your rules will provide for code completion in most editors.
 
-Each rule has two basic identifiers - `type` and `roles`. Setting the `type` to `default` means that it's your default rule. This has to be provided. Setting the `type` to `role` on the other hand, means that you need to specify `roles` that this rule would be matched against.
+We have allowed significant space for customization. Which means it is also possible to create unintented rule interactions. We recommend making rule changes one or two at a time to be able to best troubleshoot these interactions.
 
-Below is a short breakdown of some of the items allowed in a rule:
+Each rule is an object in an array. The one required property is `type` which can either be `default` or `role`. Your rules should only have one entry of the `default` type, as described above.
 
-`allowedFeatures`: These are the features that are allowed in the block editor. Currently, there are only two values allowed in here - `codeEditor` and `moveBlocks`. The former disables/enables access to the code editor while the latter enables/disables the ability to move/lock blocks. This can either go in your default rule, or in your role specific rule. The role specific rule takes precedence over the default rule, if the role of the user working in the block editor matches it.
+Rule's of the type `role` require an array of `roles` that will use this particular rule. These are the name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles.
 
-`blockSettings`: These are specific settings related to the styling available for a block, and even for a nested block. There's also an additional capability of mentioning `allowedChildren` to restrict what blocks can be nested in another block. This can either go in your default rule, or in your role specific rule. The role specific rule takes precedence over the default rule, if the role of the user working in the block editor matches it.
+Each rule can have any one of the following properties.
 
-`allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor. This can go in your default rule, and in your role specific rule. The role specific rule will be merged with the default rule, if the role of the user working in the block editor matches it.
+* `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values:  `codeEditor` and `moveBlocks`. If you do not want to enable these features, simply omit them from the array.
+* `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json [as defined here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedChildren` to restrict nested blocks. Any role specific rules will take precedence over the default rule.
+* `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor. The role specific rule will be merged with the default rule. This is an intentional difference from the prior two properties to prevent needless repetition of enabled blocks.
 
 #### Limitations
 
-- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting them, but if they are already inserted they will be exempt.
+- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additoinal blocks, but existing blocks in existing content will not be removed or restricted.
 
 ### Sample Rules
 
@@ -117,7 +127,7 @@ With this default rule set, you'll get the following rules:
 
 #### Restrictions
 
-This is an example in which we want to apply different restrictions based on whose logged in. This will include restrictions on features available in the block editor, the block available as well as what extra styles are available.
+This is an example in which we want to apply different restrictions based on user role. This will include restrictions on features available in the block editor, the blocks available, and what style controls are available.
 
 ```json
 {
@@ -261,7 +271,7 @@ The plugin records a single data point for analytics:
 
 1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
 
-   When the plugin is used on the [WordPress VIP][wpvip] platform, analytic data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+   When the plugin is used on the [WordPress VIP][wpvip] platform, analytics data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
 
 This data point is a counter that is incremented, and does not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
 
@@ -296,3 +306,7 @@ composer run test
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/
 [wpvip-plugin-submodules]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-submodules
 [wpvip-plugin-subtrees]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-subtrees
+[wpvip-private-dir]: https://docs.wpvip.com/technical-references/vip-codebase/private-directory/
+[gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
+[wp-default-roles]: https://wordpress.org/documentation/article/roles-and-capabilities/
+[wp-custom-roles]: https://developer.wordpress.org/reference/functions/add_role/
