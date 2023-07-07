@@ -32,7 +32,7 @@ class InitGovernance {
 			true /* in_footer */
 		);
 
-		$governance_errors         = false;
+		$governance_error          = false;
 		$governance_rules_for_user = array();
 		$nested_settings_and_css   = array();
 
@@ -44,14 +44,14 @@ class InitGovernance {
 			BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 			Analytics::record_usage();
 		} catch ( Exception $e ) {
-			// ToDo: Revamp the exception handling system
-			$governance_errors = $e->getMessage();
+			$governance_error = __( 'Governance rules could not be loaded.' );
 		}
 
 		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
-			'errors'          => $governance_errors,
+			'error'           => $governance_error,
 			'governanceRules' => $governance_rules_for_user,
 			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
+			'urlSettingsPage' => menu_page_url( Settings::MENU_SLUG, /* display */ false ),
 		]);
 
 		wp_enqueue_script( 'wpcomvip-governance' );
