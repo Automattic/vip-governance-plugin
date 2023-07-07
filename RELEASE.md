@@ -29,7 +29,7 @@ If new production dependencies have been added, modify the root `.gitignore` fil
 ## 4. Bump plugin version
 
 1. When the version is ready for release, inside the `planned-release/...` branch, bump the version number in `vip-governance.php`. Change plugin header and `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION` to match new version.
-2. PR version changes with feature changes and merge to `trunk`.
+2. Create a PR for the planned release branch (e.g. "Planned release 0.2.1") and merge to `trunk`.
 
 ## 5. Tag branch for release
 
