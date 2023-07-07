@@ -11,7 +11,7 @@ We have approached this plugin from an opt-in standpoint. In other words, enabli
 We consider two dimensions:
 
 - Insertion: restricts what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced they would not be permitted.
-- Interaction: This adds the ability to control the styling available for blocks at any level. 
+- Interaction: This adds the ability to control the styling available for blocks at any level.
 
 ## Table of contents
 
@@ -79,7 +79,9 @@ In order to start using this plugin, you'll need to create `governance-rules.jso
 
 ### Your First Rule
 
-Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
+Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. In order to use the rules schema for in-editor support, also duplicate the `governance-schema.json` into your private folder.
+
+This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
 
 ### Schema Basics
 
