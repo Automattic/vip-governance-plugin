@@ -10,7 +10,6 @@ yarn-error.log*
 node_modules/
 
 # Composer
-/vendor/
 /output/
 
 # Optional npm cache directory
