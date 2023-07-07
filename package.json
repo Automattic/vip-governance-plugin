@@ -11,6 +11,7 @@
 		"@wordpress/compose": "^6.11.0",
 		"@wordpress/data": "^9.3.0",
 		"@wordpress/hooks": "^3.33.0",
+		"@wordpress/i18n": "^4.37.0",
 		"@wordpress/notices": "^4.1.0",
 		"@wordpress/scripts": "^26.4.0",
 		"eslint": "8.37.0",
