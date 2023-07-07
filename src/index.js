@@ -2,15 +2,23 @@ import { addFilter } from '@wordpress/hooks';
 import { select, dispatch } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { store as noticeStore } from '@wordpress/notices';
+import { __ } from '@wordpress/i18n';
 
 import { getNestedSettingPaths, getNestedSetting } from './nested-governance-loader';
 import { isBlockAllowed } from './insertion-governance-loader';
 import { setupBlockLocking } from './block-locking';
 
 function setup() {
-	if ( VIP_GOVERNANCE.errors ) {
-		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.errors, {
+	if ( VIP_GOVERNANCE.error ) {
+		dispatch( noticeStore ).createErrorNotice( VIP_GOVERNANCE.error, {
+			id: 'wpcomvip-governance-error',
 			isDismissible: true,
+			actions: [
+				{
+					label: __( 'Open governance settings' ),
+					url: VIP_GOVERNANCE.urlSettingsPage,
+				},
+			],
 		} );
 
 		return;
