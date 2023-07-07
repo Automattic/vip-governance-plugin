@@ -10,15 +10,10 @@ yarn-error.log*
 node_modules/
 
 # Composer
-/vendor/
 /output/
 
 # Optional npm cache directory
 .npm
-
-build
-
-src/build
 
 # Allows us to have multiple json files for local development
 *.json.dist
@@ -26,3 +21,13 @@ src/build
 # PHPUnit files
 .phpunit.cache
 .phpunit.result.cache
+
+# Release ZIPs
+vip-governance*.zip
+
+# Non-production composer dependencies
+vendor/*
+!vendor/autoload.php
+!vendor/composer/
+!vendor/opis/
+!vendor/seld/
