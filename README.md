@@ -1,3 +1,7 @@
+----
+### :warning: This plugin is currently in Beta. It is designed to run on [WordPress VIP][wpvip]. This beta release is not intended for use on a production environment.
+----
+
 # VIP Governance plugin
 
 This is a WordPress plugin that's meant to add in governance within the Block Editor, specifically for two dimensions:
