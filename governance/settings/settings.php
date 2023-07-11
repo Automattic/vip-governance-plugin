@@ -48,12 +48,11 @@ class Settings {
 
 	public static function render() {
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
-		$governance_errors     = false;
+		$governance_rules      = GovernanceUtilities::get_parsed_governance_rules();
+		$governance_error      = false;
 
-		try {
-			GovernanceUtilities::get_parsed_governance_rules();
-		} catch ( Exception $e ) {
-			$governance_errors = $e->getMessage();
+		if ( is_wp_error( $governance_rules ) ) {
+			$governance_error = $governance_rules->get_error_message();
 		}
 
 		include __DIR__ . '/settings.view.php';
