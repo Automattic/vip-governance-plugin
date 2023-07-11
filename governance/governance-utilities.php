@@ -57,16 +57,10 @@ class GovernanceUtilities {
 		$block_settings   = array();
 
 		foreach ( $governance_rules as $rule ) {
-			// The allowed blocks can be merged together with the default role to get a super set
-			// The Block Settings and Allowed Features are only to be picked up from the default role, if a role specific one doesn't exist
-			if ( isset( $rule['type'] ) && 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) {
-				$allowed_blocks   = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
-				$block_settings   = isset( $rule['blockSettings'] ) ? $rule['blockSettings'] : $block_settings;
-				$allowed_features = isset( $rule['allowedFeatures'] ) ? $rule['allowedFeatures'] : $allowed_features;
-			} elseif ( isset( $rule['type'] ) && 'default' === $rule['type'] ) {
-				$allowed_blocks   = isset( $rule['allowedBlocks'] ) ? array_merge( $allowed_blocks, $rule['allowedBlocks'] ) : $allowed_blocks;
-				$block_settings   = isset( $rule['blockSettings'] ) && empty( $block_settings ) ? $rule['blockSettings'] : $block_settings;
-				$allowed_features = isset( $rule['allowedFeatures'] ) && empty( $allowed_features ) ? $rule['allowedFeatures'] : $allowed_features;
+			if ( isset( $rule['type'] ) && ( ( 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) || 'default' === $rule['type'] ) ) {
+				$allowed_blocks   = isset( $rule['allowedBlocks'] ) ? [ ...$allowed_blocks, ...$rule['allowedBlocks'] ] : $allowed_blocks;
+				$block_settings   = isset( $rule['blockSettings'] ) ? array_merge_recursive( $block_settings, $rule['blockSettings'] ) : $block_settings;
+				$allowed_features = isset( $rule['allowedFeatures'] ) ? [ ...$allowed_features, ...$rule['allowedFeatures'] ] : $allowed_features;
 			}
 		}
 
