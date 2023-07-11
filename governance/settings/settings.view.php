@@ -4,7 +4,7 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-$is_governance_errors = false !== $governance_errors;
+$is_governance_error = false !== $governance_error;
 
 $governance_rules_formatted = join("\n", array_map(function( $line ) {
 	return sprintf( '<code>%s</code>', esc_html( $line ) );
@@ -26,20 +26,20 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 	<hr/>
 
 	<?php /* translators: %s: A ✅ or ❌ emoji */ ?>
-	<h2><?php printf( esc_html__( '%s Governance rules' ), $is_governance_errors ? '❌' : '✅' ); ?></h2>
+	<h2><?php printf( esc_html__( '%s Governance rules' ), $is_governance_error ? '❌' : '✅' ); ?></h2>
 
-	<div class="governance-rules <?php echo $is_governance_errors ? 'with-errors' : ''; ?>">
+	<div class="governance-rules <?php echo $is_governance_error ? 'with-errors' : ''; ?>">
 		<div class="governance-rules-validation">
-			<?php if ( $is_governance_errors ) { ?>
+			<?php if ( $is_governance_error ) { ?>
 			<p class="validation-errors"><?php esc_html_e( 'Failed to load:' ); ?></p>
-			<pre><?php echo esc_html( $governance_errors ); ?></pre>
+			<pre><?php echo esc_html( $governance_error ); ?></pre>
 			<?php } else { ?>
 			<p><?php esc_html_e( 'Rules loaded successfully.' ); ?></p>
 			<?php } ?>
 		</div>
 
 		<div class="governance-rules-json">
-			<?php if ( $is_governance_errors ) { ?>
+			<?php if ( $is_governance_error ) { ?>
 			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
 			<pre><?php echo $governance_rules_formatted; ?></pre>

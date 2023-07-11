@@ -4,27 +4,24 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-use Exception;
+use WP_Error;
 
 class GovernanceUtilities {
 	/**
-	* Retrieve parsed governance rules from the private directory, or the plugin directory if not found.
-	*/
+	 * Retrieve parsed governance rules from the private directory, or the plugin directory if not found.
+	 *
+	 * @return array|WP_Error
+	 */
 	public static function get_parsed_governance_rules() {
 		$governance_rules_json = self::get_governance_rules_json();
-		$governance_rules      = RulesParser::parse( $governance_rules_json );
-
-		if ( is_wp_error( $governance_rules ) ) {
-			/* translators: %s: governance file name */
-			throw new Exception( $governance_rules->get_error_message() );
-		}
-
-		return $governance_rules;
+		return RulesParser::parse( $governance_rules_json );
 	}
 
 	/**
-	* Get raw governance rules content from the private directory, or the plugin directory if not found.
-	*/
+	 * Get raw governance rules content from the private directory, or the plugin directory if not found.
+	 *
+	 * @return string|WP_Error
+	 */
 	public static function get_governance_rules_json() {
 		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
 
@@ -33,18 +30,25 @@ class GovernanceUtilities {
 
 			if ( ! file_exists( $governance_file_path ) ) {
 				/* translators: %s: governance file name */
-				throw new Exception( sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
+				return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
 			}
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$governance_rules_json = file_get_contents( $governance_file_path );
+
+		if ( false === $governance_rules_json ) {
+			/* translators: %s: governance file name */
+			return new WP_Error( 'governance-file-not-readable', sprintf( __( 'Governance rules (%s) could not be read from private folder.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
+		}
+
 		return $governance_rules_json;
 	}
 
 	/**
-	 * Get the rules for the current user, with a default fallback rule set of
-	 * allowing core/heading, core/paragraph and core/image
+	 * Get the rules for the current user, using the "default" rules as a fallback.
+	 *
+	 * @return array
 	 */
 	public static function get_rules_for_user( $governance_rules ) {
 		if ( empty( $governance_rules ) ) {
