@@ -208,7 +208,7 @@ With this example, you'll get the following rules:
   - Heading/paragraph blocks are allowed
   - For a heading at the root level, a custom yellow colour will appear as a possible text colour option.
   - If you aren't an administrator, you will not be able to move any blocks or lock/unlock any blocks if you do not have access to it. You will also not be able to access the code editor.
-- Administrator role: What we will get, above the default set of rules:
+- Administrator role: Role-specific rules combined with the default set of rules:
   - Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A quote block will be allowed to have heading, and paragraph as its children while a media-text block will be allowed to have heading, paragraph and image as its children.
   - A heading at the root level will be allowed a custom yellow colour as a possible text colour option.
   - A heading sitting inside a media-text will be allowed to have a custom red colour as it's text.
