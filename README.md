@@ -127,11 +127,12 @@ This is the default rule set used by the plugin.
 }
 ```
 
-With this default rule set, you'll get the following rules:
+With this rule set, the following rules will apply:
 
-- All blocks are allowed to be inserted across all the roles.
-  - There are no restrictions, including on what children are allowed under a block.
-  - The ability to use the code editor, and to move/unlock blocks is enabled for everyone
+- All blocks can be inserted across all the roles.
+- No restrictions apply for what's allowed under a block.
+- The code editor is accessible for everyone.
+- Blocks can be locked, unlocked and moved.
 
 #### Restrictions
 
@@ -202,21 +203,21 @@ This is an example in which we want to apply different restrictions based on use
 }
 ```
 
-With this example, you'll get the following rules:
+With this rule set, the following rules will apply:
 
-- Default: This rule will apply to everyone as a baseline.
+- Default: Rules that apply to everyone as a baseline:
   - Heading/paragraph blocks are allowed
   - For a heading at the root level, a custom yellow colour will appear as a possible text colour option.
-  - If you aren't an administrator, you will not be able to move any blocks or lock/unlock any blocks if you do not have access to it. You will also not be able to access the code editor.
+  - Blocks cannot be locked/unlocked or moved.
+  - The code editor is not accessible.
 - Administrator role: Role-specific rules combined with the default set of rules:
-  - Besides the default allowed blocks, quote/media-text and image blocks will be allowed as well. A quote block will be allowed to have heading, and paragraph as its children while a media-text block will be allowed to have heading, paragraph and image as its children.
-  - A heading at the root level will be allowed a custom yellow colour as a possible text colour option.
-  - A heading sitting inside a media-text will be allowed to have a custom red colour as it's text.
-  - A paragraph sitting inside a quote will be allowed to have a custom green colour as it's text.
-  - You will be able to lock/unlock blocks as well as move them around.
-  - You will also get access to the code editor.
-
-In addition to the above, you will also be able to lock any blocks that aren't allowed for a user working in the block editor. This will ensure that they do not interact with any blocks that they shouldn't have access to.
+  - In addition to the default allowed blocks, quote/media-text and image blocks is allowed as well.
+  - A quote block is allowed to have heading, and paragraph as its children while a media-text block is allowed to have heading, paragraph and image as its children.
+  - A heading at the root level is a custom yellow colour as a possible text colour option.
+  - A heading sitting inside a media-text is allowed to have a custom red colour as it's text.
+  - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
+  - The code editor is accessible.
+  - Blocks can be locked, unlocked and moved.
 
 ## Code Filters
 
