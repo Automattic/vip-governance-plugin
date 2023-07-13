@@ -54,32 +54,32 @@ export function setupBlockLocking( governanceRules ) {
 	addFilter( 'editor.BlockEdit', 'wpcomvip-governance/with-disabled-blocks', withDisabledBlocks );
 
 	if ( ! governanceRules.allowedFeatures || ! governanceRules.allowedFeatures.includes( 'moveBlocks' ) ) {
-		// const withDisabledMove = ( blockAttributes, blockType, innerHTML, attributes ) => {
-		// 	// ToDo: Make this overridable via a filter
-		// 	const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockType, allowedBlock ) );
+		const withDisabledMove = ( blockAttributes, blockType, innerHTML, attributes ) => {
+			// ToDo: Make this overridable via a filter
+			const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockType, allowedBlock ) );
 
-		// 	if ( isAllowed ) {
-		// 		return blockAttributes;
-		// 	}
+			if ( isAllowed ) {
+				return blockAttributes;
+			}
 
-		// 	const { lock } = blockAttributes;
-		// 	const savedLock = lock ? lock : false;
+			const { lock } = blockAttributes;
+			const savedLock = lock ? lock : false;
 
-		// 	return {
-		// 		...blockAttributes,
-		// 		lock: {
-		// 			move: true,
-		// 			remove: true,
-		// 		},
-		// 		'vip-governance-attribute-saved-lock': savedLock,
-		// 	};
-		// };
+			return {
+				...blockAttributes,
+				lock: {
+					move: true,
+					remove: true,
+				},
+				'vip-governance-attribute-saved-lock': savedLock,
+			};
+		};
 
-		// addFilter(
-		// 	'blocks.getBlockAttributes',
-		// 	'wpcomvip-governance/with-disabled-move',
-		// 	withDisabledMove,
-		// );
+		addFilter(
+			'blocks.getBlockAttributes',
+			'wpcomvip-governance/with-disabled-move',
+			withDisabledMove,
+		);
 
 		const restoreSavedLockAttribute = ( element, blockType, attributes ) => {
 			// skip if element is undefined
