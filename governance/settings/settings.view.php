@@ -26,7 +26,7 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 	<hr/>
 
 	<?php /* translators: %s: A ✅ or ❌ emoji */ ?>
-	<h2><?php printf( esc_html__( '%s Governance rules' ), $is_governance_error ? '❌' : '✅' ); ?></h2>
+	<h2><?php printf( esc_html__( '%s Governance Rules Validation' ), $is_governance_error ? '❌' : '✅' ); ?></h2>
 
 	<div class="governance-rules <?php echo $is_governance_error ? 'with-errors' : ''; ?>">
 		<div class="governance-rules-validation">
@@ -37,22 +37,17 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 			<p><?php esc_html_e( 'Rules loaded successfully.' ); ?></p>
 			<?php } ?>
 		</div>
-
-		<div class="governance-rules-json">
-			<?php if ( $is_governance_error ) { ?>
-			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-			<pre><?php echo $governance_rules_formatted; ?></pre>
-			<?php } else { ?>
-			<details>
-				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
-
-				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-				<pre><?php echo $governance_rules_formatted; ?></pre>
-			</details>
-			<?php } ?>
-		</div>
 	</div>
+
+	<hr/>
+
+	<?php if ( ! $is_governance_error ) { ?>
+		<h2><?php esc_html_e( 'View Governance Rules as another Role' ); ?></h2>
+		<label for="user-role-selector">Choose the user role:</label>
+		<select name="user-role-selector" id="user-role-selector">
+			<?php wp_dropdown_roles(); ?>
+		</select>
+	<?php } ?>
 
 	<hr/>
 
