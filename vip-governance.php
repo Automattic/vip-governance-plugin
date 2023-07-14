@@ -32,6 +32,8 @@ if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
 
 define( 'WPCOMVIP_GOVERNANCE_RULES_FILENAME', 'governance-rules.json' );
 
+define( 'WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE', 'vip-governance/v1' );
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 require_once __DIR__ . '/governance/analytics.php';

@@ -47,6 +47,12 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 		<select name="user-role-selector" id="user-role-selector">
 			<?php wp_dropdown_roles(); ?>
 		</select>
+		<script type="text/javascript">
+			let roleSelector = document.getElementById("user-role-selector");
+			roleSelector.onchange = () => {
+				console.log("Selected value is: " + roleSelector.value);
+			}
+		</script>
 	<?php } ?>
 
 	<hr/>

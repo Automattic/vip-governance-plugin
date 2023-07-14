@@ -47,9 +47,8 @@ class Settings {
 	// Views
 
 	public static function render() {
-		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
-		$governance_rules      = GovernanceUtilities::get_parsed_governance_rules();
-		$governance_error      = false;
+		$governance_rules = GovernanceUtilities::get_parsed_governance_rules();
+		$governance_error = false;
 
 		if ( is_wp_error( $governance_rules ) ) {
 			$governance_error = $governance_rules->get_error_message();
