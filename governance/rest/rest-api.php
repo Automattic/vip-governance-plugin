@@ -12,14 +12,15 @@ class RestApi {
 	}
 
 	public static function register_rest_routes() {
-		register_rest_route( WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE, '/(?P<role>[a-zA-Z0-9-]+)/rules', [
+		register_rest_route( WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE, '/(?P<role>\w+)/rules', [
 			'methods'             => 'GET',
 			'permission_callback' => [ __CLASS__, 'permission_callback' ],
 			'callback'            => [ __CLASS__, 'get_governance_rules_for_role' ],
 			'args'                => [
 				'role' => [
 					'validate_callback' => function( $param ) {
-						return array_intersect( get_editable_roles(), array( strval( $param ) ) );
+						$all_roles = wp_roles()->roles;
+						return array_intersect( $all_roles, array( strval( $param ) ) );
 					},
 					'sanitize_callback' => function( $param ) {
 						return strval( $param );

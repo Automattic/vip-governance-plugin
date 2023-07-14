@@ -50,6 +50,7 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 		<script type="text/javascript">
 			let roleSelector = document.getElementById("user-role-selector");
 			roleSelector.onchange = () => {
+				// Make a rest call to wordpress endpoint vip-governance/v1/roleSelector.value/rules
 				console.log("Selected value is: " + roleSelector.value);
 			}
 		</script>
