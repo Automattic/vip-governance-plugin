@@ -19,8 +19,9 @@ class RestApi {
 			'args'                => [
 				'role' => [
 					'validate_callback' => function( $param ) {
-						$all_roles = wp_roles()->roles;
-						return array_intersect( $all_roles, array( strval( $param ) ) );
+						$all_roles = array_keys( wp_roles()->roles );
+						$roles     = array( strval( $param ) );
+						return array_intersect( $all_roles, $roles );
 					},
 					'sanitize_callback' => function( $param ) {
 						return strval( $param );

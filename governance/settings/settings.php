@@ -14,6 +14,7 @@ class Settings {
 	public static function init() {
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ] );
+		wp_enqueue_script( 'wp-api' );
 	}
 
 	// Registration

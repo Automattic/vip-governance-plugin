@@ -6,10 +6,6 @@ defined( 'ABSPATH' ) || die();
 
 $is_governance_error = false !== $governance_error;
 
-$governance_rules_formatted = join("\n", array_map(function( $line ) {
-	return sprintf( '<code>%s</code>', esc_html( $line ) );
-}, explode( "\n", trim( $governance_rules_json ) )));
-
 ?>
 
 <div class="wrap">
@@ -47,11 +43,14 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 		<select name="user-role-selector" id="user-role-selector">
 			<?php wp_dropdown_roles(); ?>
 		</select>
+		<pre><code id="governance-rules"></code></pre>
 		<script type="text/javascript">
 			let roleSelector = document.getElementById("user-role-selector");
 			roleSelector.onchange = () => {
-				// Make a rest call to wordpress endpoint vip-governance/v1/roleSelector.value/rules
-				console.log("Selected value is: " + roleSelector.value);
+				window.wp.apiRequest({path: `/vip-governance/v1/${ roleSelector.value }/rules`})
+				.then(rules => {
+					document.getElementById("governance-rules").textContent = JSON.stringify(rules, undefined, 2);
+				});
 			}
 		</script>
 	<?php } ?>
