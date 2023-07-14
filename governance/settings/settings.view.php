@@ -6,6 +6,10 @@ defined( 'ABSPATH' ) || die();
 
 $is_governance_error = false !== $governance_error;
 
+$governance_rules_formatted = join("\n", array_map(function( $line ) {
+	return sprintf( '<code>%s</code>', esc_html( $line ) );
+}, explode( "\n", trim( $governance_rules_json ) )));
+
 ?>
 
 <div class="wrap">
@@ -33,6 +37,21 @@ $is_governance_error = false !== $governance_error;
 			<p><?php esc_html_e( 'Rules loaded successfully.' ); ?></p>
 			<?php } ?>
 		</div>
+
+		<div class="governance-rules-json">
+			<?php if ( $is_governance_error ) { ?>
+			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
+			<pre><?php echo $governance_rules_formatted; ?></pre>
+			<?php } else { ?>
+			<details>
+				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
+
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
+				<pre><?php echo $governance_rules_formatted; ?></pre>
+			</details>
+			<?php } ?>
+		</div>
 	</div>
 
 	<hr/>
@@ -44,13 +63,13 @@ $is_governance_error = false !== $governance_error;
 			<select name="user-role-selector" id="user-role-selector">
 				<?php wp_dropdown_roles(); ?>
 			</select>
-			<pre><code id="json">Rules specific to the role will be shown here. Change your selection above.</code></pre>
+			<pre id="json">Rules specific to the role will be shown here. Change your selection above.</pre>
 			<script type="text/javascript">
 				let roleSelector = document.getElementById("user-role-selector");
 				roleSelector.onchange = () => {
 					window.wp.apiRequest({path: `/vip-governance/v1/${ roleSelector.value }/rules`})
 					.then(rules => {
-						document.getElementById("json").textContent = JSON.stringify(rules, undefined, 2);
+						document.getElementById("json").innerHTML = JSON.stringify(rules, undefined, 4);
 					});
 				}
 			</script>
