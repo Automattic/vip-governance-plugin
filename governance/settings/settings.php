@@ -48,6 +48,7 @@ class Settings {
 	// Views
 
 	public static function render() {
+		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
 		$governance_rules      = GovernanceUtilities::get_parsed_governance_rules();
 		$governance_error      = false;

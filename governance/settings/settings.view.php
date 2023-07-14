@@ -6,10 +6,6 @@ defined( 'ABSPATH' ) || die();
 
 $is_governance_error = false !== $governance_error;
 
-$governance_rules_formatted = join("\n", array_map(function( $line ) {
-	return sprintf( '<code>%s</code>', esc_html( $line ) );
-}, explode( "\n", trim( $governance_rules_json ) )));
-
 ?>
 
 <div class="wrap">
@@ -42,13 +38,13 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 			<?php if ( $is_governance_error ) { ?>
 			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-			<pre><?php echo $governance_rules_formatted; ?></pre>
+			<pre><?php echo $governance_rules_json; ?></pre>
 			<?php } else { ?>
 			<details>
 				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
 
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-				<pre><?php echo $governance_rules_formatted; ?></pre>
+				<pre><?php echo $governance_rules_json; ?></pre>
 			</details>
 			<?php } ?>
 		</div>
@@ -57,20 +53,27 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 	<hr/>
 
 	<?php if ( ! $is_governance_error ) { ?>
-		<div class="governance-rules-json">
-			<h2><?php esc_html_e( 'View Governance Rules as another Role' ); ?></h2>
-			<label for="user-role-selector">Choose the user role:</label>
-			<select name="user-role-selector" id="user-role-selector">
-				<?php wp_dropdown_roles(); ?>
+		<div class="governance-rules">
+			<h2><?php esc_html_e( 'View Governance Rules Using A Role' ); ?></h2>
+			<select name="user-role-selector" id="user-role-selector" onchange="showRules()">
+				<option value="">Choose a user role to view the rules as</option>
+				<?php foreach ( $user_roles_available as $user_role_available ) { ?>
+					<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
+				<?php } ?>
 			</select>
-			<pre id="json">Rules specific to the role will be shown here. Change your selection above.</pre>
+			<p></p>
+			<details id="rules-json" hidden>
+				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
+				<pre id="json"></pre>
+			</details>
 			<script type="text/javascript">
-				let roleSelector = document.getElementById("user-role-selector");
-				roleSelector.onchange = () => {
+				function showRules() {
+					let roleSelector = document.getElementById("user-role-selector");
 					window.wp.apiRequest({path: `/vip-governance/v1/${ roleSelector.value }/rules`})
-					.then(rules => {
-						document.getElementById("json").innerHTML = JSON.stringify(rules, undefined, 4);
-					});
+						.then(rules => {
+							document.getElementById("json").innerHTML = JSON.stringify(rules, undefined, 4);
+							document.getElementById("rules-json").removeAttribute("hidden");
+						});
 				}
 			</script>
 		</div>
