@@ -38,21 +38,23 @@ $is_governance_error = false !== $governance_error;
 	<hr/>
 
 	<?php if ( ! $is_governance_error ) { ?>
-		<h2><?php esc_html_e( 'View Governance Rules as another Role' ); ?></h2>
-		<label for="user-role-selector">Choose the user role:</label>
-		<select name="user-role-selector" id="user-role-selector">
-			<?php wp_dropdown_roles(); ?>
-		</select>
-		<pre><code id="governance-rules"></code></pre>
-		<script type="text/javascript">
-			let roleSelector = document.getElementById("user-role-selector");
-			roleSelector.onchange = () => {
-				window.wp.apiRequest({path: `/vip-governance/v1/${ roleSelector.value }/rules`})
-				.then(rules => {
-					document.getElementById("governance-rules").textContent = JSON.stringify(rules, undefined, 2);
-				});
-			}
-		</script>
+		<div class="governance-rules-json">
+			<h2><?php esc_html_e( 'View Governance Rules as another Role' ); ?></h2>
+			<label for="user-role-selector">Choose the user role:</label>
+			<select name="user-role-selector" id="user-role-selector">
+				<?php wp_dropdown_roles(); ?>
+			</select>
+			<pre><code id="json">Rules specific to the role will be shown here. Change your selection above.</code></pre>
+			<script type="text/javascript">
+				let roleSelector = document.getElementById("user-role-selector");
+				roleSelector.onchange = () => {
+					window.wp.apiRequest({path: `/vip-governance/v1/${ roleSelector.value }/rules`})
+					.then(rules => {
+						document.getElementById("json").textContent = JSON.stringify(rules, undefined, 2);
+					});
+				}
+			</script>
+		</div>
 	<?php } ?>
 
 	<hr/>
