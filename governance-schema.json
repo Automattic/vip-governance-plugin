@@ -3,15 +3,15 @@
 	"title": "VIP governance rules JSON schema",
 	"definitions": {
 		"allowedFeaturesArray": {
-			"description": "Array of allowed features for this rule. Supported features are codeEditor and moveBlocks",
+			"description": "Array of allowed features for this rule. Supported features are: codeEditor and lockBlocks",
 			"type": "array",
 			"items": {
 				"type": "string",
-				"enum": [ "codeEditor", "moveBlocks" ]
+				"enum": [ "codeEditor", "lockBlocks" ]
 			},
 			"uniqueItems": true,
 			"examples": [
-				[ "codeEditor", "moveBlocks" ]
+				[ "codeEditor", "lockBlocks" ]
 			]
 		},
 		"allowedBlocksArray": {

@@ -95,7 +95,7 @@ Rule's of the type `role` require an array of `roles` that will use this particu
 
 Each rule can have any one of the following properties.
 
-- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `moveBlocks`. If you do not want to enable these features, simply omit them from the array.
+- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `lockBlocks`. If you do not want to enable these features, simply omit them from the array.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json [as defined here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedChildren` to restrict nested blocks.
 - `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor.
 
@@ -120,7 +120,7 @@ This is the default rule set used by the plugin.
 	"rules": [
 		{
 			"type": "default",
-			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
+			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
 			"allowedBlocks": [ "*" ]
 		}
 	]
@@ -132,7 +132,7 @@ With this rule set, the following rules will apply:
 - All blocks can be inserted across all the roles.
 - No restrictions apply for what's allowed under a block.
 - The code editor is accessible for everyone.
-- Blocks can be locked, unlocked and moved.
+- Blocks can be locked and unlocked.
 
 #### Restrictions
 
@@ -146,7 +146,7 @@ This is an example in which we want to apply different restrictions based on use
 		{
 			"type": "role",
 			"roles": [ "administrator" ],
-			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
+			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
 			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
 				"core/media-text": {
