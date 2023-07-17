@@ -4,7 +4,10 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-$is_governance_error = false !== $governance_error;
+$is_governance_error        = false !== $governance_error;
+$governance_rules_formatted = join("\n", array_map(function( $line ) {
+	return sprintf( '<code>%s</code>', esc_html( $line ) );
+}, explode( "\n", trim( $governance_rules_json ) )));
 
 ?>
 
@@ -38,13 +41,13 @@ $is_governance_error = false !== $governance_error;
 			<?php if ( $is_governance_error ) { ?>
 			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-			<pre><?php echo $governance_rules_json; ?></pre>
+			<pre><?php echo $governance_rules_formatted; ?></pre>
 			<?php } else { ?>
 			<details>
 				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
 
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-				<pre><?php echo $governance_rules_json; ?></pre>
+				<pre><?php echo $governance_rules_formatted; ?></pre>
 			</details>
 			<?php } ?>
 		</div>
@@ -53,7 +56,7 @@ $is_governance_error = false !== $governance_error;
 	<hr/>
 
 	<?php if ( ! $is_governance_error ) { ?>
-		<div class="governance-rules">
+		<div class="combined-governance-rules">
 			<h2><?php esc_html_e( 'View Governance Rules Using A Role' ); ?></h2>
 			<select name="user-role-selector" id="user-role-selector" onchange="showRulesForUserRole()">
 				<option value="">Choose a user role to view the rules as</option>

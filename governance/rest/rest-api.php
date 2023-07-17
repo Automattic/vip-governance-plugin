@@ -32,7 +32,7 @@ class RestApi {
 	}
 
 	public static function permission_callback() {
-		return true;
+		return current_user_can( 'manage_options' );
 	}
 
 	public static function get_governance_rules_for_role( $params ) {
