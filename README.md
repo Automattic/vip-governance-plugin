@@ -27,6 +27,9 @@ We consider two dimensions:
     - [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
   - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+- [Endpoints](#endpoints)
+  - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
+  - [Example](#example)
 - [Analytics](#analytics)
 - [Development](#development)
   - [Tests](#tests)
@@ -261,6 +264,41 @@ addFilter(
 		return result;
 	}
 );
+```
+
+## Endpoints
+
+The examples in the below endpoints are using the rule file found in the example rule file [above](#restrictions).
+
+### `vip-governance/v1/<role>/rules`
+
+This endpoint is meant to return the combined rules for a given role, so it's easy to visualize what the rules would look like in practice. It's used within the admin panel, to provide this functionality. It's guarded by being limited to users with the `manage_options` permission only.
+
+It has only three root level keys: `allowedBlocks`, `blockSettings` and `allowedFeatures`.
+
+#### Example
+
+This example involves making a call to `http://my.site/wp-json/vip-governance/v1/editor/rules` for an `editor` role:
+
+```json
+{
+	"allowedBlocks": [ "core/heading", "core/paragraph" ],
+	"blockSettings": {
+		"core/heading": {
+			"color": {
+				"text": true,
+				"palette": [
+					{
+						"color": "#FFFF00",
+						"name": "Custom yellow",
+						"slug": "custom-yellow"
+					}
+				]
+			}
+		}
+	},
+	"allowedFeatures": []
+}
 ```
 
 ## Analytics
