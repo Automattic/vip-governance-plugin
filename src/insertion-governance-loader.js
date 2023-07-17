@@ -1,6 +1,16 @@
 import { applyFilters } from '@wordpress/hooks';
-import { doesBlockNameMatchBlockRegex } from './block-utils';
+import { isBlockAllowedByBlockRegexes } from './block-utils';
 
+/**
+ * @param {boolean} canInsert       The initial canInsert value returned by Gutenberg.
+ * @param {Object}  blockType       The block type object for the block that may be inserted.
+ * @param {?string} rootClientId    Parent client ID of the block that may be inserted.
+ *                                  Null if the block is being inserted at the root level.
+ * @param {Object}  governanceRules An object containing governance rules for the current
+ *                                  user, with keys 'allowedBlocks' and 'blockSettings'.
+ *
+ * @return {boolean} Whether the given block type is allowed to be inserted.
+ */
 export const isBlockAllowed = (
 	canInsert,
 	blockType,
@@ -12,10 +22,12 @@ export const isBlockAllowed = (
 	let isAllowed = canInsert;
 
 	if ( governanceRules && ! rootClientId ) {
-		isAllowed = isRootBlockAllowed( blockType.name, governanceRules.allowedBlocks );
+		// When no rootClientId is present, the block is being inserted at the root level.
+		// Use the root set of allowedBlocks.
+		isAllowed = isBlockAllowedByBlockRegexes( blockType.name, governanceRules.allowedBlocks );
 	} else if ( governanceRules && rootClientId ) {
-		// if there's no parent just go by the root level block names in the rules
-		isAllowed = isParentBlockAllowed(
+		// If the block is being inserted into a parent, check this block against the parent type.
+		isAllowed = isChildBlockAllowed(
 			rootClientId,
 			blockType,
 			getBlock,
@@ -35,7 +47,7 @@ export const isBlockAllowed = (
 	);
 };
 
-function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
+function isChildBlockAllowed( rootClientId, blockType, getBlock, canInsert, rules ) {
 	const parentBlock = getBlock( rootClientId );
 
 	if (
@@ -43,17 +55,11 @@ function isParentBlockAllowed( rootClientId, blockType, getBlock, canInsert, rul
 		rules.blockSettings[ parentBlock.name ] &&
 		rules.blockSettings[ parentBlock.name ].allowedChildren
 	) {
-		return isRootBlockAllowed(
+		return isBlockAllowedByBlockRegexes(
 			blockType.name,
 			rules.blockSettings[ parentBlock.name ].allowedChildren
 		);
-	} else if ( rules.allowedBlocks.length === 1 && rules.allowedBlocks[ 0 ] === '*' ) {
-		return canInsert;
 	}
 
-	return false;
-}
-
-function isRootBlockAllowed( blockName, rules ) {
-	return rules.some( rule => doesBlockNameMatchBlockRegex( blockName, rule ) );
+	return isBlockAllowedByBlockRegexes( blockType.name, rules.allowedBlocks );
 }
