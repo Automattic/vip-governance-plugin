@@ -53,9 +53,8 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 		</div>
 	</div>
 
-	<hr/>
-
 	<?php if ( ! $is_governance_error ) { ?>
+	<hr/>
 		<div class="combined-governance-rules">
 			<h2><?php esc_html_e( 'View Governance Rules Using A Role' ); ?></h2>
 			<select name="user-role-selector" id="user-role-selector" onchange="showRulesForUserRole()">
