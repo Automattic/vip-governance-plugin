@@ -14,7 +14,6 @@ class Settings {
 	public static function init() {
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ] );
-		wp_enqueue_script( 'wp-api' );
 	}
 
 	// Registration
@@ -31,6 +30,7 @@ class Settings {
 
 	public static function register_menu() {
 		$hook = add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
 	}
 
@@ -42,6 +42,16 @@ class Settings {
 			__DIR__ . '/settings.css',
 			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
+		);
+	}
+
+	public static function enqueue_scripts() {
+		wp_enqueue_script(
+			'wpcomvip-governance-settings',
+			__DIR__ . '/settings.js',
+			/* dependencies */ [ 'wp-api' ],
+			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION,
+			/* in footer */ true
 		);
 	}
 

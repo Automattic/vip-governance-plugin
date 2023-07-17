@@ -55,7 +55,7 @@ $is_governance_error = false !== $governance_error;
 	<?php if ( ! $is_governance_error ) { ?>
 		<div class="governance-rules">
 			<h2><?php esc_html_e( 'View Governance Rules Using A Role' ); ?></h2>
-			<select name="user-role-selector" id="user-role-selector" onchange="showRules()">
+			<select name="user-role-selector" id="user-role-selector" onchange="showRulesForUserRole()">
 				<option value="">Choose a user role to view the rules as</option>
 				<?php foreach ( $user_roles_available as $user_role_available ) { ?>
 					<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
@@ -66,16 +66,6 @@ $is_governance_error = false !== $governance_error;
 				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
 				<pre id="json"></pre>
 			</details>
-			<script type="text/javascript">
-				function showRules() {
-					let roleSelector = document.getElementById("user-role-selector");
-					window.wp.apiRequest({path: `/vip-governance/v1/${ roleSelector.value }/rules`})
-						.then(rules => {
-							document.getElementById("json").innerHTML = JSON.stringify(rules, undefined, 4);
-							document.getElementById("rules-json").removeAttribute("hidden");
-						});
-				}
-			</script>
 		</div>
 	<?php } ?>
 
