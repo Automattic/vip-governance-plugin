@@ -27,6 +27,7 @@ We consider two dimensions:
     - [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
   - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+- [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
   - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
   - [Example](#example)
@@ -266,6 +267,16 @@ addFilter(
 );
 ```
 
+## Admin Settings
+
+There is an admin settings menu titled `VIP Governance` that's created with the use of this plugin. This page offers some helpful items such as:
+
+- Turning on and off the plugin quickly, without re-deploying.
+- View all the rules at once, and also any errors if it's invalid.
+- View the rules as a specific user role.
+
+![Admin setting in action][settings-panel-example]
+
 ## Endpoints
 
 The examples in the below endpoints are using the rule file found in the example rule file [above](#restrictions).
@@ -331,6 +342,7 @@ composer run test
 
 <!-- Links -->
 
+[settings-panel-example]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-panel.gif
 [analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
