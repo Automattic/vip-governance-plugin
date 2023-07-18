@@ -275,7 +275,7 @@ There is an admin settings menu titled `VIP Governance` that's created with the 
 - View all the rules at once, and also any errors if it's invalid.
 - View the rules as a specific user role.
 
-![Admin setting in action][settings-panel-example]
+![Admin setting in action][settings-panel-example-gif]
 
 ## Endpoints
 
@@ -342,7 +342,7 @@ composer run test
 
 <!-- Links -->
 
-[settings-panel-example]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
+[settings-panel-example-gif]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
 [analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
