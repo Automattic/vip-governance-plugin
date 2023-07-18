@@ -56,18 +56,16 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 	<?php if ( ! $is_governance_error ) { ?>
 	<hr/>
 		<div class="combined-governance-rules">
-			<h2><?php esc_html_e( 'View Governance Rules Using A Role' ); ?></h2>
-			<select name="user-role-selector" id="user-role-selector" onchange="showRulesForUserRole()">
+			<h2><?php esc_html_e( 'View Governance Rules For A Role' ); ?></h2>
+			<p class="description">Rules for roles work by combining role governance rules with default rules. Use this tool to view rules for a role and debug permissions issues.</p>
+			<select name="user-role-selector" id="user-role-selector">
 				<option value="">Choose a user role to view the rules as</option>
 				<?php foreach ( $user_roles_available as $user_role_available ) { ?>
 					<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
 				<?php } ?>
 			</select>
-			<p></p>
-			<details id="rules-json" hidden>
-				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
-				<pre id="json"></pre>
-			</details>
+			<span class="spinner vip-governance-role-query-spinner"></span>
+			<pre class="combined-governance-rules-json" id="json" style="margin-top: 1rem" hidden></pre>
 		</div>
 	<?php } ?>
 

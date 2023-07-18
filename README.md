@@ -272,7 +272,7 @@ The examples in the below endpoints are using the rule file found in the example
 
 ### `vip-governance/v1/<role>/rules`
 
-This endpoint is meant to return the combined rules for a given role, so it's easy to visualize what the rules would look like in practice. It's used within the admin panel, to provide this functionality. It's guarded by being limited to users with the `manage_options` permission only.
+This endpoint is used to return the combined rules for a given role. This API is utilized by the settings page to visualize merged default and role rules for a selected role. It's only available to users with the `manage_options` permission.
 
 It has only three root level keys: `allowedBlocks`, `blockSettings` and `allowedFeatures`.
 

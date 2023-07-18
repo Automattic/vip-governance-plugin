@@ -33,6 +33,11 @@
 	font-weight: 700;
 }
 
+.vip-governance-role-query-spinner span {
+	float: none;
+	margin-top: 0;
+}
+
 pre {
 	counter-reset: line;
 	tab-size: 4;
@@ -48,4 +53,3 @@ code:before {
 	display: inline-block;
 	color: #777;
 }
-
