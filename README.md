@@ -342,7 +342,7 @@ composer run test
 
 <!-- Links -->
 
-[settings-panel-example]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-panel.gif
+[settings-panel-example]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
 [analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
