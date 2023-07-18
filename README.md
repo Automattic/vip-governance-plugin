@@ -103,6 +103,13 @@ The role specific rule will be merged with the default rule. This is done intent
 
 #### Limitations
 
+- We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
+
+    - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
+    - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
+
+    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
+
 - Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additoinal blocks, but existing blocks in existing content will not be removed or restricted.
 
 ### Sample Rules
