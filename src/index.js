@@ -1,12 +1,12 @@
-import { addFilter } from '@wordpress/hooks';
+import { addFilter, applyFilters } from '@wordpress/hooks';
 import { select, dispatch } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { store as noticeStore } from '@wordpress/notices';
 import { __ } from '@wordpress/i18n';
 
 import { getNestedSettingPaths, getNestedSetting } from './nested-governance-loader';
-import { isBlockAllowed } from './insertion-governance-loader';
 import { setupBlockLocking } from './block-locking';
+import { isBlockAllowedInHierarchy } from './block-utils';
 
 function setup() {
 	if ( VIP_GOVERNANCE.error ) {
@@ -30,9 +30,37 @@ function setup() {
 		'blockEditor.__unstableCanInsertBlockType',
 		`wpcomvip-governance/block-insertion`,
 		( canInsert, blockType, rootClientId, { getBlock } ) => {
-			return isBlockAllowed( canInsert, blockType, rootClientId, governanceRules, {
-				getBlock,
-			} );
+			if ( canInsert === false ) {
+				return canInsert;
+			}
+
+			let parentBlockNames = [];
+
+			if ( rootClientId ) {
+				// This block has parents. Build a list of parentBlockNames
+				const { getBlockParents, getBlockName } = select( blockEditorStore );
+				const parentBlock = getBlock( rootClientId );
+				const ancestorClientIds = getBlockParents( rootClientId, true );
+
+				parentBlockNames = [ parentBlock.clientId, ...ancestorClientIds ].map( parentClientId =>
+					getBlockName( parentClientId )
+				);
+			}
+
+			const isAllowed = isBlockAllowedInHierarchy(
+				blockType.name,
+				parentBlockNames,
+				governanceRules
+			);
+
+			// Allow overriding the result using a filter
+			return applyFilters(
+				'vip_governance__is_block_allowed_for_insertion',
+				isAllowed,
+				blockType.name,
+				parentBlockNames,
+				governanceRules
+			);
 		}
 	);
 
