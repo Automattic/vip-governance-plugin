@@ -26,8 +26,11 @@
 	}
 
 	const roleSelector = document.getElementById( 'user-role-selector' );
-	roleSelector.addEventListener( 'change', showRulesForUserRole );
 
-	// Reset to the default value on refresh
-	roleSelector.value = '';
+	if ( roleSelector ) {
+		// Reset to the default value on refresh
+		roleSelector.value = '';
+
+		roleSelector.addEventListener( 'change', showRulesForUserRole );
+	}
 } )();
