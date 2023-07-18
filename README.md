@@ -16,24 +16,26 @@ We consider two dimensions:
 ## Table of contents
 
 - [Installation](#installation)
-  - [Install via `git subtree`](#install-via-git-subtree)
-  - [Install via ZIP file](#install-via-zip-file)
-  - [Plugin activation](#plugin-activation)
+	- [Install via `git subtree`](#install-via-git-subtree)
+	- [Install via ZIP file](#install-via-zip-file)
+	- [Plugin activation](#plugin-activation)
 - [Usage](#usage)
-  - [Schema Basics](#schema-basics)
-    - [Limitations](#limitations)
-  - [Sample Rules](#sample-rules)
-    - [Default](#default)
-    - [Restrictions](#restrictions)
+	- [Your First Rule](#your-first-rule)
+	- [Schema Basics](#schema-basics)
+		- [Limitations](#limitations)
+	- [Sample Rules](#sample-rules)
+		- [Default](#default)
+		- [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
-  - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+	- [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
-  - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
-  - [Example](#example)
+	- [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
+		- [Example](#example)
 - [Analytics](#analytics)
 - [Development](#development)
-  - [Tests](#tests)
+	- [Tests](#tests)
 
 ## Installation
 
@@ -106,6 +108,13 @@ Each rule can have any one of the following properties.
 The role specific rule will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties.
 
 #### Limitations
+
+- We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
+
+    - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
+    - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
+
+    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
 
 - Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additoinal blocks, but existing blocks in existing content will not be removed or restricted.
 
@@ -229,25 +238,25 @@ There are filters in place, that can be applied to change the behaviour for what
 
 ### `vip_governance__is_block_allowed_for_insertion`
 
-Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to further add on any logic you may have to change if its allowed or not.
+Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to override the default logic for insertion.
 
 ```js
 /**
  * Change what blocks are allowed to be inserted in the block editor.
  *
- * @param isAllowed Whether or not the block will be allowed
- * @param blockType The block, whose name can be accessed using blockType.name
- * @param governanceRules The governance rules for the current user. The relevant property on this is allowedBlocks and blockSettings
- * @param rootClientId The ID of parent of this block. It will be null if it's a root level block
- * @param getBlock A selector populated with the right state so it can be used to get the parent of the block
+ * @param {bool}     isAllowed        Whether or not the block will be allowed.
+ * @param {string}   blockName        The name of the block to be inserted.
+ * @param {string[]} parentBlockNames An array of zero or more parent block names,
+ *                                    starting with the most recent parent ancestor.
+ * @param {Object}   governanceRules  An object containing the full set of governance
+ *                                    rules for the current user.
  */
-return apply_filters(
+return applyFilters(
 	'vip_governance__is_block_allowed_for_insertion',
 	isAllowed,
-	blockType,
-	governanceRules,
-	rootClientId,
-	getBlock
+	blockType.name,
+	parentBlockNames,
+	governanceRules
 );
 ```
 
@@ -256,13 +265,53 @@ For example, this filter can be used to allow the insertion of a custom block ev
 ```js
 addFilter(
 	'vip_governance__is_block_allowed_for_insertion',
-	'example/restrict-insertion`,
-	( result, rootClientId, blockType, getBlock, governanceRules ) => {
-		if ( rootClientId && blockType.name === 'custom/my-amazing-block' ) {
+	'example/allow-custom-block-insertion',
+	( isAllowed, blockName, parentBlockNames, governanceRules ) => {
+		if ( blockName === 'custom/my-amazing-block' ) {
 			return true;
 		}
 
-		return result;
+		return isAllowed;
+	}
+);
+```
+
+### `vip_governance__is_block_allowed_for_editing`
+
+Change what blocks are allowed to be edited in the block editor. Disabled blocks will display with a grey border and will not be editable. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to override the default logic for editing.
+
+```js
+/**
+ * Change what blocks are allowed to be edited in the block editor.
+ *
+ * @param {bool}     isAllowed        Whether or not the block will be allowed.
+ * @param {string}   blockName        The name of the block to be edited.
+ * @param {string[]} parentBlockNames An array of zero or more parent block names,
+ *                                    starting with the most recent parent ancestor.
+ * @param {Object}   governanceRules  An object containing the full set of governance
+ *                                    rules for the current user.
+ */
+applyFilters(
+	'vip_governance__is_block_allowed_for_editing',
+	isAllowed,
+	blockName,
+	parentBlockNames,
+	governanceRules
+);
+```
+
+For example, this filter can be used to allow the editing a custom block type even if it is disabled by governance rules:
+
+```js
+addFilter(
+	'vip_governance__is_block_allowed_for_insertion',
+	'example/allow-custom-block-editing',
+	( isAllowed, blockName, parentBlockNames, governanceRules ) => {
+		if ( blockName === 'custom/my-amazing-block' ) {
+			return true;
+		}
+
+		return isAllowed;
 	}
 );
 ```

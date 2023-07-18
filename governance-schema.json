@@ -87,9 +87,7 @@
 				}
 			},
 			"required": [ "type" ],
-			"additionalProperties": false,
-			"minProperties": 2,
-			"maxProperties": 4
+			"additionalProperties": false
 		},
 		"ruleRoleProperties": {
 			"type": "object",
@@ -118,9 +116,7 @@
 				}
 			},
 			"required": [ "type", "roles" ],
-			"additionalProperties": false,
-			"minProperties": 3,
-			"maxProperties": 5
+			"additionalProperties": false
 		}
 	},
 	"type": "object",
