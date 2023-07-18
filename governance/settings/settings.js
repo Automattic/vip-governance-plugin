@@ -8,11 +8,13 @@
 			window.wp
 				.apiRequest( { path: `/vip-governance/v1/${ roleSelector.value }/rules` } )
 				.done( rules => {
-					document.getElementById( 'json' ).innerHTML = JSON.stringify( rules, undefined, 4 );
+					const rulesPrefix = '"' + roleSelector.value + '": ';
+					document.getElementById( 'json' ).textContent =
+						rulesPrefix + JSON.stringify( rules, undefined, 4 );
 					document.getElementById( 'json' ).removeAttribute( 'hidden' );
 				} )
 				.fail( error => {
-					document.getElementById( 'json' ).innerHTML = error.responseJSON.message;
+					document.getElementById( 'json' ).textContent = error.responseJSON.message;
 					document.getElementById( 'json' ).removeAttribute( 'hidden' );
 				} )
 				.complete( () => {
@@ -23,7 +25,9 @@
 		}
 	}
 
-	document
-		.getElementById( 'user-role-selector' )
-		.addEventListener( 'change', showRulesForUserRole );
+	const roleSelector = document.getElementById( 'user-role-selector' );
+	roleSelector.addEventListener( 'change', showRulesForUserRole );
+
+	// Reset to the default value on refresh
+	roleSelector.value = '';
 } )();
