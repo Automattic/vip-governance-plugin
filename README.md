@@ -27,6 +27,10 @@ We consider two dimensions:
     - [Restrictions](#restrictions)
 - [Code Filters](#code-filters)
   - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+- [Admin Settings](#admin-settings)
+- [Endpoints](#endpoints)
+  - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
+  - [Example](#example)
 - [Analytics](#analytics)
 - [Development](#development)
   - [Tests](#tests)
@@ -310,13 +314,58 @@ addFilter(
 );
 ```
 
+## Admin Settings
+
+There is an admin settings menu titled `VIP Governance` that's created with the use of this plugin. This page offers some helpful items such as:
+
+- Turning on and off the plugin quickly, without re-deploying.
+- View all the rules at once, and also any errors if it's invalid.
+- View the rules as a specific user role.
+
+![Admin setting in action][settings-panel-example-gif]
+
+## Endpoints
+
+The examples in the below endpoints are using the rule file found in the example rule file [above](#restrictions).
+
+### `vip-governance/v1/<role>/rules`
+
+This endpoint is used to return the combined rules for a given role. This API is utilized by the settings page to visualize merged default and role rules for a selected role. It's only available to users with the `manage_options` permission.
+
+It has only three root level keys: `allowedBlocks`, `blockSettings` and `allowedFeatures`.
+
+#### Example
+
+This example involves making a call to `http://my.site/wp-json/vip-governance/v1/editor/rules` for an `editor` role:
+
+```json
+{
+	"allowedBlocks": [ "core/heading", "core/paragraph" ],
+	"blockSettings": {
+		"core/heading": {
+			"color": {
+				"text": true,
+				"palette": [
+					{
+						"color": "#FFFF00",
+						"name": "Custom yellow",
+						"slug": "custom-yellow"
+					}
+				]
+			}
+		}
+	},
+	"allowedFeatures": []
+}
+```
+
 ## Analytics
 
 The plugin records two data points for analytics:
 
 1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
 
-    When the plugin is used on the [WordPress VIP][wpvip] platform, analytics data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+   When the plugin is used on the [WordPress VIP][wpvip] platform, analytics data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
 
 2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up. All other usage of this plugin outside of WordPress VIP does not record error analytics.
 
@@ -342,6 +391,9 @@ composer run test
 
 <!-- Links -->
 
+[settings-panel-example-gif]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
+[analytics-file]: governance/analytics.php
+[repo-schema-location]: governance-schema.json
 [gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
 [repo-analytics]: governance/analytics.php
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose

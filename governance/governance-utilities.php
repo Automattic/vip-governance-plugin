@@ -50,13 +50,15 @@ class GovernanceUtilities {
 	 *
 	 * @return array
 	 */
-	public static function get_rules_for_user( $governance_rules ) {
+	public static function get_rules_for_user( $governance_rules, $user_roles = [] ) {
 		if ( empty( $governance_rules ) ) {
 			return array();
 		}
 
-		$current_user = wp_get_current_user();
-		$user_roles   = $current_user->roles;
+		if ( empty( $user_roles ) ) {
+			$current_user = wp_get_current_user();
+			$user_roles   = $current_user->roles;
+		}
 
 		$allowed_features = array();
 		$allowed_blocks   = array();

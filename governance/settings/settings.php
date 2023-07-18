@@ -30,6 +30,7 @@ class Settings {
 
 	public static function register_menu() {
 		$hook = add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
 	}
 
@@ -44,9 +45,20 @@ class Settings {
 		);
 	}
 
+	public static function enqueue_scripts() {
+		wp_enqueue_script(
+			'wpcomvip-governance-settings',
+			__DIR__ . '/settings.js',
+			/* dependencies */ [ 'wp-api' ],
+			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION,
+			/* in footer */ true
+		);
+	}
+
 	// Views
 
 	public static function render() {
+		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
 		$governance_rules      = GovernanceUtilities::get_parsed_governance_rules();
 		$governance_error      = false;

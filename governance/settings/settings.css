@@ -1,4 +1,4 @@
-.governance-rules pre {
+.governance-rules pre, .combined-governance-rules pre {
 	background: rgba(0, 0, 0, .07);
 	padding: 1rem 2rem 1rem 1rem;
 	margin: 0;
@@ -23,13 +23,9 @@
 	display: inline-block;
 }
 
-.governance-rules-json summary {
+.governance-rules-json summary, .combined-governance-rules summary {
 	cursor: pointer;
 	padding: 0.5rem 0 1rem 0;
-}
-
-.governance-rules-json pre {
-	tab-size: 4;
 }
 
 .validation-errors {
@@ -37,8 +33,14 @@
 	font-weight: 700;
 }
 
+.vip-governance-role-query-spinner span {
+	float: none;
+	margin-top: 0;
+}
+
 pre {
 	counter-reset: line;
+	tab-size: 4;
 }
 
 code {
@@ -51,4 +53,3 @@ code:before {
 	display: inline-block;
 	color: #777;
 }
-
