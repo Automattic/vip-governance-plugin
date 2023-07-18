@@ -37,6 +37,16 @@ export function setupBlockLocking( governanceRules ) {
 
 			let isAllowed = isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules );
 
+			/**
+			 * Change what blocks are allowed to be edited in the block editor.
+			 *
+			 * @param {bool}     isAllowed        Whether or not the block will be allowed.
+			 * @param {string}   blockName        The name of the block to be edited.
+			 * @param {string[]} parentBlockNames An array of zero or more parent block names,
+			 *                                    starting with the most recent parent ancestor.
+			 * @param {Object}   governanceRules  An object containing the full set of governance
+			 *                                    rules for the current user.
+			 */
 			isAllowed = applyFilters(
 				'vip_governance__is_block_allowed_for_editing',
 				isAllowed,

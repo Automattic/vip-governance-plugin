@@ -53,7 +53,16 @@ function setup() {
 				governanceRules
 			);
 
-			// Allow overriding the result using a filter
+			/**
+			 * Change what blocks are allowed to be inserted in the block editor.
+			 *
+			 * @param {bool}     isAllowed        Whether or not the block will be allowed.
+			 * @param {string}   blockName        The name of the block to be inserted.
+			 * @param {string[]} parentBlockNames An array of zero or more parent block names,
+			 *                                    starting with the most recent parent ancestor.
+			 * @param {Object}   governanceRules  An object containing the full set of governance
+			 *                                    rules for the current user.
+			 */
 			return applyFilters(
 				'vip_governance__is_block_allowed_for_insertion',
 				isAllowed,
