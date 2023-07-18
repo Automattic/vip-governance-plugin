@@ -99,7 +99,7 @@ Rule's of the type `role` require an array of `roles` that will use this particu
 
 Each rule can have any one of the following properties.
 
-- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `moveBlocks`. If you do not want to enable these features, simply omit them from the array.
+- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `lockBlocks`. If you do not want to enable these features, simply omit them from the array.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json [as defined here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedChildren` to restrict nested blocks.
 - `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor.
 
@@ -124,7 +124,7 @@ This is the default rule set used by the plugin.
 	"rules": [
 		{
 			"type": "default",
-			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
+			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
 			"allowedBlocks": [ "*" ]
 		}
 	]
@@ -136,7 +136,7 @@ With this rule set, the following rules will apply:
 - All blocks can be inserted across all the roles.
 - No restrictions apply for what's allowed under a block.
 - The code editor is accessible for everyone.
-- Blocks can be locked, unlocked and moved.
+- Blocks can be locked and unlocked.
 
 #### Restrictions
 
@@ -150,7 +150,7 @@ This is an example in which we want to apply different restrictions based on use
 		{
 			"type": "role",
 			"roles": [ "administrator" ],
-			"allowedFeatures": [ "codeEditor", "moveBlocks" ],
+			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
 			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
 				"core/media-text": {
@@ -314,13 +314,15 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 
 ## Analytics
 
-The plugin records a single data point for analytics:
+The plugin records two data points for analytics:
 
 1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
 
    When the plugin is used on the [WordPress VIP][wpvip] platform, analytics data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
 
-This data point is a counter that is incremented, and does not contain any other telemetry or sensitive data. You can see what's being [collected in code here][analytics-file].
+2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up. All other usage of this plugin outside of WordPress VIP does not record error analytics.
+
+Both of these data points are a counter that is incremented, and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][repo-analytics].
 
 ## Development
 
@@ -345,16 +347,18 @@ composer run test
 [settings-panel-example-gif]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
 [analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
+[gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
+[repo-analytics]: governance/analytics.php
 [repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
 [repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases
+[repo-schema-location]: governance-schema.json
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
+[wp-custom-roles]: https://developer.wordpress.org/reference/functions/add_role/
+[wp-default-roles]: https://wordpress.org/documentation/article/roles-and-capabilities/
 [wp-env]: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/
-[wpvip]: https://wpvip.com/
 [wpvip-page-cache]: https://docs.wpvip.com/technical-references/caching/page-cache/
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/
 [wpvip-plugin-submodules]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-submodules
 [wpvip-plugin-subtrees]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-subtrees
 [wpvip-private-dir]: https://docs.wpvip.com/technical-references/vip-codebase/private-directory/
-[gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
-[wp-default-roles]: https://wordpress.org/documentation/article/roles-and-capabilities/
-[wp-custom-roles]: https://developer.wordpress.org/reference/functions/add_role/
+[wpvip]: https://wpvip.com/

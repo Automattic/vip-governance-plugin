@@ -23,7 +23,7 @@ export function setupBlockLocking( governanceRules ) {
 			const isParentLocked = parentClientIds.some( parentClientId => {
 				const parentAttributes = getBlockAttributes( parentClientId );
 
-				return parentAttributes['vip-locked'] === true;
+				return parentAttributes['vip-governance-locked'] === true;
 			});
 
 			if ( isParentLocked ) {
@@ -37,8 +37,8 @@ export function setupBlockLocking( governanceRules ) {
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
 			} else {
-				// Set 'vip-locked' so that children can detect they're within an existing locked block
-				props.setAttributes({ 'vip-locked': true });
+				// Set 'vip-governance-locked' so that children can detect they're within an existing locked block
+				props.setAttributes({ 'vip-governance-locked': true });
 
 				return <>
 					<Disabled>
@@ -52,29 +52,4 @@ export function setupBlockLocking( governanceRules ) {
 	}, 'withDisabledBlocks' );
 
 	addFilter( 'editor.BlockEdit', 'wpcomvip-governance/with-disabled-blocks', withDisabledBlocks );
-
-	if ( ! governanceRules.allowedFeatures || ! governanceRules.allowedFeatures.includes( 'moveBlocks' ) ) {
-		const withLockAttribute = ( blockAttributes, blockType, innerHTML, attributes ) => {
-			// ToDo: Make this overridable via a filter
-			const isAllowed = governanceRules.allowedBlocks.some( allowedBlock => doesBlockNameMatchBlockRegex( blockType, allowedBlock ) );
-	
-			if ( isAllowed ) {
-				return blockAttributes;
-			}
-			return {
-				...blockAttributes,
-				lock: {
-					move: true,
-					remove: true,
-				},
-			};
-		};
-	
-		addFilter(
-			'blocks.getBlockAttributes',
-			'wpcomvip-governance/with-disabled-move',
-			withLockAttribute,
-		);
-	}
-
 }
