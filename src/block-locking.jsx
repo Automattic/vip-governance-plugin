@@ -17,14 +17,10 @@ export function setupBlockLocking( governanceRules ) {
 		return props => {
 			const { name: blockName, clientId } = props;
 
-			const { getBlockParents, getBlockAttributes, getBlockName } = select( blockEditorStore );
+			const { getBlockParents, getBlockName } = select( blockEditorStore );
 			const parentClientIds = getBlockParents(clientId, true);
 
-			const isParentLocked = parentClientIds.some( parentClientId => {
-				const parentAttributes = getBlockAttributes( parentClientId );
-
-				return parentAttributes['vip-governance-locked'] === true;
-			});
+			const isParentLocked = parentClientIds.some( parentClientId => isBlockLocked(parentClientId) );
 
 			if ( isParentLocked ) {
 				// To avoid layout issues, only disable the outermost locked block
@@ -58,8 +54,8 @@ export function setupBlockLocking( governanceRules ) {
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
 			} else {
-				// Set 'vip-governance-locked' so that children can detect they're within an existing locked block
-				props.setAttributes({ 'vip-governance-locked': true });
+				// Mark block as locked so that children can detect they're within an existing locked block
+				setBlockLocked( clientId );
 
 				return <>
 					<Disabled>
@@ -73,4 +69,32 @@ export function setupBlockLocking( governanceRules ) {
 	}, 'withDisabledBlocks' );
 
 	addFilter( 'editor.BlockEdit', 'wpcomvip-governance/with-disabled-blocks', withDisabledBlocks );
+}
+
+/**
+ * In-memory map of block clientIds that have been marked as locked.
+ *
+ * This replaces using props.setAttributes() to set lock status, as this caused an
+ * "unsaved changes" warning to appear in the editor when block locking was in use.
+ */
+const lockedBlockMap = {};
+
+/**
+ * Marks a block as locked via the block's clientId.
+ *
+ * @param {string} clientId Block clientId in editor
+ * @returns {void}
+ */
+function setBlockLocked( clientId ) {
+	lockedBlockMap[clientId] = true;
+}
+
+/**
+ * Returns true if a block has previously been marked as locked, false otherwise.
+ *
+ * @param {string} clientId Block clientId in editor
+ * @returns {boolean}
+ */
+function isBlockLocked( clientId ) {
+	return clientId in lockedBlockMap;
 }
