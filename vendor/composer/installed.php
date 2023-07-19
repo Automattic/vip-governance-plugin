@@ -5,7 +5,7 @@
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '38981f8cbfea45fedb9e68c582567e2ff3e0f266',
+        'reference' => '398ea9cb7b103e6245f94c9821f8a014a6a822bb',
         'name' => 'automattic/vip-governance',
         'dev' => true,
     ),
@@ -25,7 +25,7 @@
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '38981f8cbfea45fedb9e68c582567e2ff3e0f266',
+            'reference' => '398ea9cb7b103e6245f94c9821f8a014a6a822bb',
             'dev_requirement' => false,
         ),
         'automattic/vipwpcs' => array(
