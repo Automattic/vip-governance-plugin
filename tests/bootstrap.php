@@ -1,8 +1,5 @@
 <?php
 
-// Plugin files under test
-// require_once __DIR__ . '/../governance/rules-validator.php';
-
 /**
  * PHPUnit bootstrap file.
  *

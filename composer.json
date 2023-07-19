@@ -7,8 +7,8 @@
 		"lint": "phpcs",
 		"phpcs": "phpcs",
 		"phpcs-fix": "phpcbf",
-		"test": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin /bin/bash -c phpunit",
-		"test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin /bin/bash -c 'WP_MULTISITE=1 phpunit'",
+		"test": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit",
+		"test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin /bin/bash -c 'WP_MULTISITE=1 ./vendor/bin/phpunit'",
 		"test-watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"nodemon -w ./ --ignore vendor/ -e php --exec 'composer run test'"
