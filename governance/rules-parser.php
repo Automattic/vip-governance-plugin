@@ -40,7 +40,6 @@ class RulesParser {
 
 		// Validate governance rule logic
 		$rule_validation_result = self::validate_rule_logic( $rules_parsed );
-		$rule_validation_result = true;
 
 		if ( is_wp_error( $rule_validation_result ) ) {
 			return $rule_validation_result;
