@@ -33,12 +33,6 @@
 		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
 		"start": "wp-scripts start --webpack-devtool=source-map ./src/index.js",
 		"prepare": "husky install",
-		"test:e2e": "npx playwright test",
-		"wp-env": "wp-env"
-	},
-	"wp-env": {
-		"plugin-dir": "vip-governance",
-		"plugin-name": "VIP Governance",
-		"welcome-build-command": "npm run start"
+		"test:e2e": "npx playwright test"
 	}
 }
