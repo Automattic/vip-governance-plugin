@@ -1,21 +1,37 @@
-import { chromium } from '@playwright/test';
+/**
+ * External dependencies
+ */
+import { request } from '@playwright/test';
+
+/**
+ * WordPress dependencies
+ */
+import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 
 async function globalSetup( config ) {
-	const { baseURL } = config.projects[ 0 ].use;
+	const { storageState, baseURL } = config.projects[ 0 ].use;
+	const storageStatePath = typeof storageState === 'string' ? storageState : undefined;
 
-	const browser = await chromium.launch();
+	const requestContext = await request.newContext( {
+		baseURL,
+	} );
 
-	const page = await browser.newPage();
+	const requestUtils = new RequestUtils( requestContext, {
+		storageStatePath,
+	} );
 
-	try {
-		await page.goto( baseURL );
+	// Authenticate and save the storageState to disk.
+	await requestUtils.setupRest();
 
-		await browser.close();
-	} catch ( error ) {
-		await browser.close();
+	// Reset the test environment before running the tests.
+	await Promise.all( [
+		requestUtils.activateTheme( 'twentytwentyone' ),
+		requestUtils.deleteAllPosts(),
+		requestUtils.deleteAllBlocks(),
+		requestUtils.resetPreferences(),
+	] );
 
-		throw error;
-	}
+	await requestContext.dispose();
 }
 
 export default globalSetup;

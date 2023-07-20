@@ -25,12 +25,17 @@ module.exports = defineConfig( {
 	reporter: 'html',
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
-		baseURL: 'http://localhost:8888',
+		baseURL: 'http://localhost:8889',
+		headless: true,
 		screenshot: 'only-on-failure',
-		timeout: 60000,
-		trace: 'on-first-retry',
+		actionTimeout: 10_000,
 	},
-
+	webServer: {
+		command: 'npm run wp-env start',
+		port: 8889,
+		timeout: 120_000, // 120 seconds.
+		reuseExistingServer: true,
+	},
 	/* Configure projects for major browsers */
 	projects: [
 		{
