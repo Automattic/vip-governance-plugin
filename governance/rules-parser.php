@@ -12,7 +12,8 @@ use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 
 class RulesParser {
-	private const RULE_TYPES = [ 'default', 'role' ];
+	private const RULE_TYPES        = [ 'default', 'role' ];
+	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
 
 	/**
 	 * Parses and validates governance rules.
@@ -39,6 +40,7 @@ class RulesParser {
 
 		// Validate governance rule logic
 		$rule_validation_result = self::validate_rule_logic( $rules_parsed );
+		$rule_validation_result = true;
 
 		if ( is_wp_error( $rule_validation_result ) ) {
 			return $rule_validation_result;
@@ -117,6 +119,16 @@ class RulesParser {
 				return new WP_Error( 'logic-incorrect-rule-type', $error_message );
 			}
 
+			if ( count( $rule ) === 1 ) {
+				$rule_keys = implode(',', array_map( function( $rule_type ) {
+					return sprintf( '"%s"', $rule_type );
+				}, self::RULE_KEYS_GENERAL ) );
+
+				/* translators: 1: Ordinal number of rule 2: Comma-separate list of valid rule keys */
+				$error_message = sprintf( __( 'Error parsing %1$s rule: This rule is empty. Add additional keys (%2$s) to make it functional.', 'vip-governance' ), $rule_ordinal, $rule_keys );
+				return new WP_Error( 'logic-rule-empty', $error_message );
+			}
+
 			if ( 'default' === $rule_type ) {
 				$verify_rule_result = self::verify_default_rule( $rule );
 			} elseif ( 'role' === $rule_type ) {
@@ -141,6 +153,11 @@ class RulesParser {
 	}
 
 	private static function verify_role_rule( $rule ) {
+		if ( ! isset( $rule['roles'] ) ) {
+			$error_message = __( "\"role\"-type rules require a \"roles\" key containing an array of applicable roles. e.g.\n\t\"roles\": [ \"administrator\", \"editor\" ]", 'vip-governance' );
+			return new WP_Error( 'logic-rule-role-missing-roles', $error_message );
+		}
+
 		return true;
 	}
 
