@@ -11,7 +11,7 @@
 		"@wordpress/components": "^25.0.0",
 		"@wordpress/compose": "^6.11.0",
 		"@wordpress/data": "^9.3.0",
-		"@wordpress/e2e-test-utils-playwright": "^0.5.0",
+		"@wordpress/e2e-test-utils-playwright": "^0.6.0",
 		"@wordpress/hooks": "^3.33.0",
 		"@wordpress/i18n": "^4.37.0",
 		"@wordpress/notices": "^4.1.0",
@@ -39,13 +39,6 @@
 	"wp-env": {
 		"plugin-dir": "vip-governance",
 		"plugin-name": "VIP Governance",
-		"welcome-logo": [
-			",⁻⁻⁻·       .                 |",
-			"|  ،⁓’.   . |---  ,---. ,---. |---. ,---. ,---. ,---.",
-			"|   | |   | |     |---' |   | |   | |---' |     |   |",
-			"`---' `---' `---’ `---’ '   ` `---' `---’ `     `---|",
-			"                                                `---'"
-		],
 		"welcome-build-command": "npm run start"
 	}
 }
