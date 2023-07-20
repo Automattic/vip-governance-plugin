@@ -33,13 +33,67 @@ class RulesParserTest extends TestCase {
 	public function test_validate_schema__with_invalid_json__returns_error() {
 		$rules_content = '{ test: [}';
 
-		$this->assertInstanceOf( 'WP_Error', RulesParser::parse( $rules_content ) );
+		$this->assertWPErrorCode( 'parsing-error-from-json', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__without_version__returns_error() {
+		$rules_content = '{ "invalid": "rules" }';
+
+		$this->assertWPErrorCode( 'logic-missing-version', RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__without_rules_array__returns_error() {
-		$rules_content = '{ "invalid": "rules" }';
+		$rules_content = '{ "version": "0.1.0" }';
 
-		$this->assertInstanceOf( 'WP_Error', RulesParser::parse( $rules_content ) );
+		$this->assertWPErrorCode( 'logic-missing-rules', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_rules_wrong_type__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": 7
+		}';
+
+		$this->assertWPErrorCode( 'logic-non-array-rules', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_rule_missing_type__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": [ {} ]
+		}';
+
+		$this->assertWPErrorCode( 'logic-incorrect-rule-type', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_incorrect_rule_type__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": [
+				{
+					"type": "notarule",
+					"roles": [ "adminstrator" ],
+					"allowed": [ "core/paragraph" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-incorrect-rule-type', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_default_rule_type_with_roles__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": [
+				{
+					"type": "default",
+					"roles": [ "adminstrator" ],
+					"allowed": [ "core/paragraph" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-default-roles', RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_default_allowed_blocks_rule__passes_validation() {
@@ -86,6 +140,11 @@ class RulesParserTest extends TestCase {
 	}
 
 	// Utility methods
+	private function assertWPErrorCode( $expected, $actual ) {
+		$this->assertInstanceOf( 'WP_Error', $actual );
+		$this->assertEquals( $expected, $actual->get_error_code() );
+	}
+
 	private function assertEqualsRules( $expected, $actual ) {
 		// Enhance assertEquals by returning unexpected WP_Error message in test failure
 		if ( is_wp_error( $actual ) ) {
