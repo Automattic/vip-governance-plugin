@@ -153,6 +153,24 @@ class RulesParserTest extends TestCase {
 		$this->assertWPErrorCode( 'logic-rule-default-roles', RulesParser::parse( $rules_content ) );
 	}
 
+	public function test_validate_schema__with_multiple_default_rules__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": [
+				{
+					"type": "default",
+					"allowedBlocks": [ "core/paragraph" ]
+				},
+				{
+					"type": "default",
+					"allowedBlocks": [ "core/paragraph", "core/image" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-default-multiple', RulesParser::parse( $rules_content ) );
+	}
+
 	#endregion Default-type rule errors
 
 	#region Role-type rule errors
@@ -192,7 +210,7 @@ class RulesParserTest extends TestCase {
 			"rules": [
 				{
 					"type": "role",
-					"roles": [ "administrator", "editor" ],
+					"roles": [ "administrator", "editor" ]
 				}
 			]
 		}';

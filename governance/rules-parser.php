@@ -91,7 +91,7 @@ class RulesParser {
 	 * @return true|WP_Error
 	 */
 	private static function validate_rule_logic( $rules_parsed ) {
-		if ( ! isset( $rules_parsed['version'] ) ) {
+		if ( ! isset( $rules_parsed['version'] ) || WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION !== $rules_parsed['version'] ) {
 			/* translators: %s: Latest schema version, e.g. 0.1.0 */
 			$error_message = sprintf( __( 'Governance JSON should have a root-level "version" key set to "%s".', 'vip-governance' ), WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION );
 			return new WP_Error( 'logic-missing-version', $error_message );
@@ -102,8 +102,9 @@ class RulesParser {
 			return new WP_Error( 'logic-non-array-rules', __( 'Governance JSON "rules" key should be an array.', 'vip-governance' ) );
 		}
 
-		$rules             = $rules_parsed['rules'];
-		$ordinal_formatter = new NumberFormatter( get_locale(), NumberFormatter::ORDINAL );
+		$rules              = $rules_parsed['rules'];
+		$ordinal_formatter  = new NumberFormatter( get_locale(), NumberFormatter::ORDINAL );
+		$default_rule_index = null;
 
 		foreach ( $rules as $rule_index => $rule ) {
 			$rule_type    = $rule['type'] ?? null;
@@ -117,7 +118,16 @@ class RulesParser {
 			}
 
 			if ( 'default' === $rule_type ) {
-				$verify_rule_result = self::verify_default_rule( $rule );
+				if ( null === $default_rule_index ) {
+					$verify_rule_result = self::verify_default_rule( $rule );
+					$default_rule_index = $rule_index;
+				} else {
+					// There's already a default rule defined, bubble an error
+
+					/* translators: 1: Ordinal number of rule, e.g. 1st */
+					$error_message      = sprintf( __( 'Only one default rule is allowed, but the %s rule already contains a default rule.', 'vip-governance' ), $ordinal_formatter->format( $default_rule_index + 1 ) );
+					$verify_rule_result = new WP_Error( 'logic-rule-default-multiple', $error_message );
+				}
 			} elseif ( 'role' === $rule_type ) {
 				$verify_rule_result = self::verify_role_rule( $rule );
 			}
