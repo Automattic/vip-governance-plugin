@@ -110,22 +110,10 @@ class RulesParser {
 			$rule_ordinal = $ordinal_formatter->format( $rule_index + 1 );
 
 			if ( null === $rule_type || ! in_array( $rule_type, self::RULE_TYPES ) ) {
-				$rule_types = implode(',', array_map( function( $rule_type ) {
-					return sprintf( '"%s"', $rule_type );
-				}, self::RULE_TYPES ) );
+				$rule_types = self::format_array_to_keys( self::RULE_TYPES );
 				/* translators: 1: Ordinal number of rule, e.g. 1st 2: Comma-separated list of rule types */
 				$error_message = sprintf( __( '%1$s rule should have a "type" key set to one of these values: %2$s.', 'vip-governance' ), $rule_ordinal, $rule_types );
 				return new WP_Error( 'logic-incorrect-rule-type', $error_message );
-			}
-
-			if ( count( $rule ) === 1 ) {
-				$rule_keys = implode(',', array_map( function( $rule_type ) {
-					return sprintf( '"%s"', $rule_type );
-				}, self::RULE_KEYS_GENERAL ) );
-
-				/* translators: 1: Ordinal number of rule 2: Comma-separate list of valid rule keys */
-				$error_message = sprintf( __( 'Error parsing %1$s rule: This rule is empty. Add additional keys (%2$s) to make it functional.', 'vip-governance' ), $rule_ordinal, $rule_keys );
-				return new WP_Error( 'logic-rule-empty', $error_message );
 			}
 
 			if ( 'default' === $rule_type ) {
@@ -146,15 +134,33 @@ class RulesParser {
 	}
 
 	private static function verify_default_rule( $rule ) {
+		if ( count( $rule ) === 1 ) {
+			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
+
+			/* translators: %s: Comma-separate list of valid rule keys */
+			$error_message = sprintf( __( 'This default rule is empty. Add additional keys (%s) to make it functional.', 'vip-governance' ), $rule_keys );
+			return new WP_Error( 'logic-rule-empty', $error_message );
+		}
+
 		if ( isset( $rule['roles'] ) ) {
 			return new WP_Error( 'logic-rule-default-roles', __( '"default"-type rule should not contain "roles" key. Default rules apply to all roles.', 'vip-governance' ), );
 		}
+
+		return true;
 	}
 
 	private static function verify_role_rule( $rule ) {
-		if ( ! isset( $rule['roles'] ) ) {
-			$error_message = __( "\"role\"-type rules require a \"roles\" key containing an array of applicable roles. e.g.\n\t\"roles\": [ \"administrator\", \"editor\" ]", 'vip-governance' );
+		if ( ! isset( $rule['roles'] ) || ! is_array( $rule['roles'] ) || empty( $rule['roles'] ) ) {
+			$error_message = __( "\"role\"-type rules require a \"roles\" key containing an array of applicable roles. e.g.\n\n\t\"roles\": [ \"administrator\", \"editor\" ]", 'vip-governance' );
 			return new WP_Error( 'logic-rule-role-missing-roles', $error_message );
+		}
+
+		if ( count( $rule ) === 2 ) {
+			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
+
+			/* translators: %s: Comma-separate list of valid rule keys */
+			$error_message = sprintf( __( 'This rule doesn\'t apply any settings to the given roles. Add additional keys (%s) to make it functional.', 'vip-governance' ), $rule_keys );
+			return new WP_Error( 'logic-rule-empty', $error_message );
 		}
 
 		return true;
@@ -195,5 +201,14 @@ class RulesParser {
 		}
 
 		return true;
+	}
+
+	// Formatting functions
+
+	// Given an array, return a quoted and comma-separated string
+	private static function format_array_to_keys( $array ) {
+		return implode( ', ', array_map( function( $item ) {
+			return sprintf( '"%s"', $item );
+		}, $array ) );
 	}
 }

@@ -171,6 +171,35 @@ class RulesParserTest extends TestCase {
 		$this->assertWPErrorCode( 'logic-rule-role-missing-roles', RulesParser::parse( $rules_content ) );
 	}
 
+	public function test_validate_schema__with_role_rule_with_empty_roles__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": [
+				{
+					"type": "role",
+					"roles": [],
+					"allowedBlocks": [ "core/media-text" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-role-missing-roles', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_role_empty_rule__returns_error() {
+		$rules_content = '{
+			"version": "0.1.0",
+			"rules": [
+				{
+					"type": "role",
+					"roles": [ "administrator", "editor" ],
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-empty', RulesParser::parse( $rules_content ) );
+	}
+
 	#endregion Role-type rule errors
 
 	#region Valid rules testing
