@@ -393,7 +393,7 @@ composer run test
 
 <!-- Links -->
 
-[settings-panel-example-gif]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
+[settings-panel-example-gif]: media/vip-governance-admin-settings-animation.gif
 [analytics-file]: governance/analytics.php
 [repo-schema-location]: governance-schema.json
 [gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
