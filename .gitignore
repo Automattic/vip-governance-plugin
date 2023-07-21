@@ -31,3 +31,8 @@ vendor/*
 !vendor/composer/
 !vendor/opis/
 !vendor/seld/
+
+/test-results/	
+/playwright-report/	
+/playwright/.cache/	
+/artifacts

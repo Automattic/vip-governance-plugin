@@ -1,0 +1,68 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    branches:
+      - trunk
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-versions:
+          - 8.0
+
+    env:
+      DB_DATABASE: test_db
+      DB_USER: root
+      DB_PASSWORD: root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install wordpress environment
+        run: npm -g install @wordpress/env
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          tools: composer
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Setup MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Setup the wordpress environment
+        run: wp-env start
+
+      - name: Run Playwright tests
+        run: npx playwright test
