@@ -15,11 +15,6 @@ jobs:
         php-versions:
           - 8.0
 
-    env:
-      DB_DATABASE: test_db
-      DB_USER: root
-      DB_PASSWORD: root
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,9 +33,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Setup MySQL
-        run: |
-          sudo /etc/init.d/mysql start
       - name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v2
@@ -52,11 +44,26 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Install dependencies
+      - name: Get Node.js and npm version
+        id: node-version
+        run: |
+          echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: '**/node_modules'
+          key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install npm dependencies
+        if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
         run: npm ci
+        shell: bash
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium --with-deps
 
       - name: Setup the wordpress environment
         run: wp-env start
