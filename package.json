@@ -6,10 +6,12 @@
 	"main": "build/index.js",
 	"devDependencies": {
 		"@automattic/eslint-plugin-wpvip": "0.5.6",
+		"@playwright/test": "^1.36.1",
 		"@wordpress/block-editor": "^12.1.0",
 		"@wordpress/components": "^25.0.0",
 		"@wordpress/compose": "^6.11.0",
 		"@wordpress/data": "^9.3.0",
+		"@wordpress/e2e-test-utils-playwright": "^0.6.0",
 		"@wordpress/hooks": "^3.33.0",
 		"@wordpress/i18n": "^4.37.0",
 		"@wordpress/notices": "^4.1.0",
@@ -30,6 +32,7 @@
 		"phpcs:fix": "vendor/bin/phpcbf",
 		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
 		"start": "wp-scripts start --webpack-devtool=source-map ./src/index.js",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"test:e2e": "npx playwright test"
 	}
 }
