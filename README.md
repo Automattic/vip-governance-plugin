@@ -383,7 +383,7 @@ composer install --no-dev
 
 ### Tests
 
-Run tests locally with [`wp-env`][wp-env] and Docker:
+We currently have unit tests covering php side of the plugin. Run these tests locally with [`wp-env`][wp-env] and Docker:
 
 ```
 wp-env start

@@ -1,8 +1,5 @@
 <?php
 
-// Plugin files under test
-// require_once __DIR__ . '/../governance/rules-validator.php';
-
 /**
  * PHPUnit bootstrap file.
  *
@@ -31,6 +28,10 @@ if ( ! file_exists( "{$_tests_dir}/includes/functions.php" ) ) {
 
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
+
+
+define( 'WPCOM_VIP_PRIVATE_DIR', __DIR__ . '/private' );
+define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ . '/../' );
 
 /**
  * Manually load the plugin being tested.
