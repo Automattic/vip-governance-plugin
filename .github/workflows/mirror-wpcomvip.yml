@@ -12,6 +12,6 @@ jobs:
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
           target_repo_url:
-            git@github.com:alecgeatches/test-governance-plugin.git
+            git@github.com:wpcomvip/vip-governance-plugin.git
           ssh_private_key:
-            ${{ secrets.TEST_SSH_PRIVATE_KEY }}
+            ${{ secrets.WPCOMVIP_GOVERNANCE_DEPLOY_KEY }}
