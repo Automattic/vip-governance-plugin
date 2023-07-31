@@ -4,6 +4,10 @@ on: [push, delete]
 
 jobs:
   to_wpcomvip:
+    # Only run this job on the root repository
+    env:
+      IS_ROOT_REPOSITORY: ${{ secrets.WPCOMVIP_GOVERNANCE_DEPLOY_KEY != '' }}
+    if: env.IS_ROOT_REPOSITORY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
