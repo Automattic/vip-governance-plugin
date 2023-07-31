@@ -4,11 +4,11 @@ on: [push, delete]
 
 jobs:
   to_wpcomvip:
-    # Only run this job on the root repository
-    env:
-      IS_ROOT_REPOSITORY: ${{ secrets.WPCOMVIP_GOVERNANCE_DEPLOY_KEY != '' }}
-    if: env.IS_ROOT_REPOSITORY == 'true'
     runs-on: ubuntu-latest
+
+    # Only run this job on the root repository
+    if: github.repository == 'Automattic/vip-governance-plugin'
+
     steps:
       - uses: actions/checkout@v3
         with:
