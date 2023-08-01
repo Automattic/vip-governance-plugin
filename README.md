@@ -128,15 +128,15 @@ This is the default rule set used by the plugin.
 
 ```json
 {
-	"$schema": "./governance-schema.json",
-	"version": "0.1.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "*" ]
-		}
-	]
+  "$schema": "./governance-schema.json",
+  "version": "0.1.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "*" ]
+    }
+  ]
 }
 ```
 
@@ -153,84 +153,84 @@ This is an example in which we want to apply different restrictions based on use
 
 ```json
 {
-	"$schema": "./governance-schema.json",
-	"version": "0.1.0",
-	"rules": [
-		{
-			"type": "role",
-			"roles": [ "administrator" ],
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
-			"blockSettings": {
-				"core/media-text": {
-					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
-					"core/heading": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#ff0000",
-									"name": "Custom red",
-									"slug": "custom-red"
-								}
-							]
-						}
-					}
-				},
-				"core/quote": {
-					"allowedChildren": [ "core/paragraph", "core/heading" ],
-					"core/paragraph": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#00FF00",
-									"name": "Custom green",
-									"slug": "custom-green"
-								}
-							]
-						}
-					}
-				}
-			}
-		},
-		{
-			"type": "default",
-			"allowedBlocks": [ "core/heading", "core/paragraph" ],
-			"blockSettings": {
-				"core/heading": {
-					"color": {
-						"text": true,
-						"palette": [
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+  "$schema": "./governance-schema.json",
+  "version": "0.1.0",
+  "rules": [
+    {
+      "type": "role",
+      "roles": [ "administrator" ],
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
+      "blockSettings": {
+        "core/media-text": {
+          "allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
+          "core/heading": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#ff0000",
+                  "name": "Custom red",
+                  "slug": "custom-red"
+                }
+              ]
+            }
+          }
+        },
+        "core/quote": {
+          "allowedChildren": [ "core/paragraph", "core/heading" ],
+          "core/paragraph": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "default",
+      "allowedBlocks": [ "core/heading", "core/paragraph" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
 With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
-  - Heading/paragraph blocks are allowed
-  - For a heading at the root level, a custom yellow colour will appear as a possible text colour option.
-  - Blocks cannot be locked/unlocked or moved.
-  - The code editor is not accessible.
+    - Heading/paragraph blocks are allowed
+    - For a heading at the root level, a custom yellow colour will appear as a possible text colour option.
+    - Blocks cannot be locked/unlocked or moved.
+    - The code editor is not accessible.
 - Administrator role: Role-specific rules combined with the default set of rules:
-  - In addition to the default allowed blocks, quote/media-text and image blocks is allowed as well.
-  - A quote block is allowed to have heading, and paragraph as its children while a media-text block is allowed to have heading, paragraph and image as its children.
-  - A heading at the root level is a custom yellow colour as a possible text colour option.
-  - A heading sitting inside a media-text is allowed to have a custom red colour as it's text.
-  - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
-  - The code editor is accessible.
-  - Blocks can be locked, unlocked and moved.
+    - In addition to the default allowed blocks, quote/media-text and image blocks is allowed as well.
+    - A quote block is allowed to have heading, and paragraph as its children while a media-text block is allowed to have heading, paragraph and image as its children.
+    - A heading at the root level is a custom yellow colour as a possible text colour option.
+    - A heading sitting inside a media-text is allowed to have a custom red colour as it's text.
+    - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
+    - The code editor is accessible.
+    - Blocks can be locked, unlocked and moved.
 
 ## Code Filters
 
@@ -252,11 +252,11 @@ Change what blocks are allowed to be inserted in the block editor. By default, r
  *                                    rules for the current user.
  */
 return applyFilters(
-	'vip_governance__is_block_allowed_for_insertion',
-	isAllowed,
-	blockType.name,
-	parentBlockNames,
-	governanceRules
+    'vip_governance__is_block_allowed_for_insertion',
+    isAllowed,
+    blockType.name,
+    parentBlockNames,
+    governanceRules
 );
 ```
 
@@ -264,15 +264,15 @@ For example, this filter can be used to allow the insertion of a custom block ev
 
 ```js
 addFilter(
-	'vip_governance__is_block_allowed_for_insertion',
-	'example/allow-custom-block-insertion',
-	( isAllowed, blockName, parentBlockNames, governanceRules ) => {
-		if ( blockName === 'custom/my-amazing-block' ) {
-			return true;
-		}
+    'vip_governance__is_block_allowed_for_insertion',
+    'example/allow-custom-block-insertion',
+    ( isAllowed, blockName, parentBlockNames, governanceRules ) => {
+        if ( blockName === 'custom/my-amazing-block' ) {
+            return true;
+        }
 
-		return isAllowed;
-	}
+        return isAllowed;
+    }
 );
 ```
 
@@ -292,11 +292,11 @@ Change what blocks are allowed to be edited in the block editor. Disabled blocks
  *                                    rules for the current user.
  */
 applyFilters(
-	'vip_governance__is_block_allowed_for_editing',
-	isAllowed,
-	blockName,
-	parentBlockNames,
-	governanceRules
+    'vip_governance__is_block_allowed_for_editing',
+    isAllowed,
+    blockName,
+    parentBlockNames,
+    governanceRules
 );
 ```
 
@@ -304,15 +304,15 @@ For example, this filter can be used to allow the editing a custom block type ev
 
 ```js
 addFilter(
-	'vip_governance__is_block_allowed_for_insertion',
-	'example/allow-custom-block-editing',
-	( isAllowed, blockName, parentBlockNames, governanceRules ) => {
-		if ( blockName === 'custom/my-amazing-block' ) {
-			return true;
-		}
+    'vip_governance__is_block_allowed_for_insertion',
+    'example/allow-custom-block-editing',
+    ( isAllowed, blockName, parentBlockNames, governanceRules ) => {
+        if ( blockName === 'custom/my-amazing-block' ) {
+            return true;
+        }
 
-		return isAllowed;
-	}
+        return isAllowed;
+    }
 );
 ```
 
@@ -342,22 +342,22 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 
 ```json
 {
-	"allowedBlocks": [ "core/heading", "core/paragraph" ],
-	"blockSettings": {
-		"core/heading": {
-			"color": {
-				"text": true,
-				"palette": [
-					{
-						"color": "#FFFF00",
-						"name": "Custom yellow",
-						"slug": "custom-yellow"
-					}
-				]
-			}
-		}
-	},
-	"allowedFeatures": []
+  "allowedBlocks": [ "core/heading", "core/paragraph" ],
+  "blockSettings": {
+    "core/heading": {
+      "color": {
+        "text": true,
+        "palette": [
+          {
+            "color": "#FFFF00",
+            "name": "Custom yellow",
+            "slug": "custom-yellow"
+          }
+        ]
+      }
+    }
+  },
+  "allowedFeatures": []
 }
 ```
 
@@ -367,7 +367,7 @@ The plugin records two data points for analytics:
 
 1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata.
 
-   When the plugin is used on the [WordPress VIP][wpvip] platform, analytics data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
+    When the plugin is used on the [WordPress VIP][wpvip] platform, analytics data will include the customer site ID associated with usage. All other usage of this plugin outside of WordPress VIP is marked with an `Unknown` source.
 
 2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up. All other usage of this plugin outside of WordPress VIP does not record error analytics.
 
