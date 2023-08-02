@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: VIP Governance Plugin
  * Plugin URI: https://wpvip.com
@@ -34,27 +33,27 @@ define( 'WPCOMVIP_GOVERNANCE_RULES_FILENAME', 'governance-rules.json' );
 
 define( 'WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE', 'vip-governance/v1' );
 
-// Composer Dependencies
+// Composer Dependencies.
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Analytics
+// Analytics.
 require_once __DIR__ . '/governance/analytics.php';
 
-// Block Locking
+// Block Locking.
 require_once __DIR__ . '/governance/block-locking.php';
 
-// Utilities
+// Utilities.
 require_once __DIR__ . '/governance/governance-utilities.php';
 
-// Initialize Governance
+// Initialize Governance.
 require_once __DIR__ . '/governance/init-governance.php';
 require_once __DIR__ . '/governance/nested-governance-processing.php';
 
-// Rules Parser and Validator
+// Rules Parser and Validator.
 require_once __DIR__ . '/governance/rules-parser.php';
 
-// Settings Panel
+// Settings Panel.
 require_once __DIR__ . '/governance/settings/settings.php';
 
-// /wp-json/ API
+// /wp-json/ API.
 require_once __DIR__ . '/governance/rest/rest-api.php';
