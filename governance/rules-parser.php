@@ -5,9 +5,6 @@ namespace WPCOMVIP\Governance;
 use NumberFormatter;
 use WP_Error;
 
-use Opis\JsonSchema\Validator;
-use Opis\JsonSchema\Errors\ErrorFormatter;
-use Opis\JsonSchema\Helper;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 
@@ -55,6 +52,13 @@ class RulesParser {
 		return $rules_parsed['rules'];
 	}
 
+	/**
+	 * Given a JSON string, return an array of structured rules, or a WP_Error if parsing fails.
+	 *
+	 * @param string $rules_content Contents of rules file.
+	 *
+	 * @return array|WP_Error
+	 */
 	private static function parse_rules_from_json( $rules_content ) {
 		$rules_parsed = json_decode( $rules_content, true );
 
@@ -86,7 +90,10 @@ class RulesParser {
 
 
 	/**
-	 * @param string $rules Parsed contents of a governance rules file.
+	 * Evaluate parsed rules for logic errors, like multiple default rules or missing required keys.
+	 * Returns true if validation succeeds, or a WP_Error indicating a logic error.
+	 *
+	 * @param array $rules_parsed Parsed contents of a governance rules file.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -143,6 +150,13 @@ class RulesParser {
 		return true;
 	}
 
+	/**
+	 * Returns true if the given 'default'-type rule is valid, or a WP_Error otherwise.
+	 *
+	 * @param array $rule Parsed rule.
+	 *
+	 * @return true|WP_Error
+	 */
 	private static function verify_default_rule( $rule ) {
 		if ( count( $rule ) === 1 ) {
 			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
@@ -159,6 +173,13 @@ class RulesParser {
 		return true;
 	}
 
+	/**
+	 * Returns true if the given 'role'-type rule is valid, or a WP_Error otherwise.
+	 *
+	 * @param array $rule Parsed rule.
+	 *
+	 * @return true|WP_Error
+	 */
 	private static function verify_role_rule( $rule ) {
 		if ( ! isset( $rule['roles'] ) || ! is_array( $rule['roles'] ) || empty( $rule['roles'] ) ) {
 			$error_message = __( "\"role\"-type rules require a \"roles\" key containing an array of applicable roles. e.g.\n\n\t\"roles\": [ \"administrator\", \"editor\" ]", 'vip-governance' );
@@ -177,45 +198,13 @@ class RulesParser {
 	}
 
 	/**
-	 * @param string $rules Parsed contents of a governance rules file.
+	 * Format an array into a quoted, comma-separated list of keys for display.
+	 * e.g. [ 'default', 'role' ] => '"default", "role"'
+	 *
+	 * @param array $rule Parsed rule.
 	 *
 	 * @return true|WP_Error
 	 */
-	private static function validate_rules_schema( $rules ) {
-		$schema_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/governance-schema.json';
-
-		if ( ! file_exists( $schema_file_path ) ) {
-			return new WP_Error( 'schema-missing', __( 'Governance validation schema could not be loaded.', 'vip-governance' ) );
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- File location is hardcoded.
-		$schema_contents = file_get_contents( $schema_file_path );
-
-		$validator = new Validator();
-		// Ensures that we don't overload the user with errors.
-		$validator->setMaxErrors( 5 );
-		$rules_as_stdclass = Helper::toJSON( $rules );
-		$validation_result = $validator->validate( $rules_as_stdclass, $schema_contents );
-
-		if ( $validation_result->isValid() ) {
-			return true;
-		} else {
-			$error = $validation_result->error();
-
-			$formatter       = new ErrorFormatter();
-			$formatted_error = wp_json_encode( $formatter->format( $error, /* multiple */ false ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
-
-			/* translators: %s: Technical data - JSON parsing error */
-			$error_message = sprintf( __( 'Schema validation failed: %s', 'vip-governance' ), $formatted_error );
-			return new WP_Error( 'schema-validation', $error_message );
-		}
-
-		return true;
-	}
-
-	// Formatting functions
-
-	// Given an array, return a quoted and comma-separated string
 	private static function format_array_to_keys( $array ) {
 		return implode( ', ', array_map( function( $item ) {
 			return sprintf( '"%s"', $item );
