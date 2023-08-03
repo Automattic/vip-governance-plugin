@@ -1,4 +1,9 @@
 <?php
+/**
+ * The rules parser engine
+ * 
+ * @package vip-governance
+ */
 
 namespace WPCOMVIP\Governance;
 
@@ -10,6 +15,9 @@ use Opis\JsonSchema\Helper;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 
+/**
+ * Class for parsing and validating governance rules. 
+ */
 class RulesParser {
 	/**
 	 * Parses and validates governance rules.
@@ -17,6 +25,8 @@ class RulesParser {
 	 * @param string $rules_content Contents of rules file.
 	 *
 	 * @return array|WP_Error
+	 * 
+	 * @access private
 	 */
 	public static function parse( $rules_content ) {
 		if ( empty( $rules_content ) ) {
@@ -24,7 +34,7 @@ class RulesParser {
 			return [];
 		}
 
-		// Parse JSON from rules file
+		// Parse JSON from rules file.
 		$rules_parsed = self::parse_rules_from_json( $rules_content );
 
 		if ( is_wp_error( $rules_parsed ) ) {
@@ -34,7 +44,7 @@ class RulesParser {
 			return [];
 		}
 
-		// Validate against governance rules schema
+		// Validate against governance rules schema.
 		$schema_validation_result = self::validate_rules_schema( $rules_parsed );
 
 		if ( is_wp_error( $schema_validation_result ) ) {
@@ -44,6 +54,13 @@ class RulesParser {
 		return $rules_parsed['rules'];
 	}
 
+	/**
+	 * Parse the rules from the provided JSON
+	 *
+	 * @param array $rules_content the JSON to parse.
+	 * 
+	 * @return array the parsed rules.
+	 */
 	private static function parse_rules_from_json( $rules_content ) {
 		$rules_parsed = json_decode( $rules_content, true );
 
@@ -79,6 +96,8 @@ class RulesParser {
 	}
 
 	/**
+	 * Validate the rules against the governance schema.
+	 * 
 	 * @param string $rules Parsed contents of a governance rules file.
 	 *
 	 * @return true|WP_Error

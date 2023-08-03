@@ -1,4 +1,9 @@
 <?php
+/**
+ * Rest API
+ * 
+ * @package vip-governance
+ */
 
 namespace WPCOMVIP\Governance;
 
@@ -6,11 +11,28 @@ use WP_Error;
 
 defined( 'ABSPATH' ) || die();
 
+/**
+ * The REST API used for fetching role specific governance rules.
+ */
 class RestApi {
+	/**
+	 * Initiatlize the class.
+	 *
+	 * @return void
+	 * 
+	 * @access private 
+	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 	}
 
+	/**
+	 * Register the rest routes.
+	 *
+	 * @return void
+	 * 
+	 * @access private 
+	 */
 	public static function register_rest_routes() {
 		register_rest_route( WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE, '/(?P<role>\w+)/rules', [
 			'methods'             => 'GET',
@@ -31,10 +53,26 @@ class RestApi {
 		] );
 	}
 
+	/**
+	 * Restrict the users that can access this rest API to be who can manage options only.
+	 *
+	 * @return bool true, if they are allow or false otherwise.
+	 * 
+	 * @access private 
+	 */
 	public static function permission_callback() {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Get the governance rules specifically for a role.
+	 *
+	 * @param array $params the rest parameters.
+	 * 
+	 * @return array the response containing the rules.
+	 * 
+	 * @access private 
+	 */
 	public static function get_governance_rules_for_role( $params ) {
 		$role = $params['role'];
 

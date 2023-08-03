@@ -74,6 +74,8 @@ class NestedGovernanceProcessing {
 	 * @param array $origins       List of origins to process presets from.
 	 * 
 	 * @return string The new stylesheet.
+	 * 
+	 * @access private
 	 */
 	protected static function get_preset_classes( $theme_json, $setting_nodes, $origins ) {
 		$preset_rules = '';
@@ -106,6 +108,8 @@ class NestedGovernanceProcessing {
 	 * @param string $to_append Selector to append.
 	 * 
 	 * @return string The new selector.
+	 * 
+	 * @access private
 	 */
 	protected static function append_to_selector( $selector, $to_append ) {
 		if ( ! str_contains( $selector, ',' ) ) {
@@ -129,7 +133,10 @@ class NestedGovernanceProcessing {
 	 * @param array  $settings Settings to process.
 	 * @param string $selector Selector wrapping the classes.
 	 * @param array  $origins  List of origins to process.
+	 * 
 	 * @return string The result of processing the presets.
+	 * 
+	 * @access private
 	 */
 	protected static function compute_preset_classes( $settings, $selector, $origins ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
@@ -180,7 +187,10 @@ class NestedGovernanceProcessing {
 	 * @param array $settings        Settings to process.
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
 	 * @param array $origins         List of origins to process.
+	 * 
 	 * @return array Array of presets where the key and value are both the slug.
+	 * 
+	 * @access private
 	 */
 	protected static function get_settings_slugs( $settings, $preset_metadata, $origins ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
@@ -222,6 +232,8 @@ class NestedGovernanceProcessing {
 	 * @param array $origins List of origins to process.
 	 * 
 	 * @return string The new stylesheet.
+	 * 
+	 * @access private
 	 */
 	protected static function get_css_variables( $theme_json, $nodes, $origins ) {
 		$stylesheet = '';
@@ -258,7 +270,10 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param array $settings Settings to process.
 	 * @param array $origins  List of origins to process.
+	 * 
 	 * @return array The modified $declarations.
+	 * 
+	 * @access private
 	 */
 	protected static function compute_preset_vars( $settings, $origins ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
@@ -296,7 +311,10 @@ class NestedGovernanceProcessing {
 	 * @since 5.8.0
 	 *
 	 * @param array $settings Settings to process.
+	 * 
 	 * @return array The modified $declarations.
+	 * 
+	 * @access private
 	 */
 	protected static function compute_theme_vars( $settings ) {
 		$declarations  = array();
@@ -347,7 +365,10 @@ class NestedGovernanceProcessing {
 	 * @param array  $tree   Input tree to process.
 	 * @param string $prefix Optional. Prefix to prepend to each variable. Default empty string.
 	 * @param string $token  Optional. Token to use between levels. Default '--'.
+	 * 
 	 * @return array The flattened tree.
+	 * 
+	 * @access private
 	 */
 	protected static function flatten_tree( $tree, $prefix = '', $token = '--' ) {
 		$result = array();
@@ -379,7 +400,10 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param string $selector     CSS selector.
 	 * @param array  $declarations List of declarations.
+	 * 
 	 * @return string The resulting CSS ruleset.
+	 * 
+	 * @access private 
 	 */
 	protected static function to_ruleset( $selector, $declarations ) {
 		if ( empty( $declarations ) ) {
@@ -430,7 +454,10 @@ class NestedGovernanceProcessing {
 	 * @param array $settings        Settings to process.
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
 	 * @param array $origins         List of origins to process.
+	 * 
 	 * @return array Array of presets where each key is a slug and each value is the preset value.
+	 * 
+	 * @access private 
 	 */
 	protected static function get_settings_values_by_slug( $settings, $preset_metadata, $origins ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
@@ -471,7 +498,10 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param string $input String to replace.
 	 * @param string $slug  The slug value to use to generate the custom property.
+	 * 
 	 * @return string The CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
+	 * 
+	 * @access private 
 	 */
 	protected static function replace_slug_in_string( $input, $slug ) {
 		return strtr( $input, array( '$slug' => $slug ) );
@@ -485,6 +515,8 @@ class NestedGovernanceProcessing {
 	 * @param array $nodes the nested settings within the rules.
 	 * 
 	 * @return array the transformed nested settings, and css.
+	 * 
+	 * @access private 
 	 */
 	private static function apply_settings_transformations( $nested_settings, $nodes ) {
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
@@ -551,6 +583,8 @@ class NestedGovernanceProcessing {
 	 * @param array $nested_settings nested settings to be used.
 	 * 
 	 * @return array
+	 * 
+	 * @access private 
 	 */
 	protected static function get_nested_setting_nodes( $nested_settings ) {
 		$nodes             = array();
@@ -566,6 +600,8 @@ class NestedGovernanceProcessing {
 	 * @param string $block_name the name of the block.
 	 * 
 	 * @return string the css selector for the block.
+	 * 
+	 * @access private 
 	 */
 	protected static function get_css_selector_for_block( $block_name ) {
 		// ToDo: Add support for the selectors API as that's going to be going in, in the future.
@@ -609,6 +645,8 @@ class NestedGovernanceProcessing {
 	 * @param array $current_path      The current path to the block.
 	 * 
 	 * @return array
+	 * 
+	 * @access private 
 	 */
 	protected static function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
 		foreach ( $current_block as $block_name => $block ) {
