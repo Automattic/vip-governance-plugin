@@ -1,4 +1,9 @@
 <?php
+/**
+ * Utilities for Block Governance.
+ * 
+ * @package vip-governance
+ */
 
 namespace WPCOMVIP\Governance;
 
@@ -6,11 +11,16 @@ defined( 'ABSPATH' ) || die();
 
 use WP_Error;
 
+/**
+ * Utilities class that has helper functions for processing the governance rules.
+ */
 class GovernanceUtilities {
 	/**
 	 * Retrieve parsed governance rules from the private directory, or the plugin directory if not found.
 	 *
 	 * @return array|WP_Error
+	 * 
+	 * @access private
 	 */
 	public static function get_parsed_governance_rules() {
 		$governance_rules_json = self::get_governance_rules_json();
@@ -21,6 +31,8 @@ class GovernanceUtilities {
 	 * Get raw governance rules content from the private directory, or the plugin directory if not found.
 	 *
 	 * @return string|WP_Error
+	 * 
+	 * @access private
 	 */
 	public static function get_governance_rules_json() {
 		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
@@ -48,7 +60,12 @@ class GovernanceUtilities {
 	/**
 	 * Get the rules for the current user, using the "default" rules as a fallback.
 	 *
-	 * @return array
+	 * @param array $governance_rules the governance rules, not filtered based on the user role.
+	 * @param array $user_roles the user roles for the current WP site.
+	 * 
+	 * @return array the governance rules, filtered by the matching user role.
+	 * 
+	 * @access private
 	 */
 	public static function get_rules_for_user( $governance_rules, $user_roles = [] ) {
 		if ( empty( $governance_rules ) ) {
@@ -72,7 +89,7 @@ class GovernanceUtilities {
 			}
 		}
 
-		// return array of allowed_blocks and block_settings
+		// return array of allowed_blocks and block_settings.
 		return array(
 			'allowedBlocks'   => $allowed_blocks,
 			'blockSettings'   => $block_settings,
