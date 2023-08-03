@@ -42,13 +42,6 @@ class RulesParser {
 			return $rule_validation_result;
 		}
 
-		// Validate against governance rules schema
-		$schema_validation_result = self::validate_rules_schema( $rules_parsed );
-
-		if ( is_wp_error( $schema_validation_result ) ) {
-			return $schema_validation_result;
-		}
-
 		return $rules_parsed['rules'];
 	}
 
