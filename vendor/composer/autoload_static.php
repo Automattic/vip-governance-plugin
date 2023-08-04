@@ -11,30 +11,12 @@ class ComposerStaticInitdd8012b317c6b32d326fb106782551b7
         array (
             'Seld\\JsonLint\\' => 14,
         ),
-        'O' => 
-        array (
-            'Opis\\Uri\\' => 9,
-            'Opis\\String\\' => 12,
-            'Opis\\JsonSchema\\' => 16,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'Seld\\JsonLint\\' => 
         array (
             0 => __DIR__ . '/..' . '/seld/jsonlint/src/Seld/JsonLint',
-        ),
-        'Opis\\Uri\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/opis/uri/src',
-        ),
-        'Opis\\String\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/opis/string/src',
-        ),
-        'Opis\\JsonSchema\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/opis/json-schema/src',
         ),
     );
 

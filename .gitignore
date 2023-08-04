@@ -29,10 +29,9 @@ vip-governance*.zip
 vendor/*
 !vendor/autoload.php
 !vendor/composer/
-!vendor/opis/
 !vendor/seld/
 
-/test-results/	
-/playwright-report/	
-/playwright/.cache/	
+/test-results/
+/playwright-report/
+/playwright/.cache/
 /artifacts
