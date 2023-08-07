@@ -38,7 +38,8 @@ class NestedGovernanceProcessing {
 			return self::$nested_settings_and_css;
 		}
 
-		$setting_nodes                 = static::get_nested_setting_nodes( $governance_rules );
+		$blocks_registered             = WP_Block_Type_Registry::get_instance()->get_all_registered();
+		$setting_nodes                 = static::get_settings_of_blocks( $blocks_registered, $governance_rules );
 		self::$nested_settings_and_css = static::apply_settings_transformations( $governance_rules, $setting_nodes );
 
 		return self::$nested_settings_and_css;
@@ -565,63 +566,29 @@ class NestedGovernanceProcessing {
 	}
 
 	/**
-	 * Builds metadata for the setting nodes, which returns in the form of:
-	 *
-	 *     [
-	 *       [
-	 *         'path'     => ['path', 'to', 'some', 'node' ],
-	 *         'selector' => 'CSS selector for some node'
-	 *       ],
-	 *       [
-	 *         'path'     => [ 'path', 'to', 'other', 'node' ],
-	 *         'selector' => 'CSS selector for other node'
-	 *       ],
-	 *     ]
-	 *
-	 * @since 5.8.0
-	 *
-	 * @param array $nested_settings nested settings to be used.
-	 * 
-	 * @return array
-	 * 
-	 * @access private 
-	 */
-	protected static function get_nested_setting_nodes( $nested_settings ) {
-		$nodes             = array();
-		$registry          = WP_Block_Type_Registry::get_instance()->get_all_registered();
-		$valid_block_names = array_keys( $registry );
-
-		return static::get_settings_of_blocks( $valid_block_names, $nodes, $nested_settings );
-	}
-
-	/**
 	 * Get the CSS selector for a block using the block name
+	 * 
+	 * This method is only used for WordPress versions below 6.3. After 6.3, we have a built in
+	 * way of accessing this selector. This will be deprecated once 6.3 is available for a 
+	 * majority of VIP sites.
 	 *
 	 * @param string $block_name the name of the block.
-	 * 
+	 * @param array  $blocks_registered the blocks that are allowed via the blocks registry.
+	 *
 	 * @return string the css selector for the block.
 	 * 
 	 * @access private 
 	 */
-	protected static function get_css_selector_for_block( $block_name ) {
-		// ToDo: Add support for the selectors API as that's going to be going in, in the future.
-		$registry = WP_Block_Type_Registry::get_instance();
-		$blocks   = $registry->get_all_registered();
-
-		if ( isset( $blocks[ $block_name ] ) ) {
-			$block = $blocks[ $block_name ];
-			if (
-				isset( $block->supports['__experimentalSelector'] ) &&
-				is_string( $block->supports['__experimentalSelector'] )
-			) {
-				return $block->supports['__experimentalSelector'];
-			} else {
-				return '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
-			}
+	protected static function get_css_selector_for_block( $block_name, $blocks_registered ) {
+		$block = $blocks_registered[ $block_name ];
+		if (
+			isset( $block->supports['__experimentalSelector'] ) &&
+			is_string( $block->supports['__experimentalSelector'] )
+		) {
+			return $block->supports['__experimentalSelector'];
+		} else {
+			return '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
 		}
-
-		// Selector for the block was not found.
-		return null;
 	}
 
 	/**
@@ -638,9 +605,9 @@ class NestedGovernanceProcessing {
 	 *       ],
 	 *     ]
 	 *
-	 * @param array $valid_block_names List of valid block names.
-	 * @param array $nodes             The metadata of the nodes that have been built so far.
+	 * @param array $blocks_registered List of valid blocks.
 	 * @param array $current_block     The current block to break down.
+	 * @param array $nodes             The metadata of the nodes that have been built so far.
 	 * @param array $current_selector  The current selector of the current block.
 	 * @param array $current_path      The current path to the block.
 	 * 
@@ -648,13 +615,19 @@ class NestedGovernanceProcessing {
 	 * 
 	 * @access private 
 	 */
-	protected static function get_settings_of_blocks( $valid_block_names, $nodes, $current_block, $current_selector = null, $current_path = array() ) {
+	protected static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = array(), $current_selector = null, $current_path = array() ) {
 		foreach ( $current_block as $block_name => $block ) {
-			if ( in_array( $block_name, $valid_block_names, true ) ) {
+			if ( array_key_exists( $block_name, $blocks_registered ) ) {
 
 				$selector = is_null( $current_selector ) ? null : $current_selector;
 
-				$looked_up_selector = self::get_css_selector_for_block( $block_name );
+				// This function is only available in 6.3 and above.
+				if ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {
+					$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
+				} else {
+					$looked_up_selector = self::get_css_selector_for_block( $block_name, $blocks_registered );
+				}
+
 				if ( ! is_null( $looked_up_selector ) ) {
 					$selector = $selector . ' ' . $looked_up_selector;
 				}
@@ -667,7 +640,7 @@ class NestedGovernanceProcessing {
 					'selector' => $selector,
 				);
 
-				$nodes = static::get_settings_of_blocks( $valid_block_names, $nodes, $block, $selector, $path );
+				$nodes = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $selector, $path );
 			}
 		}
 
