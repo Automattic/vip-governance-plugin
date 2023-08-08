@@ -25,6 +25,13 @@ class NestedGovernanceProcessing {
 	private static $nested_settings_and_css = null;
 
 	/**
+	 * Default origin, and preset base for the settings.
+	 *
+	 * @var string
+	 */
+	private const DEFAULT_ORIGIN = 'theme';
+
+	/**
 	 * Get the nested settings and css that's used to process nested settings.
 	 *
 	 * @param array $governance_rules Ggovernance rules, specific to a user.
@@ -141,7 +148,7 @@ class NestedGovernanceProcessing {
 					// If the preset is not already keyed with an origin.
 					if ( isset( $preset[0] ) || empty( $preset ) ) {
 						// Add theme as the top level item for each preset value.
-						_wp_array_set( $theme_json, $path, array( 'theme' => $preset ) );
+						_wp_array_set( $theme_json, $path, array( self::DEFAULT_ORIGIN => $preset ) );
 					}
 				}
 
@@ -151,7 +158,7 @@ class NestedGovernanceProcessing {
 
 				$setting        = _wp_array_get( $theme_json, $path_and_selector_of_block['path'], array() );
 				$declarations   = array();
-				$values_by_slug = static::get_settings_values_by_slug( $setting, $preset_metadata, [ 'theme' ] );
+				$values_by_slug = static::get_settings_values_by_slug( $setting, $preset_metadata );
 				foreach ( $values_by_slug as $slug => $value ) {
 					$declarations[] = array(
 						'name'  => static::replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
@@ -161,7 +168,7 @@ class NestedGovernanceProcessing {
 
 				$stylesheet .= static::to_ruleset( $path_and_selector_of_block['selector'], $declarations );
 
-				$slugs = static::get_settings_slugs( $setting, $preset_metadata, [ 'theme' ] );
+				$slugs = static::get_settings_slugs( $setting, $preset_metadata );
 				foreach ( $preset_metadata['classes'] as $class => $property ) {
 					foreach ( $slugs as $slug ) {
 						$css_var    = static::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
@@ -226,27 +233,23 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param array $settings        Settings to process.
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
-	 * @param array $origins         List of origins to process.
 	 * 
 	 * @return array Array of presets where the key and value are both the slug.
 	 * 
 	 * @access private
 	 */
-	private static function get_settings_slugs( $settings, $preset_metadata, $origins ) {
+	private static function get_settings_slugs( $settings, $preset_metadata ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
 
 		$result = array();
-		foreach ( $origins as $origin ) {
-			if ( ! isset( $preset_per_origin[ $origin ] ) ) {
-				continue;
-			}
-			foreach ( $preset_per_origin[ $origin ] as $preset ) {
+		if ( isset( $preset_per_origin[ self::DEFAULT_ORIGIN ] ) ) {
+			foreach ( $preset_per_origin[ self::DEFAULT_ORIGIN ] as $preset ) {
 				$slug = _wp_to_kebab_case( $preset['slug'] );
 
-				// Use the array as a set so we don't get duplicates.
 				$result[ $slug ] = $slug;
 			}
 		}
+
 		return $result;
 	}
 
@@ -311,21 +314,16 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param array $settings        Settings to process.
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
-	 * @param array $origins         List of origins to process.
 	 * 
 	 * @return array Array of presets where each key is a slug and each value is the preset value.
-	 * 
-	 * @access private 
 	 */
-	private static function get_settings_values_by_slug( $settings, $preset_metadata, $origins ) {
+	private static function get_settings_values_by_slug( $settings, $preset_metadata ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
 
 		$result = array();
-		foreach ( $origins as $origin ) {
-			if ( ! isset( $preset_per_origin[ $origin ] ) ) {
-				continue;
-			}
-			foreach ( $preset_per_origin[ $origin ] as $preset ) {
+
+		if ( isset( $preset_per_origin[ self::DEFAULT_ORIGIN ] ) ) {
+			foreach ( $preset_per_origin[ self::DEFAULT_ORIGIN ] as $preset ) {
 				$slug = _wp_to_kebab_case( $preset['slug'] );
 
 				$value = '';
@@ -346,6 +344,7 @@ class NestedGovernanceProcessing {
 				$result[ $slug ] = $value;
 			}
 		}
+
 		return $result;
 	}
 
@@ -358,8 +357,6 @@ class NestedGovernanceProcessing {
 	 * @param string $slug  Slug value to use to generate the custom property.
 	 * 
 	 * @return string CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
-	 * 
-	 * @access private 
 	 */
 	private static function replace_slug_in_string( $input, $slug ) {
 		return strtr( $input, array( '$slug' => $slug ) );
@@ -372,12 +369,10 @@ class NestedGovernanceProcessing {
 	 * way of accessing this selector. This will be deprecated once 6.3 is available for a 
 	 * majority of VIP sites.
 	 *
-	 * @param string $block_name the name of the block.
-	 * @param array  $blocks_registered the blocks that are allowed via the blocks registry.
+	 * @param string $block_name Name of the block.
+	 * @param array  $blocks_registered Blocks that are allowed via the block registry.
 	 *
 	 * @return string the css selector for the block.
-	 * 
-	 * @access private
 	 */
 	private static function get_css_selector_for_block( $block_name, $blocks_registered ) {
 		$block = $blocks_registered[ $block_name ];
