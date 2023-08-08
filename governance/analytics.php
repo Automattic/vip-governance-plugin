@@ -82,7 +82,7 @@ class Analytics {
 	/**
 	 * Send the stats to the WP Pixel.
 	 *
-	 * @param array $stats the stats to be sent.
+	 * @param array $stats Stats to be sent.
 	 * @return void
 	 */
 	private static function send_pixel( $stats ) {
@@ -109,7 +109,7 @@ class Analytics {
 	/**
 	 * Check if the site is a WPVIP site.
 	 * 
-	 * @return bool true if it is a WPVIP site, false otherwise
+	 * @return bool true If it is a WPVIP site, false otherwise
 	 */
 	private static function is_wpvip_site() {
 		return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true

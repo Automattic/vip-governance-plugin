@@ -27,9 +27,9 @@ class NestedGovernanceProcessing {
 	/**
 	 * Get the nested settings and css that's used to process nested settings.
 	 *
-	 * @param array $governance_rules the governance rules, specific to a user.
+	 * @param array $governance_rules Ggovernance rules, specific to a user.
 	 * 
-	 * @return array the nested settings and css.
+	 * @return array Nested settings and css.
 	 * 
 	 * @access private
 	 */
@@ -69,11 +69,11 @@ class NestedGovernanceProcessing {
 	 *
 	 * @since 5.9.0
 	 *
-	 * @param array $theme_json the theme json.
+	 * @param array $theme_json Theme json.
 	 * @param array $setting_nodes Nodes with settings.
 	 * @param array $origins       List of origins to process presets from.
 	 * 
-	 * @return string The new stylesheet.
+	 * @return string New stylesheet.
 	 * 
 	 * @access private
 	 */
@@ -107,7 +107,7 @@ class NestedGovernanceProcessing {
 	 * @param string $selector  Original selector.
 	 * @param string $to_append Selector to append.
 	 * 
-	 * @return string The new selector.
+	 * @return string New selector.
 	 * 
 	 * @access private
 	 */
@@ -134,7 +134,7 @@ class NestedGovernanceProcessing {
 	 * @param string $selector Selector wrapping the classes.
 	 * @param array  $origins  List of origins to process.
 	 * 
-	 * @return string The result of processing the presets.
+	 * @return string Result of processing the presets.
 	 * 
 	 * @access private
 	 */
@@ -271,7 +271,7 @@ class NestedGovernanceProcessing {
 	 * @param array $settings Settings to process.
 	 * @param array $origins  List of origins to process.
 	 * 
-	 * @return array The modified $declarations.
+	 * @return array Modified $declarations.
 	 * 
 	 * @access private
 	 */
@@ -312,7 +312,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param array $settings Settings to process.
 	 * 
-	 * @return array The modified $declarations.
+	 * @return array Modified $declarations.
 	 * 
 	 * @access private
 	 */
@@ -366,7 +366,7 @@ class NestedGovernanceProcessing {
 	 * @param string $prefix Optional. Prefix to prepend to each variable. Default empty string.
 	 * @param string $token  Optional. Token to use between levels. Default '--'.
 	 * 
-	 * @return array The flattened tree.
+	 * @return array Flattened tree.
 	 * 
 	 * @access private
 	 */
@@ -401,7 +401,7 @@ class NestedGovernanceProcessing {
 	 * @param string $selector     CSS selector.
 	 * @param array  $declarations List of declarations.
 	 * 
-	 * @return string The resulting CSS ruleset.
+	 * @return string Resulting CSS ruleset.
 	 * 
 	 * @access private 
 	 */
@@ -497,9 +497,9 @@ class NestedGovernanceProcessing {
 	 * @since 5.9.0
 	 *
 	 * @param string $input String to replace.
-	 * @param string $slug  The slug value to use to generate the custom property.
+	 * @param string $slug  Slug value to use to generate the custom property.
 	 * 
-	 * @return string The CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
+	 * @return string CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
 	 * 
 	 * @access private 
 	 */
@@ -511,10 +511,10 @@ class NestedGovernanceProcessing {
 	 * Transform the nested settings, into a format that Gutenberg understands
 	 * including the CSS which would be injected into the editor.
 	 *
-	 * @param array $nested_settings the governance rules.
-	 * @param array $nodes the nested settings within the rules.
+	 * @param array $nested_settings Governance rules.
+	 * @param array $nodes Nested settings within the rules.
 	 * 
-	 * @return array the transformed nested settings, and css.
+	 * @return array Transformed nested settings, and css.
 	 * 
 	 * @access private 
 	 */
@@ -580,7 +580,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array $nested_settings nested settings to be used.
+	 * @param array $nested_settings Nested settings to be used.
 	 * 
 	 * @return array
 	 * 
@@ -597,9 +597,9 @@ class NestedGovernanceProcessing {
 	/**
 	 * Get the CSS selector for a block using the block name
 	 *
-	 * @param string $block_name the name of the block.
+	 * @param string $block_name Name of the block.
 	 * 
-	 * @return string the css selector for the block.
+	 * @return string CSS selector for the block.
 	 * 
 	 * @access private 
 	 */
@@ -639,10 +639,10 @@ class NestedGovernanceProcessing {
 	 *     ]
 	 *
 	 * @param array $valid_block_names List of valid block names.
-	 * @param array $nodes             The metadata of the nodes that have been built so far.
-	 * @param array $current_block     The current block to break down.
-	 * @param array $current_selector  The current selector of the current block.
-	 * @param array $current_path      The current path to the block.
+	 * @param array $nodes             Metadata of the nodes that have been built so far.
+	 * @param array $current_block     Current block to break down.
+	 * @param array $current_selector  Current selector of the current block.
+	 * @param array $current_path      Current path to the block.
 	 * 
 	 * @return array
 	 * 

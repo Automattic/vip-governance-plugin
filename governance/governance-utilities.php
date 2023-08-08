@@ -60,10 +60,10 @@ class GovernanceUtilities {
 	/**
 	 * Get the rules for the current user, using the "default" rules as a fallback.
 	 *
-	 * @param array $governance_rules the governance rules, not filtered based on the user role.
-	 * @param array $user_roles the user roles for the current WP site.
+	 * @param array $governance_rules Governance rules, not filtered based on the user role.
+	 * @param array $user_roles User roles for the current WP site.
 	 * 
-	 * @return array the governance rules, filtered by the matching user role.
+	 * @return array Governance rules, filtered by the matching user role.
 	 * 
 	 * @access private
 	 */
