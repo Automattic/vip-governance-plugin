@@ -102,7 +102,7 @@ class InitGovernance {
 	/**
 	 * Load the governance configuration, based on the user role and ensure the rules are valid.
 	 *
-	 * @return array the governance rules, based on the user role.
+	 * @return array Governance rules, based on the user role.
 	 */
 	private static function load_governance_configuration() {
 		$governance_error          = false;

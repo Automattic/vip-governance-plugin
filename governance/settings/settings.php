@@ -133,9 +133,9 @@ class Settings {
 	/**
 	 * Ensure that the options are valid.
 	 *
-	 * @param array $options the options that have been submitted.
+	 * @param array $options Options that have been submitted.
 	 * 
-	 * @return boolean true, if its valid or false otherwise.
+	 * @return boolean True, if its valid or false otherwise.
 	 */
 	public static function validate_options( $options ) {
 		$options[ self::OPTIONS_KEY_IS_ENABLED ] = 'yes' === $options[ self::OPTIONS_KEY_IS_ENABLED ];
@@ -146,7 +146,7 @@ class Settings {
 	/**
 	 * Check if the plugin is to be enabled or not.
 	 *
-	 * @return boolean true, if it is or false otherwise.
+	 * @return boolean True, if it is or false otherwise.
 	 * 
 	 * @access private
 	 */

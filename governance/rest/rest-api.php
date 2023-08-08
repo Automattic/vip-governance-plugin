@@ -56,7 +56,7 @@ class RestApi {
 	/**
 	 * Restrict the users that can access this rest API to be who can manage options only.
 	 *
-	 * @return bool true, if they are allow or false otherwise.
+	 * @return bool True, if they are allow or false otherwise.
 	 * 
 	 * @access private 
 	 */
@@ -67,11 +67,11 @@ class RestApi {
 	/**
 	 * Get the governance rules specifically for a role.
 	 *
-	 * @param array $params the rest parameters.
+	 * @param array $params Rest parameters.
 	 * 
-	 * @return array the response containing the rules.
+	 * @return array Response containing the rules.
 	 * 
-	 * @access private 
+	 * @access private
 	 */
 	public static function get_governance_rules_for_role( $params ) {
 		$role = $params['role'];

@@ -27,9 +27,9 @@ class NestedGovernanceProcessing {
 	/**
 	 * Get the nested settings and css that's used to process nested settings.
 	 *
-	 * @param array $governance_rules the governance rules, specific to a user.
+	 * @param array $governance_rules Ggovernance rules, specific to a user.
 	 * 
-	 * @return array the nested settings and css.
+	 * @return array Nested settings and css.
 	 * 
 	 * @access private
 	 */
@@ -203,7 +203,7 @@ class NestedGovernanceProcessing {
 	 * @param string $selector  Original selector.
 	 * @param string $to_append Selector to append.
 	 * 
-	 * @return string The new selector.
+	 * @return string New selector.
 	 * 
 	 * @access private
 	 */
@@ -259,7 +259,7 @@ class NestedGovernanceProcessing {
 	 * @param string $selector     CSS selector.
 	 * @param array  $declarations List of declarations.
 	 * 
-	 * @return string The resulting CSS ruleset.
+	 * @return string Resulting CSS ruleset.
 	 * 
 	 * @access private 
 	 */
@@ -355,9 +355,9 @@ class NestedGovernanceProcessing {
 	 * @since 5.9.0
 	 *
 	 * @param string $input String to replace.
-	 * @param string $slug  The slug value to use to generate the custom property.
+	 * @param string $slug  Slug value to use to generate the custom property.
 	 * 
-	 * @return string The CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
+	 * @return string CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
 	 * 
 	 * @access private 
 	 */

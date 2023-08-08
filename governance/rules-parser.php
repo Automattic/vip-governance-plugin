@@ -204,7 +204,7 @@ class RulesParser {
 	 * Format an array into a quoted, comma-separated list of keys for display.
 	 * e.g. [ 'default', 'role' ] => '"default", "role"'.
 	 * 
-	 * @param array $array parsed rule.
+	 * @param array $array Parsed rule.
 	 * 
 	 * @return string Comma-separated list of quoted keys.
 	 */
