@@ -15,11 +15,6 @@ jobs:
         php-versions:
           - 8.0
 
-    env:
-      DB_DATABASE: test_db
-      DB_USER: root
-      DB_PASSWORD: root
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -32,10 +27,6 @@ jobs:
         with:
           tools: composer
           php-version: ${{ matrix.php-versions }}
-
-      - name: Setup MySQL
-        run: |
-          sudo /etc/init.d/mysql start
 
       - name: Cache Composer packages
         id: composer-cache

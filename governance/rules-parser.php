@@ -1,4 +1,9 @@
 <?php
+/**
+ * The rules parser engine
+ * 
+ * @package vip-governance
+ */
 
 namespace WPCOMVIP\Governance;
 
@@ -8,6 +13,9 @@ use WP_Error;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 
+/**
+ * Class for parsing and validating governance rules. 
+ */
 class RulesParser {
 	private const RULE_TYPES        = [ 'default', 'role' ];
 	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
@@ -18,6 +26,8 @@ class RulesParser {
 	 * @param string $rules_content Contents of rules file.
 	 *
 	 * @return array|WP_Error
+	 * 
+	 * @access private
 	 */
 	public static function parse( $rules_content ) {
 		if ( empty( $rules_content ) ) {
@@ -25,7 +35,7 @@ class RulesParser {
 			return [];
 		}
 
-		// Parse JSON from rules file
+		// Parse JSON from rules file.
 		$rules_parsed = self::parse_rules_from_json( $rules_content );
 
 		if ( is_wp_error( $rules_parsed ) ) {
@@ -35,7 +45,7 @@ class RulesParser {
 			return [];
 		}
 
-		// Validate governance rule logic
+		// Validate governance rule logic.
 		$rule_validation_result = self::validate_rule_logic( $rules_parsed );
 
 		if ( is_wp_error( $rule_validation_result ) ) {
@@ -122,7 +132,7 @@ class RulesParser {
 					$verify_rule_result = self::verify_default_rule( $rule );
 					$default_rule_index = $rule_index;
 				} else {
-					// There's already a default rule defined, bubble an error
+					// There's already a default rule defined, bubble an error.
 
 					/* translators: 1: Ordinal number of rule, e.g. 1st */
 					$error_message      = sprintf( __( 'Only one default rule is allowed, but the %s rule already contains a default rule.', 'vip-governance' ), $ordinal_formatter->format( $default_rule_index + 1 ) );
@@ -192,11 +202,11 @@ class RulesParser {
 
 	/**
 	 * Format an array into a quoted, comma-separated list of keys for display.
-	 * e.g. [ 'default', 'role' ] => '"default", "role"'
-	 *
-	 * @param array $rule Parsed rule.
-	 *
-	 * @return true|WP_Error
+	 * e.g. [ 'default', 'role' ] => '"default", "role"'.
+	 * 
+	 * @param array $array Parsed rule.
+	 * 
+	 * @return string Comma-separated list of quoted keys.
 	 */
 	private static function format_array_to_keys( $array ) {
 		return implode( ', ', array_map( function( $item ) {

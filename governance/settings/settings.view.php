@@ -1,4 +1,9 @@
 <?php
+/**
+ * The settings view
+ * 
+ * @package vip-governance
+ */
 
 namespace WPCOMVIP\Governance;
 

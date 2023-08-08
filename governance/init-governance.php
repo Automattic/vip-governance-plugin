@@ -1,4 +1,9 @@
 <?php
+/**
+ * Intialize Block Governance
+ * 
+ * @package vip-governance
+ */
 
 namespace WPCOMVIP\Governance;
 
@@ -7,18 +12,41 @@ defined( 'ABSPATH' ) || die();
 use Exception;
 use Error;
 
+/**
+ * Initializes the block governance plugin.
+ */
 class InitGovernance {
+	/**
+	 * Governance configuration.
+	 *
+	 * @var array
+	 * 
+	 * @access private
+	 */
 	public static $governance_configuration = [];
 
+	/**
+	 * Initialize the class
+	 *
+	 * @return void
+	 */
 	public static function init() {
-		// Assets for block editor UI
+		// Assets for block editor UI.
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'load_settings' ] );
 
-		// Assets for iframed block editor and editor UI
+		// Assets for iframed block editor and editor UI.
 		add_action( 'enqueue_block_assets', [ __CLASS__, 'load_css' ] );
 	}
 
+	/**
+	 * Load the settings necessary for the block editor UI.
+	 *
+	 * @return void
+	 * 
+	 * @access private
+	 */
 	public static function load_settings() {
+		// Only load the settings if the plugin is enabled, from the wp-admin settings page.
 		if ( ! Settings::is_enabled() ) {
 			return;
 		} elseif ( empty( self::$governance_configuration ) ) {
@@ -45,6 +73,13 @@ class InitGovernance {
 		]);
 	}
 
+	/**
+	 * Load the CSS necessary for the block editor UI.
+	 *
+	 * @return void
+	 * 
+	 * @access private
+	 */
 	public static function load_css() {
 		if ( ! Settings::is_enabled() ) {
 			return;
@@ -64,6 +99,11 @@ class InitGovernance {
 		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
 	}
 
+	/**
+	 * Load the governance configuration, based on the user role and ensure the rules are valid.
+	 *
+	 * @return array Governance rules, based on the user role.
+	 */
 	private static function load_governance_configuration() {
 		$governance_error          = false;
 		$governance_rules_for_user = array();
