@@ -82,9 +82,7 @@ class NestedGovernanceProcessing {
 	 * @param array $current_selector  The current selector of the current block.
 	 * @param array $current_path      The current path to the block.
 	 * 
-	 * @return array
-	 * 
-	 * @access private 
+	 * @return array 
 	 */
 	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = array(), $current_selector = null, $current_path = array() ) {
 		foreach ( $current_block as $block_name => $block ) {
@@ -211,8 +209,6 @@ class NestedGovernanceProcessing {
 	 * @param string $to_append Selector to append.
 	 * 
 	 * @return string New selector.
-	 * 
-	 * @access private
 	 */
 	private static function append_to_selector( $selector, $to_append ) {
 		if ( ! str_contains( $selector, ',' ) ) {
@@ -235,8 +231,6 @@ class NestedGovernanceProcessing {
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
 	 * 
 	 * @return array Array of presets where the key and value are both the slug.
-	 * 
-	 * @access private
 	 */
 	private static function get_settings_slugs( $settings, $preset_metadata ) {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
@@ -263,8 +257,6 @@ class NestedGovernanceProcessing {
 	 * @param array  $declarations List of declarations.
 	 * 
 	 * @return string Resulting CSS ruleset.
-	 * 
-	 * @access private 
 	 */
 	private static function to_ruleset( $selector, $declarations ) {
 		if ( empty( $declarations ) ) {
