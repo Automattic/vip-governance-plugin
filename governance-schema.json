@@ -10,9 +10,7 @@
 				"enum": [ "codeEditor", "lockBlocks" ]
 			},
 			"uniqueItems": true,
-			"examples": [
-				[ "codeEditor", "lockBlocks" ]
-			]
+			"examples": [ [ "codeEditor", "lockBlocks" ] ]
 		},
 		"allowedBlocksArray": {
 			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
@@ -40,7 +38,7 @@
 			}
 		},
 		"ruleBlockSettingsProperties": {
-			"description": "Theme.json block settings for this rule. Allows block nesting and allowedBlocks array.",
+			"description": "Theme.json block settings for this rule. Allows block nesting and allowedChildren array.",
 			"type": "object",
 			"patternProperties": {
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
@@ -56,7 +54,7 @@
 						}
 					},
 					"core/quote": {
-						"allowedBlocks": [ "core/paragraph", "core/heading" ]
+						"allowedChildren": [ "core/paragraph", "core/heading" ]
 					},
 					"core/media-text": {
 						"core/heading": {

@@ -118,7 +118,7 @@ The role specific rule will be merged with the default rule. This is done intent
 
 - Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
 
-- Support for `duotone` has not been implemented yet. If you do add the `duotone` property to a `core/image` block, it will show up in the palette but upon selection nothing will happen. You'll need to select the color picker, change to a different colour and back again to the correct value to get it to appear correctly.
+- Support for `duotone` and `typography` has not been implemented yet.
 
 ### Sample Rules
 
