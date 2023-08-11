@@ -116,7 +116,9 @@ The role specific rule will be merged with the default rule. This is done intent
 
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
 
-- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additoinal blocks, but existing blocks in existing content will not be removed or restricted.
+- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
+
+- Support for `duotone` and `typography` has not been implemented yet.
 
 ### Sample Rules
 
