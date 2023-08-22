@@ -155,35 +155,41 @@ class NestedGovernanceProcessing {
 					continue;
 				}
 
-				$setting        = _wp_array_get( $theme_json, $path_and_selector_of_block['path'], array() );
-				$declarations   = array();
-				$values_by_slug = static::get_settings_values_by_slug( $setting, $preset_metadata );
-				foreach ( $values_by_slug as $slug => $value ) {
-					$declarations[] = array(
-						'name'  => static::replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
-						'value' => $value,
-					);
-				}
+				$setting      = _wp_array_get( $theme_json, $path_and_selector_of_block['path'], array() );
+				$declarations = array();
 
-				$stylesheet .= static::to_ruleset( $path_and_selector_of_block['selector'], $declarations );
-
-				$slugs = static::get_settings_slugs( $setting, $preset_metadata );
-				foreach ( $preset_metadata['classes'] as $class => $property ) {
-					foreach ( $slugs as $slug ) {
-						$css_var    = static::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
-						$class_name = static::replace_slug_in_string( $class, $slug );
-	
-						// $selector is often empty, so we can save ourselves the `append_to_selector()` call then.
-						$new_selector = '' === $path_and_selector_of_block['selector'] ? $class_name : static::append_to_selector( $path_and_selector_of_block['selector'], $class_name );
-						$stylesheet  .= static::to_ruleset(
-							$new_selector,
-							array(
-								array(
-									'name'  => $property,
-									'value' => 'var(' . $css_var . ') !important',
-								),
-							)
+				if ( in_array( 'duotone', $path ) ) {
+					$stylesheet .= ' .wp-block-image{--wp--preset--duotone--red-and-yellow:url(#wp-duotone-red-and-yellow);} ';
+					// repeat the logic done in class-wp-duotone-gutenberg.php.
+				} else {
+					$values_by_slug = static::get_settings_values_by_slug( $setting, $preset_metadata );
+					foreach ( $values_by_slug as $slug => $value ) {
+						$declarations[] = array(
+							'name'  => static::replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
+							'value' => $value,
 						);
+					}
+
+					$stylesheet .= static::to_ruleset( $path_and_selector_of_block['selector'], $declarations );
+
+					$slugs = static::get_settings_slugs( $setting, $preset_metadata );
+					foreach ( $preset_metadata['classes'] as $class => $property ) {
+						foreach ( $slugs as $slug ) {
+							$css_var    = static::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
+							$class_name = static::replace_slug_in_string( $class, $slug );
+		
+							// $selector is often empty, so we can save ourselves the `append_to_selector()` call then.
+							$new_selector = '' === $path_and_selector_of_block['selector'] ? $class_name : static::append_to_selector( $path_and_selector_of_block['selector'], $class_name );
+							$stylesheet  .= static::to_ruleset(
+								$new_selector,
+								array(
+									array(
+										'name'  => $property,
+										'value' => 'var(' . $css_var . ') !important',
+									),
+								)
+							);
+						}
 					}
 				}
 			}
