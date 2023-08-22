@@ -118,7 +118,7 @@ The role specific rule will be merged with the default rule. This is done intent
 
 - Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
 
-- Support for `duotone` and `typography` has not been implemented yet.
+- Support for `colors.duotone` and `spacing` has not been implemented yet.
 
 ### Sample Rules
 

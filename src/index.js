@@ -86,10 +86,7 @@ function setup() {
 				// eslint-disable-next-line security/detect-object-injection
 				nestedSettingPaths[ blockName ][ path ] === true;
 
-			if ( result !== undefined || ! hasCustomSetting ) {
-				if ( path === 'typography.fontFamilies' ) {
-					return result.theme;
-				}
+			if ( ! hasCustomSetting ) {
 				return result;
 			}
 
@@ -101,10 +98,6 @@ function setup() {
 				.reverse();
 
 			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
-
-			if ( path === 'typography.fontFamilies' ) {
-				return result.theme;
-			}
 
 			return result;
 		}

@@ -142,7 +142,8 @@ class NestedGovernanceProcessing {
 				$path = array_merge( $path_and_selector_of_block['path'], $preset_metadata['path'] );
 				// Get the preset value from the theme.json.
 				$preset = _wp_array_get( $theme_json, $path, null );
-				if ( null !== $preset ) {
+				// Only color needs the theme preset.
+				if ( null !== $preset && in_array( 'color', $path ) ) {
 					// If the preset is not already keyed with an origin.
 					if ( isset( $preset[0] ) || empty( $preset ) ) {
 						// Add theme as the top level item for each preset value.
