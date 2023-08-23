@@ -13,8 +13,8 @@ class NestedGovernanceProcessingTest extends TestCase {
 	public function test_get_nested_settings_and_css_happy_path() {
 		$block_settings = [
 			'core/media-text' => [
-				'allowedChildren' => [ 'core/paragraph', 'core/heading', 'core/image' ],
-				'core/heading'    => [
+				'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
+				'core/heading'  => [
 					'color' => [
 						'text'    => true,
 						'palette' => [
@@ -28,8 +28,8 @@ class NestedGovernanceProcessingTest extends TestCase {
 				],
 			],
 			'core/quote'      => [
-				'allowedChildren' => [ 'core/paragraph', 'core/heading' ],
-				'core/paragraph'  => [
+				'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
+				'core/paragraph' => [
 					'color' => [
 						'text'    => true,
 						'palette' => [
@@ -59,8 +59,8 @@ class NestedGovernanceProcessingTest extends TestCase {
 		$expected_settings = [
 			'settings' => [
 				'core/media-text' => [
-					'allowedChildren' => [ 'core/paragraph', 'core/heading', 'core/image' ],
-					'core/heading'    => [
+					'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
+					'core/heading'  => [
 						'color' => [
 							'text'    => true,
 							'palette' => [
@@ -76,8 +76,8 @@ class NestedGovernanceProcessingTest extends TestCase {
 					],
 				],
 				'core/quote'      => [
-					'allowedChildren' => [ 'core/paragraph', 'core/heading' ],
-					'core/paragraph'  => [
+					'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
+					'core/paragraph' => [
 						'color' => [
 							'text'    => true,
 							'palette' => [

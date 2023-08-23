@@ -102,7 +102,7 @@ class RulesParser {
 	 */
 	private static function validate_rule_logic( $rules_parsed ) {
 		if ( ! isset( $rules_parsed['version'] ) || WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION !== $rules_parsed['version'] ) {
-			/* translators: %s: Latest schema version, e.g. 0.1.0 */
+			/* translators: %s: Latest schema version, e.g. 0.2.0 */
 			$error_message = sprintf( __( 'Governance JSON should have a root-level "version" key set to "%s".', 'vip-governance' ), WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION );
 			return new WP_Error( 'logic-missing-version', $error_message );
 		} elseif ( ! isset( $rules_parsed['rules'] ) ) {

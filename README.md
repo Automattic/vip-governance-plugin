@@ -104,7 +104,7 @@ Rule's of the type `role` require an array of `roles` that will use this particu
 Each rule can have any one of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `lockBlocks`. If you do not want to enable these features, simply omit them from the array.
-- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json [as defined here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedChildren` to restrict nested blocks.
+- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json [as defined here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedBlocks` to restrict nested blocks.
 - `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor.
 
 The role specific rule will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties.
@@ -133,7 +133,7 @@ This is the default rule set used by the plugin.
 ```json
 {
   "$schema": "./governance-schema.json",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "rules": [
     {
       "type": "default",
@@ -162,7 +162,7 @@ This example focuses on restricting for all users, regardless of their role.
 ```json
 {
 	"$schema": "./governance-schema.json",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"rules": [
 		{
 			"type": "default",
@@ -250,7 +250,7 @@ This example focuses on restricting based on the user role.
 ```json
 {
   "$schema": "./governance-schema.json",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "rules": [
     {
       "type": "role",
@@ -259,7 +259,7 @@ This example focuses on restricting based on the user role.
       "allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
       "blockSettings": {
         "core/media-text": {
-          "allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
+          "allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
           "core/heading": {
             "color": {
               "text": true,
@@ -274,7 +274,7 @@ This example focuses on restricting based on the user role.
           }
         },
         "core/quote": {
-          "allowedChildren": [ "core/paragraph", "core/heading" ],
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],
           "core/paragraph": {
             "color": {
               "text": true,

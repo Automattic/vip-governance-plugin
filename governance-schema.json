@@ -27,7 +27,7 @@
 			"description": "Block settings for block or nested inner block types",
 			"type": "object",
 			"properties": {
-				"allowedChildren": {
+				"allowedBlocks": {
 					"$ref": "#/definitions/allowedBlocksArray"
 				}
 			},
@@ -38,7 +38,7 @@
 			}
 		},
 		"ruleBlockSettingsProperties": {
-			"description": "Theme.json block settings for this rule. Allows block nesting and allowedChildren array.",
+			"description": "Theme.json block settings for this rule. Allows block nesting and allowedBlocks array.",
 			"type": "object",
 			"patternProperties": {
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
@@ -54,7 +54,7 @@
 						}
 					},
 					"core/quote": {
-						"allowedChildren": [ "core/paragraph", "core/heading" ]
+						"allowedBlocks": [ "core/paragraph", "core/heading" ]
 					},
 					"core/media-text": {
 						"core/heading": {
@@ -128,7 +128,7 @@
 		"version": {
 			"description": "Version of governance JSON",
 			"type": "string",
-			"enum": [ "0.1.0" ]
+			"enum": [ "0.2.0" ]
 		},
 		"rules": {
 			"description": "Array of governance rules",
