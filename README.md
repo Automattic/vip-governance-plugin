@@ -26,6 +26,8 @@ We consider two dimensions:
     - [Sample Rules](#sample-rules)
         - [Default](#default)
         - [Restrictions](#restrictions)
+          - [Default Restriction Example](#default-restriction-example)
+          - [User Role Specific Restriction Example](#user-role-restriction-example)
 - [Code Filters](#code-filters)
     - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
     - [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
@@ -118,7 +120,7 @@ The role specific rule will be merged with the default rule. This is done intent
 
 - Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
 
-- Support for `colors.duotone` and `spacing` has not been implemented yet.
+- Support for `colors.duotone` has not been implemented.
 
 ### Sample Rules
 
@@ -151,7 +153,99 @@ With this rule set, the following rules will apply:
 
 #### Restrictions
 
-This is an example in which we want to apply different restrictions based on user role. This will include restrictions on features available in the block editor, the blocks available, and what style controls are available.
+There are 2 examples below that show how different restrictions can be set. This will include restrictions on features available in the block editor, the blocks available, and what style controls are available.
+
+##### Default Restriction Example
+
+This example focuses on restricting for all users, regardless of their role.
+
+```json
+{
+	"$schema": "./governance-schema.json",
+	"version": "0.1.0",
+	"rules": [
+		{
+			"type": "default",
+			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
+			"allowedBlocks": [ "*" ],
+			"blockSettings": {
+        "core/group": {
+					"spacing": {
+						"spacingSizes": [
+							{
+								"size": "clamp(2.5rem, 6vw, 3rem)",
+								"slug": "300",
+								"name": "12"
+							}
+						],
+					},
+        },
+				"core/heading": {
+					"color": {
+						"palette": [
+							{
+								"color": "#ff0000",
+								"name": "Custom red",
+								"slug": "custom-red"
+							},
+							{
+								"color": "#00FF00",
+								"name": "Custom green",
+								"slug": "custom-green"
+							},
+							{
+								"color": "#FFFF00",
+								"name": "Custom yellow",
+								"slug": "custom-yellow"
+							}
+						],
+						"gradients": [
+							{
+								"slug": "vertical-red-to-green",
+								"gradient": "linear-gradient(to bottom,var(--wp--preset--color--custom-red) 0%,var(--wp--preset--color--custom-green) 100%)",
+								"name": "Vertical red to green"
+							}
+						]
+					},
+					"typography": {
+						"fontFamilies": [
+							{
+								"fontFamily": "Consolas, Fira Code, monospace",
+								"slug": "code-font",
+								"name": "Code Font"
+							}
+						],
+						"fontSizes": [
+							{
+								"name": "Large",
+								"size": "2.75rem",
+								"slug": "large"
+							},
+							{
+								"name": "X-Large",
+								"size": "3.75rem",
+								"slug": "x-large"
+							}
+						]
+					}
+				}
+			}
+		}
+	]
+}
+```
+
+With this rule set, the following rules will apply:
+
+- Default: Rules that apply to everyone as a baseline:
+    - All blocks are allowed.
+    - The code editor is accessible, and blocks can be locked/unlocked or moved.
+    - For a heading at the root level, there are 3 custom colours as well as a custom gradient that will show up in the color palette. In addition, a custom font called Code Font as well as 2 custom font sizes will show up in the typography panel.
+    - For a group block, there will be a only one option for a spacing size available in padding/margin and block spacing.
+
+##### User Role Restriction Example
+
+This example focuses on restricting based on the user role.
 
 ```json
 {
@@ -233,7 +327,7 @@ With this rule set, the following rules will apply:
     - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
     - The code editor is accessible.
     - Blocks can be locked, unlocked and moved.
-
+  
 ## Code Filters
 
 There are filters in place, that can be applied to change the behaviour for what's allowed and what's not allowed.

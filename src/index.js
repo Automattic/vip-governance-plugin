@@ -99,7 +99,7 @@ function setup() {
 
 			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
-			return result;
+			return result.theme ? result.theme : result;
 		}
 	);
 
