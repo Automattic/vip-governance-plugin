@@ -4,14 +4,12 @@
 
 # VIP Governance plugin
 
-This WordPress plugin enables additional governance capabilities to the block editor.
-
-We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severly limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
-
-We consider two dimensions:
+This WordPress plugin enables additional governance capabilities to the block editor. This is accomplished via two dimensions:
 
 - Insertion: restricts what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced they would not be permitted.
 - Interaction: This adds the ability to control the styling available for blocks at any level.
+
+We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severly limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
 
 ## Table of contents
 
@@ -20,14 +18,14 @@ We consider two dimensions:
     - [Install via ZIP file](#install-via-zip-file)
     - [Plugin activation](#plugin-activation)
 - [Usage](#usage)
-    - [Your First Rule](#your-first-rule)
     - [Schema Basics](#schema-basics)
-        - [Limitations](#limitations)
-    - [Sample Rules](#sample-rules)
-        - [Default](#default)
-        - [Restrictions](#restrictions)
+    - [Your First Rule](#your-first-rule)
+    - [Examples](#examples)
+        - [Default Rule Set](#default-rule-set)
+        - [Restrictive Rule Sets](#restrictive-rule-sets)
           - [Default Restriction Example](#default-restriction-example)
           - [User Role Specific Restriction Example](#user-role-restriction-example)
+    - [Limitations](#limitations)
 - [Code Filters](#code-filters)
     - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
     - [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
@@ -85,12 +83,6 @@ To activate the installed plugin:
 
 In order to start using this plugin, you'll need to create `governance-rules.json` in [your private folder][wpvip-private-dir].
 
-### Your First Rule
-
-Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. In order to use the rules schema for in-editor support, also duplicate the `governance-schema.json` into your private folder.
-
-This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
-
 ### Schema Basics
 
 You can find the schema definition that's used for the rules [here][repo-schema-location]. Including a schema entry in your rules will provide for code completion in most editors.
@@ -104,29 +96,22 @@ Rule's of the type `role` require an array of `roles` that will use this particu
 Each rule can have any one of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `lockBlocks`. If you do not want to enable these features, simply omit them from the array.
-- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json [as defined here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedBlocks` to restrict nested blocks.
+- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json under the key `blocks`. The definition for that, can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedBlocks` to restrict nested blocks.
 - `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor.
 
 The role specific rule will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties.
 
-#### Limitations
+### Your First Rule
 
-- We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
+Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. In order to use the rules schema for in-editor support, also duplicate the `governance-schema.json` into your private folder.
 
-    - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
-    - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
+This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
 
-    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
+### Examples
 
-- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
+Below are some examples of some rule sets that you can use to build your `governance-rules.json`.
 
-- Support for `color.duotone` has not been implemented.
-
-### Sample Rules
-
-Below are some examples of some rules that you can use to build your `governance-rules.json`.
-
-#### Default
+#### Default Rule Set
 
 This is the default rule set used by the plugin.
 
@@ -151,9 +136,9 @@ With this rule set, the following rules will apply:
 - The code editor is accessible for everyone.
 - Blocks can be locked and unlocked.
 
-#### Restrictions
+#### Restrictive Rule Sets
 
-There are 2 examples below that show how different restrictions can be set. This will include restrictions on features available in the block editor, the blocks available, and what style controls are available.
+There are 2 restrictive rule sets below, that will allow restrictions to be placed features available in the block editor, the blocks available, and what style controls are available.
 
 ##### Default Restriction Example
 
@@ -327,7 +312,20 @@ With this rule set, the following rules will apply:
     - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
     - The code editor is accessible.
     - Blocks can be locked, unlocked and moved.
-  
+
+### Limitations
+
+- We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
+
+    - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
+    - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
+
+    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
+
+- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
+
+- Support for `color.duotone` has not been implemented.
+
 ## Code Filters
 
 There are filters in place, that can be applied to change the behaviour for what's allowed and what's not allowed.
@@ -479,12 +477,24 @@ composer install --no-dev
 
 ### Tests
 
-We currently have unit tests covering php side of the plugin. Run these tests locally with [`wp-env`][wp-env] and Docker:
+We currently have unit, and e2e test to ensure thorough code coverage of the plugin. These tests can be run locally with [`wp-env`][wp-env] and Docker.
+
+For the unit tests:
 
 ```
 wp-env start
 composer install
 composer run test
+```
+
+For the e2e tests:
+
+```
+wp-env start
+composer install
+npm install
+npx playwright install chromium --with-deps
+npx playwright test
 ```
 
 <!-- Links -->
