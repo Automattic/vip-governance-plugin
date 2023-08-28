@@ -1,3 +1,5 @@
+import { getNestedSetting } from './nested-governance-loader';
+
 /**
  * Given a block name, a parent list and a set of governance rules, determine if
  * the block can be inserted.
@@ -17,26 +19,22 @@
  * @returns True if the block is allowed in set of parent blocks, or false otherwise.
  */
 export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules ) {
-	if ( parentBlockNames.length > 0 ) {
-		// If the block is being inserted into a parent, check this block against the parent type.
+	// Only execute this if we know we have blockSettings to check against.
+	if ( governanceRules.blockSettings && parentBlockNames.length > 0 ) {
+		// Get the child block's parent block settings at whatever depth its located at.
+		const nestedSetting = getNestedSetting(
+			parentBlockNames.reverse(),
+			'allowedBlocks',
+			governanceRules.blockSettings
+		);
 
-		// Todo: Recurse into parent hierarchy. Only checks rules for the parent block now.
-		const parentBlockName = parentBlockNames[ 0 ];
-		const hasParentRule =
-			governanceRules.blockSettings &&
-			governanceRules.blockSettings[ String( parentBlockName ) ] &&
-			governanceRules.blockSettings[ String( parentBlockName ) ].allowedBlocks;
-
-		if ( hasParentRule ) {
-			const parentAllowedChildren =
-				governanceRules.blockSettings[ String( parentBlockName ) ].allowedBlocks;
-
-			return isBlockAllowedByBlockRegexes( blockName, parentAllowedChildren );
+		// If we found the allowedBlocks for the parent block, check if the child block is allowed.
+		if ( nestedSetting && nestedSetting.value ) {
+			return isBlockAllowedByBlockRegexes( blockName, nestedSetting.value );
 		}
 	}
 
-	// If there is no parent block to match for rules, or the block is being inserted
-	// at the root level, match against the root level rules for this role.
+	// If no parent block was found for the provided block, check against the root level rules.
 	return isBlockAllowedByBlockRegexes( blockName, governanceRules.allowedBlocks );
 }
 
