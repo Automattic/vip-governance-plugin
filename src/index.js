@@ -86,7 +86,7 @@ function setup() {
 				// eslint-disable-next-line security/detect-object-injection
 				nestedSettingPaths[ blockName ][ path ] === true;
 
-			if ( result !== undefined || ! hasCustomSetting ) {
+			if ( ! hasCustomSetting ) {
 				return result;
 			}
 
@@ -99,7 +99,7 @@ function setup() {
 
 			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
-			return result;
+			return result.theme ? result.theme : result;
 		}
 	);
 

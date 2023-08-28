@@ -3,11 +3,11 @@
  * the block can be inserted.
  *
  * By default, will return if the block is allowed to be inserted at the root level
- * per the user's rules. If a parent block contains a rule for allowedChildren,
+ * per the user's rules. If a parent block contains a rule for allowedBlocks,
  * the function will return if the block is allowed as a child of that parent.
  *
- * Rules declared in allowedChildren will override root level rules when the block
- * is currently a child of the parent with allowedChildren.
+ * Rules declared in allowedBlocks will override root level rules when the block
+ * is currently a child of the parent with allowedBlocks.
  *
  * @param {string}   blockName        The current block's name.
  * @param {string[]} parentBlockNames A list of zero or more parent block names,
@@ -25,11 +25,11 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 		const hasParentRule =
 			governanceRules.blockSettings &&
 			governanceRules.blockSettings[ String( parentBlockName ) ] &&
-			governanceRules.blockSettings[ String( parentBlockName ) ].allowedChildren;
+			governanceRules.blockSettings[ String( parentBlockName ) ].allowedBlocks;
 
 		if ( hasParentRule ) {
 			const parentAllowedChildren =
-				governanceRules.blockSettings[ String( parentBlockName ) ].allowedChildren;
+				governanceRules.blockSettings[ String( parentBlockName ) ].allowedBlocks;
 
 			return isBlockAllowedByBlockRegexes( blockName, parentAllowedChildren );
 		}

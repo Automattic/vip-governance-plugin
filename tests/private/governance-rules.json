@@ -1,6 +1,6 @@
 {
 	"$schema": "../governance-schema.json",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"rules": [
 		{
 			"type": "role",
@@ -9,7 +9,7 @@
 			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
 			"blockSettings": {
 				"core/media-text": {
-					"allowedChildren": [ "core/paragraph", "core/heading", "core/image" ],
+					"allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
 					"core/heading": {
 						"color": {
 							"text": true,
@@ -24,7 +24,7 @@
 					}
 				},
 				"core/quote": {
-					"allowedChildren": [ "core/paragraph", "core/heading" ],
+					"allowedBlocks": [ "core/paragraph", "core/heading" ],
 					"core/paragraph": {
 						"color": {
 							"text": true,

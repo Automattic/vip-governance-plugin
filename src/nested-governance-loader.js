@@ -5,7 +5,7 @@ export const getNestedSettingPaths = (
 	nestedMetadata = {},
 	currentBlock = false
 ) => {
-	const SETTINGS_TO_SKIP = [ 'allowedBlocks', 'allowedChildren' ];
+	const SETTINGS_TO_SKIP = [ 'allowedBlocks' ];
 	for ( const [ settingKey, settingValue ] of Object.entries( nestedSettings ) ) {
 		if ( SETTINGS_TO_SKIP.includes( settingKey ) ) {
 			continue;
