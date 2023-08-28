@@ -322,8 +322,6 @@ With this rule set, the following rules will apply:
 
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
 
-- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
-
 - Support for `color.duotone` has not been implemented.
 
 ## Code Filters
