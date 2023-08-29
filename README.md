@@ -29,6 +29,7 @@ We have approached this plugin from an opt-in standpoint. In other words, enabli
 - [Code Filters](#code-filters)
     - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
     - [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
+    - [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
     - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
@@ -322,8 +323,6 @@ With this rule set, the following rules will apply:
 
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
 
-- Currently, this plugin does not support disabling child blocks nested inside a parent. The plugin will prevent you from inserting additional blocks, but existing blocks in existing content will not be removed or restricted.
-
 - Support for `color.duotone` has not been implemented.
 
 ## Code Filters
@@ -408,6 +407,30 @@ addFilter(
         return isAllowed;
     }
 );
+```
+
+### `vip_governance__is_block_allowed_in_hierarchy`
+
+Select the mode that's used for determing if a block should be allowed or not, between cascading and restrictive. Cascading works similar to CSS in that, the rules of the parent are looked up first followed by the root level rules for determing if the block is to be allowed or not. On the other hand, restrictive only looks up the rules under the parent. If there are no rules under a parent, or a block is not allowed under a parent then that block cannot be inserted. Cascading allows for a simpler a rule file since there would be no execessive repetition of blocks under a parent. Restrictive does result in more repetiton in the rules file, but it results in a more locked down editor experience. By default, the filter is set to cascading mode. Note that, you have access to the parent block names, block name and the governance rules in order to decide what mode should be used. So you can fine tune the mode based on any of these values.
+
+```js
+/**
+ * Select the mode used to determine if a block should be allowed or not, between cascading and restrictive.
+ *
+ * @param {bool}                      True, if cascading mode is to be used or false if restrictive is to be used.
+ * @param {string}   blockName        The name of the block to be edited.
+ * @param {string[]} parentBlockNames An array of zero or more parent block names,
+ *                                    starting with the most recent parent ancestor.
+ * @param {Object}   governanceRules  An object containing the full set of governance
+ *                                    rules for the current user.
+ */
+	applyFilters(
+		'vip_governance__is_block_allowed_in_hierarchy',
+		true,
+		blockName,
+		parentBlockNames,
+		governanceRules
+	);
 ```
 
 ## Admin Settings
