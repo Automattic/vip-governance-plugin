@@ -31,7 +31,7 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 	// Filter to decide if the mode should be cascading or restrictive, where true is cascading and false is restrictive.
 	const isInCascadingMode = applyFilters(
 		'vip_governance__is_block_allowed_in_hierarchy',
-		false,
+		true,
 		blockName,
 		parentBlockNames,
 		governanceRules
