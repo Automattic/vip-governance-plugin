@@ -500,14 +500,21 @@ composer install --no-dev
 
 ### Tests
 
-We currently have unit, and e2e test to ensure thorough code coverage of the plugin. These tests can be run locally with [`wp-env`][wp-env] and Docker.
+We currently have unit, and e2e tests to ensure thorough code coverage of the plugin. These tests can be run locally with [`wp-env`][wp-env] and Docker.
 
-For the unit tests:
+For the PHP unit tests:
 
 ```
 wp-env start
 composer install
 composer run test
+```
+
+For the JS unit tests:
+
+```
+npm install
+npm run test:js
 ```
 
 For the e2e tests:
