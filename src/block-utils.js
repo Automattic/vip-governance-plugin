@@ -41,8 +41,8 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 	const blocksAllowedToBeInserted =
 		isInCascadingMode || parentBlockNames.length === 0 ? [ ...governanceRules.allowedBlocks ] : [];
 
-	// Only execute this if we know we have blockSettings to check against.
-	if ( governanceRules.blockSettings && parentBlockNames.length > 0 ) {
+	// Only execute this if we are determining the block under a parent.
+	if ( parentBlockNames.length > 0 ) {
 		// Shortcircuit the parent-child hierarchy for some core blocks
 		if (
 			DEFAULT_CORE_BLOCK_LIST[ parentBlockNames[ 0 ] ] &&
@@ -51,16 +51,19 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 			return true;
 		}
 
-		// Get the child block's parent block settings at whatever depth its located at.
-		const nestedSetting = getNestedSetting(
-			parentBlockNames.reverse(),
-			'allowedBlocks',
-			governanceRules.blockSettings
-		);
+		// Only do a search if there are block settings to search through.
+		if ( governanceRules.blockSettings ) {
+			// Get the child block's parent block settings at whatever depth its located at.
+			const nestedSetting = getNestedSetting(
+				parentBlockNames.reverse(),
+				'allowedBlocks',
+				governanceRules.blockSettings
+			);
 
-		// If we found the allowedBlocks for the parent block, add that to the array of blocks that can be inserted.
-		if ( nestedSetting && nestedSetting.value ) {
-			blocksAllowedToBeInserted.push( ...nestedSetting.value );
+			// If we found the allowedBlocks for the parent block, add that to the array of blocks that can be inserted.
+			if ( nestedSetting && nestedSetting.value ) {
+				blocksAllowedToBeInserted.push( ...nestedSetting.value );
+			}
 		}
 	}
 
