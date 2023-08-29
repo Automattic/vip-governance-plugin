@@ -19,6 +19,18 @@ describe( 'blockUtils', () => {
 			expect( result ).toBe( true );
 		} );
 
+		it( 'should return true if the child block is allowed in the hierarchy for cascading mode with no blockSettings', () => {
+			const blockName = 'core/heading';
+			const parentBlockNames = [ 'core/media-text' ];
+			const governanceRules = {
+				allowedBlocks: [ 'core/heading', 'core/paragraph' ],
+			};
+
+			const result = isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules );
+
+			expect( result ).toBe( true );
+		} );
+
 		it( 'should return true if the root block is allowed in the hierarchy for cascading mode', () => {
 			const blockName = 'core/heading';
 			const parentBlockNames = [];
