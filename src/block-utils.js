@@ -1,4 +1,13 @@
+import { applyFilters } from '@wordpress/hooks';
 import { getNestedSetting } from './nested-governance-loader';
+
+// The list of default core blocks that should be allowed to be inserted, in order to make life easier.
+const DEFAULT_CORE_BLOCK_LIST = {
+	'core/list': [ 'core/list-item' ],
+	'core/columns': [ 'core/column' ],
+	'core/page-list': [ 'core/page-list-item' ],
+	'core/navigation': [ 'core/navigation-link', 'core/navigation-submenu' ],
+};
 
 /**
  * Given a block name, a parent list and a set of governance rules, determine if
@@ -19,8 +28,29 @@ import { getNestedSetting } from './nested-governance-loader';
  * @returns True if the block is allowed in set of parent blocks, or false otherwise.
  */
 export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules ) {
+	// Filter to decide if the mode should be cascading or restrictive, where true is cascading and false is restrictive.
+	const isInCascadingMode = applyFilters(
+		'vip_governance__is_block_allowed_in_hierarchy',
+		false,
+		blockName,
+		parentBlockNames,
+		governanceRules
+	);
+
+	// Build the blocks that are allowed using the root level blocks for cascading mode or if no parent has been past, or empty otherwise.
+	const blocksAllowedToBeInserted =
+		isInCascadingMode || parentBlockNames.length === 0 ? [ ...governanceRules.allowedBlocks ] : [];
+
 	// Only execute this if we know we have blockSettings to check against.
 	if ( governanceRules.blockSettings && parentBlockNames.length > 0 ) {
+		// Shortcircuit the parent-child hierarchy for some core blocks
+		if (
+			DEFAULT_CORE_BLOCK_LIST[ parentBlockNames[ 0 ] ] &&
+			DEFAULT_CORE_BLOCK_LIST[ parentBlockNames[ 0 ] ].includes( blockName )
+		) {
+			return true;
+		}
+
 		// Get the child block's parent block settings at whatever depth its located at.
 		const nestedSetting = getNestedSetting(
 			parentBlockNames.reverse(),
@@ -28,14 +58,14 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 			governanceRules.blockSettings
 		);
 
-		// If we found the allowedBlocks for the parent block, check if the child block is allowed.
+		// If we found the allowedBlocks for the parent block, add that to the array of blocks that can be inserted.
 		if ( nestedSetting && nestedSetting.value ) {
-			return isBlockAllowedByBlockRegexes( blockName, nestedSetting.value );
+			blocksAllowedToBeInserted.push( ...nestedSetting.value );
 		}
 	}
 
-	// If no parent block was found for the provided block, check against the root level rules.
-	return isBlockAllowedByBlockRegexes( blockName, governanceRules.allowedBlocks );
+	// Check if the block is allowed using the array of blocks that can be inserted.
+	return isBlockAllowedByBlockRegexes( blockName, blocksAllowedToBeInserted );
 }
 
 /**
