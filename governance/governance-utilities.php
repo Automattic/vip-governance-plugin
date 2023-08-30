@@ -68,6 +68,24 @@ class GovernanceUtilities {
 	 * @access private
 	 */
 	public static function get_rules_for_user( $governance_rules, $user_roles = [] ) {
+		$rules_priority    = [ 'postType', 'role' ];
+		$type_to_rules_map = [
+			'role'     => 'roles',
+			'postType' => 'postTypes',
+		];
+
+		/**
+		 * Filter the priority of the rules.
+		 * 
+		 * Default is [ 'postType', 'role' ], which means that role type rules will override the postType rules.
+		 * 
+		 * @param array $rules_priority Priority of the rules.
+		 */
+		$rules_priority = apply_filters( 'vip_governance__get_priority_for_rules', $rules_priority );
+
+		// The default rule should always be at the bottom of the priority ladder.
+		array_unshift( $rules_priority, 'default' );
+
 		if ( empty( $governance_rules ) ) {
 			return array();
 		}
@@ -77,15 +95,35 @@ class GovernanceUtilities {
 			$user_roles   = $current_user->roles;
 		}
 
+		if ( empty( $post_type ) ) {
+			$post_type = get_post_type();
+		}
+
 		$allowed_features = array();
 		$allowed_blocks   = array();
 		$block_settings   = array();
 
-		foreach ( $governance_rules as $rule ) {
-			if ( isset( $rule['type'] ) && ( ( 'role' === $rule['type'] && isset( $rule['roles'] ) && array_intersect( $user_roles, $rule['roles'] ) ) || 'default' === $rule['type'] ) ) {
-				$allowed_blocks   = isset( $rule['allowedBlocks'] ) ? [ ...$allowed_blocks, ...$rule['allowedBlocks'] ] : $allowed_blocks;
-				$block_settings   = isset( $rule['blockSettings'] ) ? array_merge_recursive( $block_settings, $rule['blockSettings'] ) : $block_settings;
-				$allowed_features = isset( $rule['allowedFeatures'] ) ? [ ...$allowed_features, ...$rule['allowedFeatures'] ] : $allowed_features;
+		foreach ( $rules_priority as $priority ) {
+			// look up the rule in $governance_rules where the field type matches priority.
+			$governance_rules_for_priority = array_filter( $governance_rules, function( $rule ) use ( $priority, $user_roles, $post_type, $type_to_rules_map ) {
+				if ( isset( $rule['type'] ) && $priority === $rule['type'] && ( 'default' === $priority || isset( $rule[ $type_to_rules_map[ $priority ] ] ) ) ) {
+					if ( 'default' === $priority ) {
+						return true;
+					} elseif ( 'role' === $priority ) {
+						return array_intersect( $user_roles, $rule['roles'] );
+					} elseif ( 'postType' === $priority ) {
+						return in_array( $post_type, $rule['postTypes'], true );
+					}
+				}
+				
+				return false;
+			} );
+
+			if ( ! empty( $governance_rules_for_priority ) ) {
+				$governance_rules_for_priority = array_values( $governance_rules_for_priority );
+				$allowed_blocks                = isset( $governance_rules_for_priority[0]['allowedBlocks'] ) ? [ ...$allowed_blocks, ...$governance_rules_for_priority[0]['allowedBlocks'] ] : $allowed_blocks;
+				$block_settings                = isset( $governance_rules_for_priority[0]['blockSettings'] ) ? array_merge_recursive( $block_settings, $governance_rules_for_priority[0]['blockSettings'] ) : $block_settings;
+				$allowed_features              = isset( $governance_rules_for_priority[0]['allowedFeatures'] ) ? [ ...$allowed_features, ...$governance_rules_for_priority[0]['allowedFeatures'] ] : $allowed_features;
 			}
 		}
 
@@ -96,4 +134,5 @@ class GovernanceUtilities {
 			'allowedFeatures' => $allowed_features,
 		);
 	}
+
 }

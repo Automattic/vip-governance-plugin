@@ -17,7 +17,7 @@ use Seld\JsonLint\ParsingException;
  * Class for parsing and validating governance rules. 
  */
 class RulesParser {
-	private const RULE_TYPES        = [ 'default', 'role' ];
+	private const RULE_TYPES        = [ 'default', 'role', 'postType' ];
 	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
 
 	/**
