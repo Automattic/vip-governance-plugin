@@ -19,9 +19,9 @@ class GovernanceUtilitiesTest extends TestCase {
 		$expected_rules = [
 			'allowedBlocks'   => [
 				'core/media-text',
-				'core/image',
 				'core/heading',
-				'core/paragraph', 
+				'core/paragraph',
+				'core/image',
 			],
 			'allowedFeatures' => [
 				'codeEditor',
@@ -67,7 +67,8 @@ class GovernanceUtilitiesTest extends TestCase {
 		$expected_rules = [
 			'allowedBlocks'   => [
 				'core/heading',
-				'core/paragraph', 
+				'core/paragraph',
+				'core/image',
 			],
 			'allowedFeatures' => [],
 			'blockSettings'   => [
@@ -95,9 +96,9 @@ class GovernanceUtilitiesTest extends TestCase {
 		$expected_rules = [
 			'allowedBlocks'   => [
 				'core/quote',
-				'core/image',
 				'core/heading',
-				'core/paragraph', 
+				'core/paragraph',
+				'core/image',
 			],
 			'allowedFeatures' => [
 				'lockBlocks',
@@ -132,7 +133,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 		];
 
-		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), 'post' );
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [], 'post' );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
@@ -141,7 +142,8 @@ class GovernanceUtilitiesTest extends TestCase {
 		$expected_rules = [
 			'allowedBlocks'   => [
 				'core/heading',
-				'core/paragraph', 
+				'core/paragraph',
+				'core/image',
 			],
 			'allowedFeatures' => [],
 			'blockSettings'   => [
@@ -160,7 +162,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 		];
 
-		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'page' ] );
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [], 'page' );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
@@ -202,7 +204,7 @@ class GovernanceUtilitiesTest extends TestCase {
 				'allowedBlocks'   => [
 					'core/quote',
 				],
-				'roles'           => [
+				'postTypes'       => [
 					'post',
 				],
 				'allowedFeatures' => [
@@ -230,6 +232,7 @@ class GovernanceUtilitiesTest extends TestCase {
 				'allowedBlocks' => [
 					'core/heading',
 					'core/paragraph',
+					'core/image',
 				],
 				'blockSettings' => [
 					'core/heading' => [
