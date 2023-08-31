@@ -83,8 +83,14 @@ class GovernanceUtilities {
 		 */
 		$rules_priority = apply_filters( 'vip_governance__get_priority_for_rules', $rules_priority );
 
-		// The default rule should always be at the bottom of the priority ladder.
-		array_unshift( $rules_priority, 'default' );
+		// Remove the default value from the array in case it's added by the filter, just for safety reasons.
+		$default_key = array_search( 'default', $rules_priority );
+		if ( false !== $default_key ) {
+			unset( $rules_priority[ $default_key ] );
+		}
+
+		// Actually push the default value to the array but at the very end.
+		array_push( $rules_priority, 'default' );
 
 		if ( empty( $governance_rules ) ) {
 			return array();
@@ -103,6 +109,7 @@ class GovernanceUtilities {
 		$allowed_blocks   = array();
 		$block_settings   = array();
 
+		// Assumption is that it's been ordered by priority, so it will process those rules first followed by default last.
 		foreach ( $rules_priority as $priority ) {
 			// look up the rule in $governance_rules where the field type matches priority.
 			$governance_rules_for_priority = array_filter( $governance_rules, function( $rule ) use ( $priority, $user_roles, $post_type, $type_to_rules_map ) {
@@ -121,9 +128,9 @@ class GovernanceUtilities {
 
 			if ( ! empty( $governance_rules_for_priority ) ) {
 				$governance_rules_for_priority = array_values( $governance_rules_for_priority );
-				$allowed_blocks                = isset( $governance_rules_for_priority[0]['allowedBlocks'] ) ? [ ...$allowed_blocks, ...$governance_rules_for_priority[0]['allowedBlocks'] ] : $allowed_blocks;
-				$block_settings                = isset( $governance_rules_for_priority[0]['blockSettings'] ) ? array_merge_recursive( $block_settings, $governance_rules_for_priority[0]['blockSettings'] ) : $block_settings;
-				$allowed_features              = isset( $governance_rules_for_priority[0]['allowedFeatures'] ) ? [ ...$allowed_features, ...$governance_rules_for_priority[0]['allowedFeatures'] ] : $allowed_features;
+				$allowed_blocks                = isset( $governance_rules_for_priority[0]['allowedBlocks'] ) ? ( 'default' === $priority ? [ ...$allowed_blocks, ...$governance_rules_for_priority[0]['allowedBlocks'] ] : $governance_rules_for_priority[0]['allowedBlocks'] ) : $allowed_blocks;
+				$block_settings                = isset( $governance_rules_for_priority[0]['blockSettings'] ) ? ( 'default' === $priority ? array_merge_recursive( $block_settings, $governance_rules_for_priority[0]['blockSettings'] ) : $governance_rules_for_priority[0]['blockSettings'] ) : $block_settings;
+				$allowed_features              = isset( $governance_rules_for_priority[0]['allowedFeatures'] ) ? ( 'default' === $priority ? [ ...$allowed_features, ...$governance_rules_for_priority[0]['allowedFeatures'] ] : $governance_rules_for_priority[0]['allowedFeatures'] ) : $allowed_features;
 			}
 		}
 
