@@ -378,6 +378,7 @@ This example focuses on restricting based on the post type.
 		}
 	]
 }
+```
 
 With this rule set, the following rules will apply:
 
