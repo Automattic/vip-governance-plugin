@@ -103,6 +103,7 @@ class Settings {
 	 * @access private
 	 */
 	public static function render() {
+		$post_types_available  = get_post_types();
 		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
 		$governance_rules      = GovernanceUtilities::get_parsed_governance_rules();

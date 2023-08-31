@@ -6,7 +6,7 @@
 		if ( roleSelector && roleSelector.value && window.wp && window.wp.apiRequest ) {
 			document.querySelector( '.vip-governance-role-query-spinner' ).classList.add( 'is-active' );
 			window.wp
-				.apiRequest( { path: `/vip-governance/v1/${ roleSelector.value }/rules` } )
+				.apiRequest( { path: `/vip-governance/v1/rules?role=${ roleSelector.value }` } )
 				.done( rules => {
 					const rulesPrefix = '"' + roleSelector.value + '": ';
 					document.getElementById( 'json' ).textContent =
