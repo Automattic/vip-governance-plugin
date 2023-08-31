@@ -99,7 +99,8 @@ function setup() {
 
 			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
-			return result.theme ? result.theme : result;
+			// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+			return result && result.theme ? result.theme : result;
 		}
 	);
 

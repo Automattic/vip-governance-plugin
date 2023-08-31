@@ -3,7 +3,7 @@
         'name' => 'automattic/vip-governance',
         'pretty_version' => 'dev-trunk',
         'version' => 'dev-trunk',
-        'reference' => '9d45ddf0dbf4f6b7f17b3f78f373ac0e57120f91',
+        'reference' => '484dccc9284fc343181058f002368bcc09a37b6d',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'automattic/vip-governance' => array(
             'pretty_version' => 'dev-trunk',
             'version' => 'dev-trunk',
-            'reference' => '9d45ddf0dbf4f6b7f17b3f78f373ac0e57120f91',
+            'reference' => '484dccc9284fc343181058f002368bcc09a37b6d',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
