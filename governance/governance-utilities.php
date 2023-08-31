@@ -15,6 +15,7 @@ use WP_Error;
  * Utilities class that has helper functions for processing the governance rules.
  */
 class GovernanceUtilities {
+
 	/**
 	 * Retrieve parsed governance rules from the private directory, or the plugin directory if not found.
 	 *
@@ -58,40 +59,19 @@ class GovernanceUtilities {
 	}
 
 	/**
-	 * Get the rules for the current user, using the "default" rules as a fallback.
+	 * Get the rules using the provided type.
+	 * 
+	 * The default rule is the base upon which the other rules are built. Currently, that's postType and role.
 	 *
 	 * @param array $governance_rules Governance rules, not filtered based on the user role.
 	 * @param array $user_roles User roles for the current WP site.
+	 * @param array $post_type Post type for the current post.
 	 * 
-	 * @return array Governance rules, filtered by the matching user role.
+	 * @return array Governance rules, filtered by the matching user role or post type.
 	 * 
 	 * @access private
 	 */
-	public static function get_rules_for_user( $governance_rules, $user_roles = [] ) {
-		$rules_priority    = [ 'postType', 'role' ];
-		$type_to_rules_map = [
-			'role'     => 'roles',
-			'postType' => 'postTypes',
-		];
-
-		/**
-		 * Filter the priority of the rules.
-		 * 
-		 * Default is [ 'postType', 'role' ], which means that role type rules will override the postType rules.
-		 * 
-		 * @param array $rules_priority Priority of the rules.
-		 */
-		$rules_priority = apply_filters( 'vip_governance__get_priority_for_rules', $rules_priority );
-
-		// Remove the default value from the array in case it's added by the filter, just for safety reasons.
-		$default_key = array_search( 'default', $rules_priority );
-		if ( false !== $default_key ) {
-			unset( $rules_priority[ $default_key ] );
-		}
-
-		// Actually push the default value to the array but at the very end.
-		array_push( $rules_priority, 'default' );
-
+	public static function get_rules_by_type( $governance_rules, $user_roles = [], $post_type = '' ) {
 		if ( empty( $governance_rules ) ) {
 			return array();
 		}
@@ -109,8 +89,11 @@ class GovernanceUtilities {
 		$allowed_blocks   = array();
 		$block_settings   = array();
 
+		// Because PHP doesn't allow passing this in directly.
+		$type_to_rules_map = RulesParser::TYPE_TO_RULES_MAP;
+
 		// Assumption is that it's been ordered by priority, so it will process those rules first followed by default last.
-		foreach ( $rules_priority as $priority ) {
+		foreach ( RulesParser::RULE_TYPES as $priority ) {
 			// look up the rule in $governance_rules where the field type matches priority.
 			$governance_rules_for_priority = array_filter( $governance_rules, function( $rule ) use ( $priority, $user_roles, $post_type, $type_to_rules_map ) {
 				if ( isset( $rule['type'] ) && $priority === $rule['type'] && ( 'default' === $priority || isset( $rule[ $type_to_rules_map[ $priority ] ] ) ) ) {

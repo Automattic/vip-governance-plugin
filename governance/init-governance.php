@@ -115,7 +115,7 @@ class InitGovernance {
 			if ( is_wp_error( $parsed_governance_rules ) ) {
 				$governance_error = __( 'Governance rules could not be loaded.' );
 			} else {
-				$governance_rules_for_user = GovernanceUtilities::get_rules_for_user( $parsed_governance_rules );
+				$governance_rules_for_user = GovernanceUtilities::get_rules_by_type( $parsed_governance_rules );
 				$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 				$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 				BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );

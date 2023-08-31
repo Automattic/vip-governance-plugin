@@ -145,7 +145,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 		];
 
-		$result = GovernanceUtilities::get_rules_for_user( $this->get_parsed_governance_rules(), [ 'administrator' ] );
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'administrator' ] );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
@@ -173,7 +173,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 		];
 
-		$result = GovernanceUtilities::get_rules_for_user( $this->get_parsed_governance_rules(), [ 'editor' ] );
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'editor' ] );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}

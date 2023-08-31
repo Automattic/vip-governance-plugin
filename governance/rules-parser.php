@@ -17,7 +17,13 @@ use Seld\JsonLint\ParsingException;
  * Class for parsing and validating governance rules. 
  */
 class RulesParser {
-	private const RULE_TYPES        = [ 'default', 'role', 'postType' ];
+	// Update this when the rules schema changes.
+	public const TYPE_TO_RULES_MAP = [
+		'role'     => 'roles',
+		'postType' => 'postTypes',
+	];
+	// Keep this order this way, as it's used for determing the priority of rules in governance-utilities.
+	public const RULE_TYPES         = [ 'postType', 'role', 'default' ];
 	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
 
 	/**
@@ -138,8 +144,8 @@ class RulesParser {
 					$error_message      = sprintf( __( 'Only one default rule is allowed, but the %s rule already contains a default rule.', 'vip-governance' ), $ordinal_formatter->format( $default_rule_index + 1 ) );
 					$verify_rule_result = new WP_Error( 'logic-rule-default-multiple', $error_message );
 				}
-			} elseif ( 'role' === $rule_type ) {
-				$verify_rule_result = self::verify_role_rule( $rule );
+			} else {
+				$verify_rule_result = self::verify_type_rule( $rule );
 			}
 
 			if ( is_wp_error( $verify_rule_result ) ) {
@@ -169,31 +175,40 @@ class RulesParser {
 			return new WP_Error( 'logic-rule-empty', $error_message );
 		}
 
-		if ( isset( $rule['roles'] ) ) {
-			return new WP_Error( 'logic-rule-default-roles', __( '"default"-type rule should not contain "roles" key. Default rules apply to all roles.', 'vip-governance' ), );
+		foreach ( self::TYPE_TO_RULES_MAP as $type => $types ) {
+			if ( isset( $rule[ $types ] ) ) {
+				/* translators: %s: Comma-separate list of valid rule keys */
+				$error_message = sprintf( __( '"default"-type rule should not contain "%1$s" key. Default rules apply to all %2$s.', 'vip-governance' ), $types, $type );
+				return new WP_Error( 'logic-rule-default-type', $error_message );
+			}
 		}
 
 		return true;
 	}
 
 	/**
-	 * Returns true if the given 'role'-type rule is valid, or a WP_Error otherwise.
+	 * Returns true if the given type rule is valid, or a WP_Error otherwise.
 	 *
 	 * @param array $rule Parsed rule.
 	 *
 	 * @return true|WP_Error
 	 */
-	private static function verify_role_rule( $rule ) {
-		if ( ! isset( $rule['roles'] ) || ! is_array( $rule['roles'] ) || empty( $rule['roles'] ) ) {
-			$error_message = __( "\"role\"-type rules require a \"roles\" key containing an array of applicable roles. e.g.\n\n\t\"roles\": [ \"administrator\", \"editor\" ]", 'vip-governance' );
-			return new WP_Error( 'logic-rule-role-missing-roles', $error_message );
+	private static function verify_type_rule( $rule ) {
+		$type_to_be_checked = self::TYPE_TO_RULES_MAP[ $rule['type'] ];
+
+		if ( ! isset( $rule[ $type_to_be_checked ] ) || ! is_array( $rule[ $type_to_be_checked ] ) || empty( $rule[ $type_to_be_checked ] ) ) {
+			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
+
+			/* translators: %s: Comma-separate list of valid rule keys */
+			$error_message = sprintf( __( '"%1$s"-type rules require a "%2$s" key containing an array of applicable "%3$s".', 'vip-governance' ), $rule['type'], $type_to_be_checked, $type_to_be_checked );
+			return new WP_Error( 'logic-rule-type-missing-valid-types', $error_message );
 		}
 
 		if ( count( $rule ) === 2 ) {
 			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
 
 			/* translators: %s: Comma-separate list of valid rule keys */
-			$error_message = sprintf( __( 'This rule doesn\'t apply any settings to the given roles. Add additional keys (%s) to make it functional.', 'vip-governance' ), $rule_keys );
+			$error_message = sprintf( __( 'This rule doesn\'t apply any settings to the given type. Add additional keys (%s) to make it functional.', 'vip-governance' ), $rule_keys );
 			return new WP_Error( 'logic-rule-empty', $error_message );
 		}
 

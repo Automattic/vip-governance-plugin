@@ -3,9 +3,60 @@
 	"version": "0.2.0",
 	"rules": [
 		{
-			"type": "default",
+			"type": "postType",
+			"postTypes": [ "post" ],
 			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "*" ]
+			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
+			"blockSettings": {
+				"core/media-text": {
+					"allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
+					"core/heading": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#ff0000",
+									"name": "Custom red",
+									"slug": "custom-red"
+								}
+							]
+						}
+					}
+				},
+				"core/quote": {
+					"allowedBlocks": [ "core/paragraph", "core/heading" ],
+					"core/paragraph": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#00FF00",
+									"name": "Custom green",
+									"slug": "custom-green"
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"type": "default",
+			"allowedBlocks": [ "core/heading", "core/paragraph" ],
+			"blockSettings": {
+				"core/heading": {
+					"color": {
+						"text": true,
+						"palette": [
+							{
+								"color": "#FFFF00",
+								"name": "Custom yellow",
+								"slug": "custom-yellow"
+							}
+						]
+					}
+				}
+			}
 		}
 	]
 }
