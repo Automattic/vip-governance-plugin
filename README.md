@@ -25,6 +25,7 @@ We have approached this plugin from an opt-in standpoint. In other words, enabli
         - [Restrictive Rule Sets](#restrictive-rule-sets)
           - [Default Restriction Example](#default-restriction-example)
           - [User Role Specific Restriction Example](#user-role-restriction-example)
+          - [Post Type Specific Restriction Example](#post-type-restriction-example)
     - [Limitations](#limitations)
 - [Code Filters](#code-filters)
     - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
@@ -90,9 +91,14 @@ You can find the schema definition that's used for the rules [here][repo-schema-
 
 We have allowed significant space for customization. Which means it is also possible to create unintented rule interactions. We recommend making rule changes one or two at a time to be able to best troubleshoot these interactions.
 
-Each rule is an object in an array. The one required property is `type` which can either be `default` or `role`. Your rules should only have one entry of the `default` type, as described above.
+Each rule is an object in an array. The one required property is `type` which can either be `default` or `role` or `postType`. Your rules should only have one entry of the `default` type, as described above.
 
-Rule's of the type `role` require an array of `roles` that will use this particular rule. These are the name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles.
+Rule's that are not of type `default` require an additional field to help use this particular rule. These are broken down below, along with examples of their possible values:
+
+| Rule Type     | Required Field| Possible Values     |
+| ------------- | ------------- | -------------       |
+| `role`  | `roles`  | name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles        |
+| `postType`  | `postTypes`  | name/slug of any [default][wp-default-post-types] or [custom][wp-custom-post-types] post types        |
 
 Each rule can have any one of the following properties.
 
@@ -100,13 +106,20 @@ Each rule can have any one of the following properties.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json under the key `blocks`. The definition for that, can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedBlocks` to restrict nested blocks.
 - `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor.
 
-The role specific rule will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties.
+Non-default rule types will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties. If multiple non-default rule types are provided, they will be applied in the following ascending priority:
+
+1. Post Type
+2. Role
+
+So if a matching `postType` and `role` rule is found, the `role` rule will be applied and the `postType` rule will be ignored. 
+
+We will introduce a filter in the near future to allow this priority to be customized.
 
 ### Your First Rule
 
 Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. In order to use the rules schema for in-editor support, also duplicate the `governance-schema.json` into your private folder.
 
-This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
+This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role and/or post type specific rules.
 
 ### Examples
 
@@ -245,7 +258,6 @@ This example focuses on restricting based on the user role.
       "allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
       "blockSettings": {
         "core/media-text": {
-          "allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
           "core/heading": {
             "color": {
               "text": true,
@@ -260,7 +272,6 @@ This example focuses on restricting based on the user role.
           }
         },
         "core/quote": {
-          "allowedBlocks": [ "core/paragraph", "core/heading" ],
           "core/paragraph": {
             "color": {
               "text": true,
@@ -314,6 +325,75 @@ With this rule set, the following rules will apply:
     - The code editor is accessible.
     - Blocks can be locked, unlocked and moved.
 
+##### Post Type Restriction Example
+
+This example focuses on restricting based on the post type.
+
+```json
+{
+	"$schema": "./governance-schema.json",
+	"version": "0.2.0",
+	"rules": [
+		{
+			"type": "postType",
+			"postTypes": [ "post" ],
+			"allowedFeatures": [ "lockBlocks" ],
+			"allowedBlocks": [ "core/quote", "core/image" ],
+			"blockSettings": {
+				"core/quote": {
+					"allowedBlocks": [ "core/paragraph", "core/heading" ],
+					"core/paragraph": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#00FF00",
+									"name": "Custom green",
+									"slug": "custom-green"
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"type": "default",
+      "allowedFeatures": [ "codeEditor" ],
+			"allowedBlocks": [ "core/heading", "core/paragraph" ],
+			"blockSettings": {
+				"core/heading": {
+					"color": {
+						"text": true,
+						"palette": [
+							{
+								"color": "#FFFF00",
+								"name": "Custom yellow",
+								"slug": "custom-yellow"
+							}
+						]
+					}
+				}
+			}
+		}
+	]
+}
+
+With this rule set, the following rules will apply:
+
+- Default: Rules that apply to everyone as a baseline:
+    - Heading/paragraph blocks are allowed
+    - For a heading at the root level, a custom yellow colour will appear as a possible text colour option.
+    - Blocks cannot be locked/unlocked or moved.
+    - The code editor is accessible.
+- Posts: Post specific rules combined with the default set of rules:
+    - In addition to the default allowed blocks, quote and image blocks is allowed as well.
+    - A quote block is allowed to have heading, and paragraph as its children.
+    - A heading at the root level is a custom yellow colour as a possible text colour option.
+    - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
+    - The code editor is accessible.
+    - Blocks can be locked, unlocked and moved.
+```
 ### Limitations
 
 - We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
@@ -540,6 +620,8 @@ npx playwright test
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
 [wp-custom-roles]: https://developer.wordpress.org/reference/functions/add_role/
 [wp-default-roles]: https://wordpress.org/documentation/article/roles-and-capabilities/
+[wp-custom-post-types]: https://developer.wordpress.org/reference/functions/register_post_type/
+[wp-default-post-types]: https://developer.wordpress.org/themes/basics/post-types/
 [wp-env]: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/
 [wpvip-page-cache]: https://docs.wpvip.com/technical-references/caching/page-cache/
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/

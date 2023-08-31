@@ -1,15 +1,15 @@
 {
-	"$schema": "../governance-schema.json",
+	"$schema": "../../governance-schema.json",
 	"version": "0.2.0",
 	"rules": [
 		{
 			"type": "role",
 			"roles": [ "administrator" ],
 			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
+			"allowedBlocks": [ "core/media-text" ],
 			"blockSettings": {
 				"core/media-text": {
-					"allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
+					"allowedBlocks": [ "core/image" ],
 					"core/heading": {
 						"color": {
 							"text": true,
@@ -22,9 +22,16 @@
 							]
 						}
 					}
-				},
+				}
+			}
+		},
+		{
+			"type": "postType",
+			"postTypes": [ "post" ],
+			"allowedFeatures": [ "lockBlocks" ],
+			"allowedBlocks": [ "core/quote" ],
+			"blockSettings": {
 				"core/quote": {
-					"allowedBlocks": [ "core/paragraph", "core/heading" ],
 					"core/paragraph": {
 						"color": {
 							"text": true,
@@ -42,7 +49,7 @@
 		},
 		{
 			"type": "default",
-			"allowedBlocks": [ "core/heading", "core/paragraph" ],
+			"allowedBlocks": [ "core/heading", "core/paragraph", "core/image" ],
 			"blockSettings": {
 				"core/heading": {
 					"color": {

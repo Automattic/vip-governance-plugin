@@ -10,86 +10,14 @@ use PHPUnit\Framework\TestCase;
  */
 class GovernanceUtilitiesTest extends TestCase {
 	public function test_get_parsed_governance_rules__from_private_dir() {
-		$expected_rules = [
-			[
-				'type'            => 'role',
-				'allowedBlocks'   => [
-					'core/quote',
-					'core/media-text',
-					'core/image',
-				],
-				'roles'           => [
-					'administrator',
-				],
-				'allowedFeatures' => [
-					'codeEditor',
-					'lockBlocks',
-				],
-				'blockSettings'   => [
-					'core/media-text' => [
-						'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
-						'core/heading'  => [
-							'color' => [
-								'text'    => true,
-								'palette' => [
-									[
-										'name'  => 'Custom red',
-										'slug'  => 'custom-red',
-										'color' => '#ff0000',
-									],
-								],
-							],
-						],
-					],
-					'core/quote'      => [
-						'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
-						'core/paragraph' => [
-							'color' => [
-								'text'    => true,
-								'palette' => [
-									[
-										'name'  => 'Custom green',
-										'slug'  => 'custom-green',
-										'color' => '#00FF00',
-									],
-								],
-							],
-						],
-					],
-				],
-			],
-			[
-				'type'          => 'default',
-				'allowedBlocks' => [
-					'core/heading',
-					'core/paragraph',
-				],
-				'blockSettings' => [
-					'core/heading' => [
-						'color' => [
-							'text'    => true,
-							'palette' => [
-								[
-									'name'  => 'Custom yellow',
-									'slug'  => 'custom-yellow',
-									'color' => '#FFFF00',
-								],
-							],
-						],
-					],
-				],
-			],
-		];
-
 		$result = GovernanceUtilities::get_parsed_governance_rules();
 
-		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+		$this->assertEquals( $this->get_parsed_governance_rules(), $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
 
 	public function test_get_governance_rules_for_user__administrator() {
 		$expected_rules = [
 			'allowedBlocks'   => [
-				'core/quote',
 				'core/media-text',
 				'core/image',
 				'core/heading',
@@ -101,7 +29,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 			'blockSettings'   => [
 				'core/media-text' => [
-					'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
+					'allowedBlocks' => [ 'core/image' ],
 					'core/heading'  => [
 						'color' => [
 							'text'    => true,
@@ -110,21 +38,6 @@ class GovernanceUtilitiesTest extends TestCase {
 									'name'  => 'Custom red',
 									'slug'  => 'custom-red',
 									'color' => '#ff0000',
-								],
-							],
-						],
-					],
-				],
-				'core/quote'      => [
-					'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
-					'core/paragraph' => [
-						'color' => [
-							'text'    => true,
-							'palette' => [
-								[
-									'name'  => 'Custom green',
-									'slug'  => 'custom-green',
-									'color' => '#00FF00',
 								],
 							],
 						],
@@ -178,14 +91,86 @@ class GovernanceUtilitiesTest extends TestCase {
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
 
+	public function test_get_governance_rules_for_post_type__post() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/quote',
+				'core/image',
+				'core/heading',
+				'core/paragraph', 
+			],
+			'allowedFeatures' => [
+				'lockBlocks',
+			],
+			'blockSettings'   => [
+				'core/quote'   => [
+					'core/paragraph' => [
+						'color' => [
+							'text'    => true,
+							'palette' => [
+								[
+									'name'  => 'Custom green',
+									'slug'  => 'custom-green',
+									'color' => '#00FF00',
+								],
+							],
+						],
+					],
+				],
+				'core/heading' => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), 'post' );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_for_post_type__page() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/heading',
+				'core/paragraph', 
+			],
+			'allowedFeatures' => [],
+			'blockSettings'   => [
+				'core/heading' => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'page' ] );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
 	private function get_parsed_governance_rules() {
 		return [
 			[
 				'type'            => 'role',
 				'allowedBlocks'   => [
-					'core/quote',
 					'core/media-text',
-					'core/image',
 				],
 				'roles'           => [
 					'administrator',
@@ -196,7 +181,7 @@ class GovernanceUtilitiesTest extends TestCase {
 				],
 				'blockSettings'   => [
 					'core/media-text' => [
-						'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
+						'allowedBlocks' => [ 'core/image' ],
 						'core/heading'  => [
 							'color' => [
 								'text'    => true,
@@ -210,8 +195,21 @@ class GovernanceUtilitiesTest extends TestCase {
 							],
 						],
 					],
-					'core/quote'      => [
-						'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
+				],
+			],
+			[
+				'type'            => 'postType',
+				'allowedBlocks'   => [
+					'core/quote',
+				],
+				'roles'           => [
+					'post',
+				],
+				'allowedFeatures' => [
+					'lockBlocks',
+				],
+				'blockSettings'   => [
+					'core/quote' => [
 						'core/paragraph' => [
 							'color' => [
 								'text'    => true,
