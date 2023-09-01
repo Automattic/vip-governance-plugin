@@ -167,6 +167,83 @@ class GovernanceUtilitiesTest extends TestCase {
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
 
+	public function test_get_governance_rules_for_post_type_and_role_type__administrator_post() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/media-text',
+				'core/heading',
+				'core/paragraph',
+				'core/image',
+			],
+			'allowedFeatures' => [
+				'codeEditor',
+				'lockBlocks',
+			],
+			'blockSettings'   => [
+				'core/media-text' => [
+					'allowedBlocks' => [ 'core/image' ],
+					'core/heading'  => [
+						'color' => [
+							'text'    => true,
+							'palette' => [
+								[
+									'name'  => 'Custom red',
+									'slug'  => 'custom-red',
+									'color' => '#ff0000',
+								],
+							],
+						],
+					],
+				],
+				'core/heading'    => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'administrator' ], 'post' );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_for_post_type_and_role_type__author_page() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/heading',
+				'core/paragraph',
+				'core/image',
+			],
+			'allowedFeatures' => [],
+			'blockSettings'   => [
+				'core/heading' => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'author' ], 'page' );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
 	private function get_parsed_governance_rules() {
 		return [
 			[
