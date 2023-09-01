@@ -1,42 +1,31 @@
 /* eslint-disable no-undef */
 // eslint-disable-next-line no-unused-vars
 ( () => {
-	function showValuesForRuleType() {
-		const typeSelector = document.getElementById( 'rule-type-selector' );
-		if ( typeSelector && typeSelector.value ) {
-			const roleSelector = document.getElementById( 'user-role-selector' );
-			const postTypeSelector = document.getElementById( 'post-type-selector' );
+	function showRulesForRuleType() {
+		const roleSelector = document.getElementById( 'user-role-selector' );
+		const rolePicked = roleSelector?.value ?? null;
 
-			// show user-role-selector or post-type-selector based on the value
-			if ( 'role' === typeSelector.value ) {
-				document.getElementById( 'json' ).hidden = true;
-				roleSelector.hidden = false;
-				postTypeSelector.hidden = true;
-			} else if ( 'postType' === typeSelector.value ) {
-				document.getElementById( 'json' ).hidden = true;
-				roleSelector.hidden = true;
-				postTypeSelector.hidden = false;
+		const postTypeSelector = document.getElementById( 'post-type-selector' );
+		const postTypePicked = postTypeSelector?.value ?? null;
+
+		if ( ( rolePicked || postTypePicked ) && window.wp && window.wp.apiRequest ) {
+			dataToBeSent = {};
+			if ( rolePicked ) {
+				dataToBeSent.role = rolePicked;
 			}
-		}
-	}
 
-	function showRulesForRuleType( ruleType, elementId ) {
-		const ruleTypeValueSelector = document.getElementById( elementId );
-		if (
-			ruleTypeValueSelector &&
-			ruleTypeValueSelector.value &&
-			window.wp &&
-			window.wp.apiRequest
-		) {
+			if ( postTypePicked ) {
+				dataToBeSent.postType = postTypePicked;
+			}
+
 			document.querySelector( '.vip-governance-query-spinner' ).classList.add( 'is-active' );
 			window.wp
 				.apiRequest( {
-					path: `/vip-governance/v1/rules?${ ruleType }=${ ruleTypeValueSelector.value }`,
+					path: `/vip-governance/v1/rules`,
+					data: dataToBeSent,
 				} )
 				.done( rules => {
-					const rulesPrefix = '"' + ruleTypeValueSelector.value + '": ';
-					document.getElementById( 'json' ).textContent =
-						rulesPrefix + JSON.stringify( rules, undefined, 4 );
+					document.getElementById( 'json' ).textContent = JSON.stringify( rules, undefined, 4 );
 					document.getElementById( 'json' ).hidden = false;
 				} )
 				.fail( error => {
@@ -49,24 +38,20 @@
 		}
 	}
 
-	const ruleTypeSelector = document.getElementById( 'rule-type-selector' );
-	if ( ruleTypeSelector ) {
-		// Reset to the default value on refresh
-		ruleTypeSelector.value = '';
-
-		ruleTypeSelector.addEventListener( 'change', showValuesForRuleType );
-	}
-
 	const roleSelector = document.getElementById( 'user-role-selector' );
 
 	if ( roleSelector ) {
 		// Reset to the default value on refresh
 		roleSelector.value = '';
 
-		roleSelector.addEventListener(
-			'change',
-			showRulesForRuleType.bind( this, 'role', 'user-role-selector' )
-		);
+		roleSelector.addEventListener( 'change', () => {
+			const postTypePicked = document.getElementById( 'post-type-selector' )?.value ?? null;
+			if ( roleSelector.value ) {
+				document.getElementById( 'view-rules-button' ).style.display = 'inline';
+			} else if ( ! postTypePicked ) {
+				document.getElementById( 'view-rules-button' ).style.display = 'none';
+			}
+		} );
 	}
 
 	const postTypeSelector = document.getElementById( 'post-type-selector' );
@@ -75,9 +60,21 @@
 		// Reset to the default value on refresh
 		postTypeSelector.value = '';
 
-		postTypeSelector.addEventListener(
-			'change',
-			showRulesForRuleType.bind( this, 'postType', 'post-type-selector' )
-		);
+		postTypeSelector.addEventListener( 'change', () => {
+			const rolePicked = document.getElementById( 'user-role-selector' )?.value ?? null;
+			if ( postTypeSelector.value ) {
+				document.getElementById( 'view-rules-button' ).style.display = 'inline';
+			} else if ( ! rolePicked ) {
+				document.getElementById( 'view-rules-button' ).style.display = 'none';
+			}
+		} );
+	}
+
+	const viewButton = document.getElementById( 'view-rules-button' );
+
+	if ( viewButton ) {
+		viewButton.style.display = 'none';
+
+		viewButton.addEventListener( 'click', showRulesForRuleType );
 	}
 } )();

@@ -76,13 +76,11 @@ class GovernanceUtilities {
 			return array();
 		}
 
-		if ( empty( $user_roles ) ) {
+		// This is the case where its not called by the admin UI, but in factor by the editor.
+		if ( empty( $user_roles ) && empty( $post_type ) ) {
 			$current_user = wp_get_current_user();
 			$user_roles   = $current_user->roles;
-		}
-
-		if ( empty( $post_type ) ) {
-			$post_type = get_post_type();
+			$post_type    = get_post_type();
 		}
 
 		$allowed_features = array();
