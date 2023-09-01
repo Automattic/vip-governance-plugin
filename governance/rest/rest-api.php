@@ -37,7 +37,7 @@ class RestApi {
 		register_rest_route( WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE, '/rules', [
 			'methods'             => 'GET',
 			'permission_callback' => [ __CLASS__, 'permission_callback' ],
-			'callback'            => [ __CLASS__, 'get_governance_rules_for_role' ],
+			'callback'            => [ __CLASS__, 'get_governance_rules_for_rule_type' ],
 			'args'                => [
 				'role'     => [
 					'validate_callback' => function( $param ) {
