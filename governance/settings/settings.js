@@ -50,6 +50,7 @@
 				document.getElementById( 'view-rules-button' ).style.display = 'inline';
 			} else if ( ! postTypePicked ) {
 				document.getElementById( 'view-rules-button' ).style.display = 'none';
+				document.getElementById( 'json' ).hidden = true;
 			}
 		} );
 	}
@@ -66,6 +67,7 @@
 				document.getElementById( 'view-rules-button' ).style.display = 'inline';
 			} else if ( ! rolePicked ) {
 				document.getElementById( 'view-rules-button' ).style.display = 'none';
+				document.getElementById( 'json' ).hidden = true;
 			}
 		} );
 	}

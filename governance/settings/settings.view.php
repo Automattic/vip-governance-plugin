@@ -77,7 +77,7 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 				<?php } ?>
 			</select>
 
-			<button class="button button-primary view-rules-button" id="view-rules-button" style="margin: 1rem 0 0.5rem; display: none">View Rules</button>
+			<button class="button button-primary view-rules-button" id="view-rules-button" style="margin: 1rem 0 0.5rem 0.5rem; display: none">View Rules</button>
 
 			<span class="spinner vip-governance-query-spinner" style="float: none; margin-top: 0.5rem"></span>
 			<pre class="combined-governance-rules-json" id="json" style="margin: 1rem 0" hidden></pre>
