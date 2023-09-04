@@ -5,7 +5,7 @@
  * Description: Plugin bundle to manage block governance options in Gutenberg.
  * Author: WordPress VIP
  * Text Domain: vip-governance
- * Version: 0.5.0
+ * Version: 0.6.0
  * Requires at least: 5.8.0
  * Tested up to: 6.3.0
  * Requires PHP: 7.4
@@ -19,7 +19,7 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '0.5.0' );
+define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '0.6.0' );
 define( 'WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION', '0.2.0' );
 
 if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {
