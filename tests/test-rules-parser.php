@@ -136,7 +136,7 @@ class RulesParserTest extends TestCase {
 			]
 		}';
 
-		$this->assertWPErrorCode( 'logic-rule-default-roles', RulesParser::parse( $rules_content ) );
+		$this->assertWPErrorCode( 'logic-rule-default-type', RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_default_rule_with_roles__returns_error() {
@@ -150,7 +150,21 @@ class RulesParserTest extends TestCase {
 			]
 		}';
 
-		$this->assertWPErrorCode( 'logic-rule-default-roles', RulesParser::parse( $rules_content ) );
+		$this->assertWPErrorCode( 'logic-rule-default-type', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_default_rule_with_post_types__returns_error() {
+		$rules_content = '{
+			"version": "0.2.0",
+			"rules": [
+				{
+					"type": "default",
+					"postTypes": [ "page" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-default-type', RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_multiple_default_rules__returns_error() {
@@ -186,7 +200,7 @@ class RulesParserTest extends TestCase {
 			]
 		}';
 
-		$this->assertWPErrorCode( 'logic-rule-role-missing-roles', RulesParser::parse( $rules_content ) );
+		$this->assertWPErrorCode( 'logic-rule-type-missing-valid-types', RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_role_rule_with_empty_roles__returns_error() {
@@ -201,7 +215,7 @@ class RulesParserTest extends TestCase {
 			]
 		}';
 
-		$this->assertWPErrorCode( 'logic-rule-role-missing-roles', RulesParser::parse( $rules_content ) );
+		$this->assertWPErrorCode( 'logic-rule-type-missing-valid-types', RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_role_empty_rule__returns_error() {
@@ -219,6 +233,53 @@ class RulesParserTest extends TestCase {
 	}
 
 	#endregion Role-type rule errors
+
+	#region PostType-type rule errors
+
+	public function test_validate_schema__with_post_type_rule_missing_post_types__returns_error() {
+		$rules_content = '{
+			"version": "0.2.0",
+			"rules": [
+				{
+					"type": "postType",
+					"allowedBlocks": [ "core/media-text" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-type-missing-valid-types', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_post_type_rule_with_empty_post_types__returns_error() {
+		$rules_content = '{
+			"version": "0.2.0",
+			"rules": [
+				{
+					"type": "postType",
+					"postTypes": [],
+					"allowedBlocks": [ "core/media-text" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-type-missing-valid-types', RulesParser::parse( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_post_type_empty_rule__returns_error() {
+		$rules_content = '{
+			"version": "0.2.0",
+			"rules": [
+				{
+					"type": "postType",
+					"postTypes": [ "administrator", "editor" ]
+				}
+			]
+		}';
+
+		$this->assertWPErrorCode( 'logic-rule-empty', RulesParser::parse( $rules_content ) );
+	}
+
+	#endregion PostType-type rule errors
 
 	#region Valid rules testing
 

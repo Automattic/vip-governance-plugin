@@ -9,7 +9,7 @@ This WordPress plugin enables additional governance capabilities to the block ed
 - Insertion: restricts what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced they would not be permitted.
 - Interaction: This adds the ability to control the styling available for blocks at any level.
 
-We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severly limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
+We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severely limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
 
 ## Table of contents
 
@@ -25,6 +25,7 @@ We have approached this plugin from an opt-in standpoint. In other words, enabli
         - [Restrictive Rule Sets](#restrictive-rule-sets)
           - [Default Restriction Example](#default-restriction-example)
           - [User Role Specific Restriction Example](#user-role-restriction-example)
+          - [Post Type Specific Restriction Example](#post-type-restriction-example)
     - [Limitations](#limitations)
 - [Code Filters](#code-filters)
     - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
@@ -72,7 +73,7 @@ The latest version of the plugin can be downloaded from the [repository's Releas
 
 ### Plugin activation
 
-Usually VIP recommends [activating plugins with code][wpvip-plugin-activate]. In this case, we are recommending activating the plugin in the WordPress Admin dashboard. This will allow the plugin to be more easily enabled and disabled during testing.
+Usually, VIP recommends [activating plugins with code][wpvip-plugin-activate]. In this case, we are recommending activating the plugin in the WordPress Admin dashboard. This will allow the plugin to be more easily enabled and disabled during testing.
 
 To activate the installed plugin:
 
@@ -82,35 +83,45 @@ To activate the installed plugin:
 
 ## Usage
 
-In order to start using this plugin, you'll need to create `governance-rules.json` in [your private folder][wpvip-private-dir].
+To start using this plugin, you'll need to create `governance-rules.json` in [your private folder][wpvip-private-dir].
 
 ### Schema Basics
 
-You can find the schema definition that's used for the rules [here][repo-schema-location]. Including a schema entry in your rules will provide for code completion in most editors.
+You can find the schema definition used for the rules [here][repo-schema-location]. Including a schema entry in your rules will provide for code completion in most editors.
 
-We have allowed significant space for customization. Which means it is also possible to create unintented rule interactions. We recommend making rule changes one or two at a time to be able to best troubleshoot these interactions.
+We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to best troubleshoot these interactions.
 
-Each rule is an object in an array. The one required property is `type` which can either be `default` or `role`. Your rules should only have one entry of the `default` type, as described above.
+Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described above.
 
-Rule's of the type `role` require an array of `roles` that will use this particular rule. These are the name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles.
+Rule's not of type `default` require an additional field to help use this particular rule. These are broken down below, along with examples of their possible values:
+
+| Rule Type     | Required Field| Possible Values     |
+| ------------- | ------------- | -------------       |
+| `role`  | `roles`  | name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles        |
+| `postType`  | `postTypes`  | name/slug of any [default][wp-default-post-types] or [custom][wp-custom-post-types] post types        |
 
 Each rule can have any one of the following properties.
 
-- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `lockBlocks`. If you do not want to enable these features, simply omit them from the array.
-- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings availble in theme.json under the key `blocks`. The definition for that, can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionaly you can set `allowedBlocks` to restrict nested blocks.
-- `allowedBlocks`: These are the blocks that are allowed to be inserted into the block editor.
+- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` and `lockBlocks`. If you do not want to enable these features, omit them from the array.
+- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules to apply different settings depending on the parent of a particular block. Additionally, you can set `allowedBlocks` to restrict nested blocks.
+- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor.
 
-The role specific rule will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties.
+Non-default rule types will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties. If multiple non-default rule types are provided, they will be applied in the following ascending priority:
+
+1. Post Type
+2. Role
+
+So if a matching `postType` and `role` rule is found, the `role` rule will be applied, and the `postType` rule will be ignored. The best analogy is the CSS cascade where more specific rules overwrite less specific rules. We are making a choice that Role-based rules should overwrite Post Type rules. We will introduce a filter in the near future to allow this priority to be customized.
 
 ### Your First Rule
 
-Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir] as a start. In order to use the rules schema for in-editor support, also duplicate the `governance-schema.json` into your private folder.
+Each ruleset must define your `default` rule. You can see an example definition in `governance-rules.json` in this repository. We recommend duplicating this file into your [private folder][wpvip-private-dir]. In order to use the rules schema for in-editor support, duplicate the `governance-schema.json` into your private folder.
 
-This default rule represents the absolute minimum that will be available to website users. It is sensible to set your default rule to your most common settings and then override with role specific rules.
+This default rule will enable all blocks and all features. It is sensible to set your default rule to the settings you want for your least privileged user then override with role and/or post type-specific rules.
 
 ### Examples
 
-Below are some examples of some rule sets that you can use to build your `governance-rules.json`.
+Below is some rule sets that you can use to build your `governance-rules.json`.
 
 #### Default Rule Set
 
@@ -139,7 +150,7 @@ With this rule set, the following rules will apply:
 
 #### Restrictive Rule Sets
 
-There are 2 restrictive rule sets below, that will allow restrictions to be placed features available in the block editor, the blocks available, and what style controls are available.
+There are 2 restrictive rule sets below, that will allow restrictions to be placed on features available in the block editor, the blocks available, and what style controls are available.
 
 ##### Default Restriction Example
 
@@ -147,77 +158,77 @@ This example focuses on restricting for all users, regardless of their role.
 
 ```json
 {
-	"$schema": "./governance-schema.json",
-	"version": "0.2.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "*" ],
-			"blockSettings": {
+  "$schema": "./governance-schema.json",
+  "version": "0.2.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "*" ],
+      "blockSettings": {
         "core/group": {
-					"spacing": {
-						"spacingSizes": [
-							{
-								"size": "clamp(2.5rem, 6vw, 3rem)",
-								"slug": "300",
-								"name": "12"
-							}
-						],
-					},
+          "spacing": {
+            "spacingSizes": [
+              {
+                "size": "clamp(2.5rem, 6vw, 3rem)",
+                "slug": "300",
+                "name": "12"
+              }
+            ],
+          },
         },
-				"core/heading": {
-					"color": {
-						"palette": [
-							{
-								"color": "#ff0000",
-								"name": "Custom red",
-								"slug": "custom-red"
-							},
-							{
-								"color": "#00FF00",
-								"name": "Custom green",
-								"slug": "custom-green"
-							},
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						],
-						"gradients": [
-							{
-								"slug": "vertical-red-to-green",
-								"gradient": "linear-gradient(to bottom,var(--wp--preset--color--custom-red) 0%,var(--wp--preset--color--custom-green) 100%)",
-								"name": "Vertical red to green"
-							}
-						]
-					},
-					"typography": {
-						"fontFamilies": [
-							{
-								"fontFamily": "Consolas, Fira Code, monospace",
-								"slug": "code-font",
-								"name": "Code Font"
-							}
-						],
-						"fontSizes": [
-							{
-								"name": "Large",
-								"size": "2.75rem",
-								"slug": "large"
-							},
-							{
-								"name": "X-Large",
-								"size": "3.75rem",
-								"slug": "x-large"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+        "core/heading": {
+          "color": {
+            "palette": [
+              {
+                "color": "#ff0000",
+                "name": "Custom red",
+                "slug": "custom-red"
+              },
+              {
+                "color": "#00FF00",
+                "name": "Custom green",
+                "slug": "custom-green"
+              },
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ],
+            "gradients": [
+              {
+                "slug": "vertical-red-to-green",
+                "gradient": "linear-gradient(to bottom,var(--wp--preset--color--custom-red) 0%,var(--wp--preset--color--custom-green) 100%)",
+                "name": "Vertical red to green"
+              }
+            ]
+          },
+          "typography": {
+            "fontFamilies": [
+              {
+                "fontFamily": "Consolas, Fira Code, monospace",
+                "slug": "code-font",
+                "name": "Code Font"
+              }
+            ],
+            "fontSizes": [
+              {
+                "name": "Large",
+                "size": "2.75rem",
+                "slug": "large"
+              },
+              {
+                "name": "X-Large",
+                "size": "3.75rem",
+                "slug": "x-large"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -226,8 +237,8 @@ With this rule set, the following rules will apply:
 - Default: Rules that apply to everyone as a baseline:
     - All blocks are allowed.
     - The code editor is accessible, and blocks can be locked/unlocked or moved.
-    - For a heading at the root level, there are 3 custom colours as well as a custom gradient that will show up in the color palette. In addition, a custom font called Code Font as well as 2 custom font sizes will show up in the typography panel.
-    - For a group block, there will be a only one option for a spacing size available in padding/margin and block spacing.
+    - For a heading at the root level, there are 3 custom colors as well as a custom gradient that will show up in the color palette. In addition, a custom font called Code Font as well as 2 custom font sizes will show up in the typography panel.
+    - For a group block, there will be only one option for a spacing size available in padding/margin and block spacing.
 
 ##### User Role Restriction Example
 
@@ -245,7 +256,6 @@ This example focuses on restricting based on the user role.
       "allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
       "blockSettings": {
         "core/media-text": {
-          "allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
           "core/heading": {
             "color": {
               "text": true,
@@ -260,7 +270,6 @@ This example focuses on restricting based on the user role.
           }
         },
         "core/quote": {
-          "allowedBlocks": [ "core/paragraph", "core/heading" ],
           "core/paragraph": {
             "color": {
               "text": true,
@@ -302,18 +311,88 @@ With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
     - Heading/paragraph blocks are allowed
-    - For a heading at the root level, a custom yellow colour will appear as a possible text colour option.
+    - For a heading at the root level, a custom yellow color will appear as a possible text color option.
     - Blocks cannot be locked/unlocked or moved.
     - The code editor is not accessible.
 - Administrator role: Role-specific rules combined with the default set of rules:
-    - In addition to the default allowed blocks, quote/media-text and image blocks is allowed as well.
-    - A quote block is allowed to have heading, and paragraph as its children while a media-text block is allowed to have heading, paragraph and image as its children.
-    - A heading at the root level is a custom yellow colour as a possible text colour option.
-    - A heading sitting inside a media-text is allowed to have a custom red colour as it's text.
-    - A paragraph sitting inside a quote is allowed to have a custom green colour as it's text.
+    - In addition to the default allowed blocks, quote/media-text and image blocks are allowed as well.
+    - A quote block is allowed to have heading, and paragraph as its children while a media-text block is allowed to have heading, paragraph, and image as its children.
+    - A heading at the root level is a custom yellow color as a possible text color option.
+    - A heading inside a media-text is allowed to have a custom red color.
+    - A paragraph inside a quote is allowed to have a custom green color.
+    - The code editor is accessible.
+    - Blocks can be locked, unlocked, and moved.
+
+##### Post Type Restriction Example
+
+This example focuses on restricting based on the post type.
+
+```json
+{
+  "$schema": "./governance-schema.json",
+  "version": "0.2.0",
+  "rules": [
+    {
+      "type": "postType",
+      "postTypes": [ "post" ],
+      "allowedFeatures": [ "lockBlocks" ],
+      "allowedBlocks": [ "core/quote", "core/image" ],
+      "blockSettings": {
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],
+          "core/paragraph": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor" ],
+      "allowedBlocks": [ "core/heading", "core/paragraph" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+With this rule set, the following rules will apply:
+
+- Default: Rules that apply to everyone as a baseline:
+    - Heading/paragraph blocks are allowed
+    - For a heading at the root level, a custom yellow color will appear as a possible text color option.
+    - Blocks cannot be locked/unlocked or moved.
+    - The code editor is accessible.
+- Posts: Post specific rules combined with the default set of rules:
+    - In addition to the default allowed blocks, quote and image blocks are allowed as well.
+    - A quote block is allowed to have heading, and paragraph as its children.
+    - A heading at the root level is a custom yellow color as a possible text color option.
+    - A paragraph inside a quote is allowed to have a custom green color.
     - The code editor is accessible.
     - Blocks can be locked, unlocked and moved.
-
+```
 ### Limitations
 
 - We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
@@ -321,17 +400,17 @@ With this rule set, the following rules will apply:
     - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
     - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
 
-    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow, but keep in mind these limitations when doing so.
+    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
 
 - Support for `color.duotone` has not been implemented.
 
 ## Code Filters
 
-There are filters in place, that can be applied to change the behaviour for what's allowed and what's not allowed.
+There are filters in place that can be applied to change the behavior for what's allowed and what's not allowed.
 
 ### `vip_governance__is_block_allowed_for_insertion`
 
-Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to override the default logic for insertion.
+Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules, and then a decision is made to allow or reject them. This filter will allow you to override the default logic for insertion.
 
 ```js
 /**
@@ -353,7 +432,7 @@ return applyFilters(
 );
 ```
 
-For example, this filter can be used to allow the insertion of a custom block even if its not allowed by the governance rules:
+For example, this filter can be used to allow the insertion of a custom block even if it's not allowed by the governance rules:
 
 ```js
 addFilter(
@@ -371,7 +450,7 @@ addFilter(
 
 ### `vip_governance__is_block_allowed_for_editing`
 
-Change what blocks are allowed to be edited in the block editor. Disabled blocks will display with a grey border and will not be editable. By default, root level and children blocks are compared against the governance rules and then a decision is made to allow them or reject them. This filter will allow you to override the default logic for editing.
+Change what blocks are allowed to be edited in the block editor. Disabled blocks will display with a grey border and will not be editable. By default, root level and children blocks are compared against the governance rules, and then a decision is made to allow or reject them. This filter will allow you to override the default logic for editing.
 
 ```js
 /**
@@ -393,7 +472,7 @@ applyFilters(
 );
 ```
 
-For example, this filter can be used to allow the editing a custom block type even if it is disabled by governance rules:
+For example, this filter can be used to allow the editing of a custom block type even if it is disabled by governance rules:
 
 ```js
 addFilter(
@@ -411,7 +490,7 @@ addFilter(
 
 ### `vip_governance__is_block_allowed_in_hierarchy`
 
-Select the mode that's used for determing if a block should be allowed or not, between cascading and restrictive. Cascading works similar to CSS in that, the rules of the parent are looked up first followed by the root level rules for determing if the block is to be allowed or not. On the other hand, restrictive only looks up the rules under the parent. If there are no rules under a parent, or a block is not allowed under a parent then that block cannot be inserted. Cascading allows for a simpler a rule file since there would be no execessive repetition of blocks under a parent. Restrictive does result in more repetiton in the rules file, but it results in a more locked down editor experience. By default, the filter is set to cascading mode. Note that, you have access to the parent block names, block name and the governance rules in order to decide what mode should be used. So you can fine tune the mode based on any of these values.
+Select the mode that's used for determining if a block should be allowed or not, between cascading and restrictive. Cascading works similarly to CSS in that, the rules of the parent are looked up first, followed by the root-level rules for determining if the block is to be allowed or not. On the other hand, restrictive only looks up the rules under the parent. If there are no rules under a parent or a block is not allowed under a parent, then that block cannot be inserted. Cascading allows for a simpler rule file avoiding excessive repetition of blocks under a parent. Restrictive does result in more repetition in the rules file, but it results in a more locked-down editor experience. By default, the filter is set to cascading mode. Note that, you have access to the parent block names, block name, and the governance rules in order to decide what mode should be used. So you can fine tune the mode based on any of these values.
 
 ```js
 /**
@@ -424,13 +503,13 @@ Select the mode that's used for determing if a block should be allowed or not, b
  * @param {Object}   governanceRules  An object containing the full set of governance
  *                                    rules for the current user.
  */
-	applyFilters(
-		'vip_governance__is_block_allowed_in_hierarchy',
-		true,
-		blockName,
-		parentBlockNames,
-		governanceRules
-	);
+  applyFilters(
+    'vip_governance__is_block_allowed_in_hierarchy',
+    true,
+    blockName,
+    parentBlockNames,
+    governanceRules
+  );
 ```
 
 ## Admin Settings
@@ -451,7 +530,7 @@ The examples in the below endpoints are using the rule file found in the example
 
 This endpoint is used to return the combined rules for a given role. This API is utilized by the settings page to visualize merged default and role rules for a selected role. It's only available to users with the `manage_options` permission.
 
-It has only three root level keys: `allowedBlocks`, `blockSettings` and `allowedFeatures`.
+It has only three root level keys: `allowedBlocks`, `blockSettings`, and `allowedFeatures`.
 
 #### Example
 
@@ -480,7 +559,7 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 
 ## Analytics
 
-**Please note that, this is for VIP sites only. Analytics are disabled if this plugin is not being run on VIP sites.**
+**Please note this is for VIP sites only. Analytics are disabled if this plugin is not being run on VIP sites.**
 
 The plugin records two data points for analytics, on VIP sites:
 
@@ -488,7 +567,7 @@ The plugin records two data points for analytics, on VIP sites:
    
 2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up.
 
-Both of these data points are a counter that is incremented, and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][repo-analytics].
+Both of these data points are a counter that is incremented and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][repo-analytics].
 
 ## Development
 
@@ -540,6 +619,8 @@ npx playwright test
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
 [wp-custom-roles]: https://developer.wordpress.org/reference/functions/add_role/
 [wp-default-roles]: https://wordpress.org/documentation/article/roles-and-capabilities/
+[wp-custom-post-types]: https://developer.wordpress.org/reference/functions/register_post_type/
+[wp-default-post-types]: https://developer.wordpress.org/themes/basics/post-types/
 [wp-env]: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/
 [wpvip-page-cache]: https://docs.wpvip.com/technical-references/caching/page-cache/
 [wpvip-plugin-activate]: https://docs.wpvip.com/how-tos/activate-plugins-through-code/

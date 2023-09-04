@@ -20,8 +20,7 @@
 					"type": "string",
 					"examples": [ "*", "core/*", "core/paragraph", "core/heading" ]
 				}
-			],
-			"minItems": 1
+			]
 		},
 		"blockSettingsProperties": {
 			"description": "Block settings for block or nested inner block types",
@@ -115,6 +114,35 @@
 			},
 			"required": [ "type", "roles" ],
 			"additionalProperties": false
+		},
+		"rulePostTypeProperties": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"description": "Post Type rule - applies to one or more specific post types.",
+					"type": "string",
+					"enum": [ "postType" ]
+				},
+				"postTypes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"examples": [ [ "page", "post" ] ],
+					"minItems": 1
+				},
+				"allowedFeatures": {
+					"$ref": "#/definitions/allowedFeaturesArray"
+				},
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				},
+				"blockSettings": {
+					"$ref": "#/definitions/ruleBlockSettingsProperties"
+				}
+			},
+			"required": [ "type", "postTypes" ],
+			"additionalProperties": false
 		}
 	},
 	"type": "object",
@@ -138,7 +166,8 @@
 				"type": "object",
 				"oneOf": [
 					{ "$ref": "#/definitions/ruleDefaultProperties" },
-					{ "$ref": "#/definitions/ruleRoleProperties" }
+					{ "$ref": "#/definitions/ruleRoleProperties" },
+					{ "$ref": "#/definitions/rulePostTypeProperties" }
 				]
 			}
 		}

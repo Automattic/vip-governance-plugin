@@ -34,16 +34,25 @@ class RestApi {
 	 * @access private 
 	 */
 	public static function register_rest_routes() {
-		register_rest_route( WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE, '/(?P<role>\w+)/rules', [
+		register_rest_route( WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE, '/rules', [
 			'methods'             => 'GET',
 			'permission_callback' => [ __CLASS__, 'permission_callback' ],
-			'callback'            => [ __CLASS__, 'get_governance_rules_for_role' ],
+			'callback'            => [ __CLASS__, 'get_governance_rules_for_rule_type' ],
 			'args'                => [
-				'role' => [
+				'role'     => [
 					'validate_callback' => function( $param ) {
 						$all_roles = array_keys( wp_roles()->roles );
 						$roles     = array( strval( $param ) );
 						return array_intersect( $all_roles, $roles );
+					},
+					'sanitize_callback' => function( $param ) {
+						return strval( $param );
+					},
+				],
+				'postType' => [
+					'validate_callback' => function( $param ) {
+						$post_types = array( strval( $param ) );
+						return array_intersect( get_post_types(), $post_types );
 					},
 					'sanitize_callback' => function( $param ) {
 						return strval( $param );
@@ -73,8 +82,9 @@ class RestApi {
 	 * 
 	 * @access private
 	 */
-	public static function get_governance_rules_for_role( $params ) {
-		$role = $params['role'];
+	public static function get_governance_rules_for_rule_type( $params ) {
+		$role      = isset( $params['role'] ) ? array( $params['role'] ) : array();
+		$post_type = $params['postType'] ?? '';
 
 		try {
 			$parsed_governance_rules = GovernanceUtilities::get_parsed_governance_rules();
@@ -82,7 +92,7 @@ class RestApi {
 			if ( is_wp_error( $parsed_governance_rules ) ) {
 				return new WP_Error( 'vip-governance-rules-error', 'Error: Governance rules could not be loaded.', [ 'status' => 400 ] );
 			} else {
-				return GovernanceUtilities::get_rules_for_user( $parsed_governance_rules, array( $role ) );
+				return GovernanceUtilities::get_rules_by_type( $parsed_governance_rules, $role, $post_type );
 			}
 		} catch ( Exception | Error $e ) {
 			return new WP_Error( 'vip-governance-rules-error', 'Error: Governance rules could not be loaded due to a plugin error.', [ 'status' => 500 ] );

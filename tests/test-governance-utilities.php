@@ -10,90 +10,18 @@ use PHPUnit\Framework\TestCase;
  */
 class GovernanceUtilitiesTest extends TestCase {
 	public function test_get_parsed_governance_rules__from_private_dir() {
-		$expected_rules = [
-			[
-				'type'            => 'role',
-				'allowedBlocks'   => [
-					'core/quote',
-					'core/media-text',
-					'core/image',
-				],
-				'roles'           => [
-					'administrator',
-				],
-				'allowedFeatures' => [
-					'codeEditor',
-					'lockBlocks',
-				],
-				'blockSettings'   => [
-					'core/media-text' => [
-						'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
-						'core/heading'  => [
-							'color' => [
-								'text'    => true,
-								'palette' => [
-									[
-										'name'  => 'Custom red',
-										'slug'  => 'custom-red',
-										'color' => '#ff0000',
-									],
-								],
-							],
-						],
-					],
-					'core/quote'      => [
-						'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
-						'core/paragraph' => [
-							'color' => [
-								'text'    => true,
-								'palette' => [
-									[
-										'name'  => 'Custom green',
-										'slug'  => 'custom-green',
-										'color' => '#00FF00',
-									],
-								],
-							],
-						],
-					],
-				],
-			],
-			[
-				'type'          => 'default',
-				'allowedBlocks' => [
-					'core/heading',
-					'core/paragraph',
-				],
-				'blockSettings' => [
-					'core/heading' => [
-						'color' => [
-							'text'    => true,
-							'palette' => [
-								[
-									'name'  => 'Custom yellow',
-									'slug'  => 'custom-yellow',
-									'color' => '#FFFF00',
-								],
-							],
-						],
-					],
-				],
-			],
-		];
-
 		$result = GovernanceUtilities::get_parsed_governance_rules();
 
-		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+		$this->assertEquals( $this->get_parsed_governance_rules(), $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
 
 	public function test_get_governance_rules_for_user__administrator() {
 		$expected_rules = [
 			'allowedBlocks'   => [
-				'core/quote',
 				'core/media-text',
-				'core/image',
 				'core/heading',
-				'core/paragraph', 
+				'core/paragraph',
+				'core/image',
 			],
 			'allowedFeatures' => [
 				'codeEditor',
@@ -101,7 +29,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 			'blockSettings'   => [
 				'core/media-text' => [
-					'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
+					'allowedBlocks' => [ 'core/image' ],
 					'core/heading'  => [
 						'color' => [
 							'text'    => true,
@@ -110,21 +38,6 @@ class GovernanceUtilitiesTest extends TestCase {
 									'name'  => 'Custom red',
 									'slug'  => 'custom-red',
 									'color' => '#ff0000',
-								],
-							],
-						],
-					],
-				],
-				'core/quote'      => [
-					'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
-					'core/paragraph' => [
-						'color' => [
-							'text'    => true,
-							'palette' => [
-								[
-									'name'  => 'Custom green',
-									'slug'  => 'custom-green',
-									'color' => '#00FF00',
 								],
 							],
 						],
@@ -145,7 +58,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 		];
 
-		$result = GovernanceUtilities::get_rules_for_user( $this->get_parsed_governance_rules(), [ 'administrator' ] );
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'administrator' ] );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
@@ -154,7 +67,8 @@ class GovernanceUtilitiesTest extends TestCase {
 		$expected_rules = [
 			'allowedBlocks'   => [
 				'core/heading',
-				'core/paragraph', 
+				'core/paragraph',
+				'core/image',
 			],
 			'allowedFeatures' => [],
 			'blockSettings'   => [
@@ -173,7 +87,159 @@ class GovernanceUtilitiesTest extends TestCase {
 			],
 		];
 
-		$result = GovernanceUtilities::get_rules_for_user( $this->get_parsed_governance_rules(), [ 'editor' ] );
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'editor' ] );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_for_post_type__post() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/quote',
+				'core/heading',
+				'core/paragraph',
+				'core/image',
+			],
+			'allowedFeatures' => [
+				'lockBlocks',
+			],
+			'blockSettings'   => [
+				'core/quote'   => [
+					'core/paragraph' => [
+						'color' => [
+							'text'    => true,
+							'palette' => [
+								[
+									'name'  => 'Custom green',
+									'slug'  => 'custom-green',
+									'color' => '#00FF00',
+								],
+							],
+						],
+					],
+				],
+				'core/heading' => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [], 'post' );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_for_post_type__page() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/heading',
+				'core/paragraph',
+				'core/image',
+			],
+			'allowedFeatures' => [],
+			'blockSettings'   => [
+				'core/heading' => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [], 'page' );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_for_post_type_and_role_type__administrator_post() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/media-text',
+				'core/heading',
+				'core/paragraph',
+				'core/image',
+			],
+			'allowedFeatures' => [
+				'codeEditor',
+				'lockBlocks',
+			],
+			'blockSettings'   => [
+				'core/media-text' => [
+					'allowedBlocks' => [ 'core/image' ],
+					'core/heading'  => [
+						'color' => [
+							'text'    => true,
+							'palette' => [
+								[
+									'name'  => 'Custom red',
+									'slug'  => 'custom-red',
+									'color' => '#ff0000',
+								],
+							],
+						],
+					],
+				],
+				'core/heading'    => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'administrator' ], 'post' );
+
+		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_for_post_type_and_role_type__author_page() {
+		$expected_rules = [
+			'allowedBlocks'   => [
+				'core/heading',
+				'core/paragraph',
+				'core/image',
+			],
+			'allowedFeatures' => [],
+			'blockSettings'   => [
+				'core/heading' => [
+					'color' => [
+						'text'    => true,
+						'palette' => [
+							[
+								'name'  => 'Custom yellow',
+								'slug'  => 'custom-yellow',
+								'color' => '#FFFF00',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), [ 'author' ], 'page' );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
 	}
@@ -183,9 +249,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			[
 				'type'            => 'role',
 				'allowedBlocks'   => [
-					'core/quote',
 					'core/media-text',
-					'core/image',
 				],
 				'roles'           => [
 					'administrator',
@@ -196,7 +260,7 @@ class GovernanceUtilitiesTest extends TestCase {
 				],
 				'blockSettings'   => [
 					'core/media-text' => [
-						'allowedBlocks' => [ 'core/paragraph', 'core/heading', 'core/image' ],
+						'allowedBlocks' => [ 'core/image' ],
 						'core/heading'  => [
 							'color' => [
 								'text'    => true,
@@ -210,8 +274,21 @@ class GovernanceUtilitiesTest extends TestCase {
 							],
 						],
 					],
-					'core/quote'      => [
-						'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
+				],
+			],
+			[
+				'type'            => 'postType',
+				'allowedBlocks'   => [
+					'core/quote',
+				],
+				'postTypes'       => [
+					'post',
+				],
+				'allowedFeatures' => [
+					'lockBlocks',
+				],
+				'blockSettings'   => [
+					'core/quote' => [
 						'core/paragraph' => [
 							'color' => [
 								'text'    => true,
@@ -232,6 +309,7 @@ class GovernanceUtilitiesTest extends TestCase {
 				'allowedBlocks' => [
 					'core/heading',
 					'core/paragraph',
+					'core/image',
 				],
 				'blockSettings' => [
 					'core/heading' => [

@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   e2e-tests-js:
-    name: JavaScript E2E Tests
+    name: WordPress E2E Tests
     runs-on: ubuntu-latest
 
     strategy:
@@ -74,6 +74,12 @@ jobs:
 
       - name: Setup the wordpress environment
         run: wp-env start
+
+      - name: PHPUnit
+        run: composer test
+
+      - name: PHPUnit multisite
+        run: composer run-script test-multisite
 
       - name: Run Playwright tests
         run: npx playwright test
