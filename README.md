@@ -518,7 +518,7 @@ There is an admin settings menu titled `VIP Governance` that's created with the 
 
 - Turning on and off the plugin quickly, without re-deploying.
 - View all the rules at once, and also any errors if it's invalid.
-- View the rules as a specific user role.
+- View the rules as a specific user role and/or for a specific post type.
 
 ![Admin setting in action][settings-panel-example-gif]
 
