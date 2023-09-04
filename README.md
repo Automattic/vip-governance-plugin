@@ -158,77 +158,77 @@ This example focuses on restricting for all users, regardless of their role.
 
 ```json
 {
-	"$schema": "./governance-schema.json",
-	"version": "0.2.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "*" ],
-			"blockSettings": {
+  "$schema": "./governance-schema.json",
+  "version": "0.2.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "*" ],
+      "blockSettings": {
         "core/group": {
-					"spacing": {
-						"spacingSizes": [
-							{
-								"size": "clamp(2.5rem, 6vw, 3rem)",
-								"slug": "300",
-								"name": "12"
-							}
-						],
-					},
+          "spacing": {
+            "spacingSizes": [
+              {
+                "size": "clamp(2.5rem, 6vw, 3rem)",
+                "slug": "300",
+                "name": "12"
+              }
+            ],
+          },
         },
-				"core/heading": {
-					"color": {
-						"palette": [
-							{
-								"color": "#ff0000",
-								"name": "Custom red",
-								"slug": "custom-red"
-							},
-							{
-								"color": "#00FF00",
-								"name": "Custom green",
-								"slug": "custom-green"
-							},
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						],
-						"gradients": [
-							{
-								"slug": "vertical-red-to-green",
-								"gradient": "linear-gradient(to bottom,var(--wp--preset--color--custom-red) 0%,var(--wp--preset--color--custom-green) 100%)",
-								"name": "Vertical red to green"
-							}
-						]
-					},
-					"typography": {
-						"fontFamilies": [
-							{
-								"fontFamily": "Consolas, Fira Code, monospace",
-								"slug": "code-font",
-								"name": "Code Font"
-							}
-						],
-						"fontSizes": [
-							{
-								"name": "Large",
-								"size": "2.75rem",
-								"slug": "large"
-							},
-							{
-								"name": "X-Large",
-								"size": "3.75rem",
-								"slug": "x-large"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+        "core/heading": {
+          "color": {
+            "palette": [
+              {
+                "color": "#ff0000",
+                "name": "Custom red",
+                "slug": "custom-red"
+              },
+              {
+                "color": "#00FF00",
+                "name": "Custom green",
+                "slug": "custom-green"
+              },
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ],
+            "gradients": [
+              {
+                "slug": "vertical-red-to-green",
+                "gradient": "linear-gradient(to bottom,var(--wp--preset--color--custom-red) 0%,var(--wp--preset--color--custom-green) 100%)",
+                "name": "Vertical red to green"
+              }
+            ]
+          },
+          "typography": {
+            "fontFamilies": [
+              {
+                "fontFamily": "Consolas, Fira Code, monospace",
+                "slug": "code-font",
+                "name": "Code Font"
+              }
+            ],
+            "fontSizes": [
+              {
+                "name": "Large",
+                "size": "2.75rem",
+                "slug": "large"
+              },
+              {
+                "name": "X-Large",
+                "size": "3.75rem",
+                "slug": "x-large"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -329,52 +329,52 @@ This example focuses on restricting based on the post type.
 
 ```json
 {
-	"$schema": "./governance-schema.json",
-	"version": "0.2.0",
-	"rules": [
-		{
-			"type": "postType",
-			"postTypes": [ "post" ],
-			"allowedFeatures": [ "lockBlocks" ],
-			"allowedBlocks": [ "core/quote", "core/image" ],
-			"blockSettings": {
-				"core/quote": {
-					"allowedBlocks": [ "core/paragraph", "core/heading" ],
-					"core/paragraph": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#00FF00",
-									"name": "Custom green",
-									"slug": "custom-green"
-								}
-							]
-						}
-					}
-				}
-			}
-		},
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor" ],
-			"allowedBlocks": [ "core/heading", "core/paragraph" ],
-			"blockSettings": {
-				"core/heading": {
-					"color": {
-						"text": true,
-						"palette": [
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+  "$schema": "./governance-schema.json",
+  "version": "0.2.0",
+  "rules": [
+    {
+      "type": "postType",
+      "postTypes": [ "post" ],
+      "allowedFeatures": [ "lockBlocks" ],
+      "allowedBlocks": [ "core/quote", "core/image" ],
+      "blockSettings": {
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],
+          "core/paragraph": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor" ],
+      "allowedBlocks": [ "core/heading", "core/paragraph" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -503,13 +503,13 @@ Select the mode that's used for determining if a block should be allowed or not,
  * @param {Object}   governanceRules  An object containing the full set of governance
  *                                    rules for the current user.
  */
-	applyFilters(
-		'vip_governance__is_block_allowed_in_hierarchy',
-		true,
-		blockName,
-		parentBlockNames,
-		governanceRules
-	);
+  applyFilters(
+    'vip_governance__is_block_allowed_in_hierarchy',
+    true,
+    blockName,
+    parentBlockNames,
+    governanceRules
+  );
 ```
 
 ## Admin Settings

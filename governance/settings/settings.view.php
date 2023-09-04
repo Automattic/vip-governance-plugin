@@ -64,14 +64,14 @@ $governance_rules_formatted = join("\n", array_map(function( $line ) {
 			<h2><?php esc_html_e( 'View Governance Rules For A Rule Type' ); ?></h2>
 			<p class="description">Rules for a type like roles work by combining the type's governance rules with default rules. Use this tool to view rules using the role/post type and debug permissions issues.</p>
 			<select name="user-role-selector" id="user-role-selector" style="margin: 1rem 0 0.5rem">
-				<option value="">Choose a user role to view the rules as</option>
+				<option value="">All Roles</option>
 				<?php foreach ( $user_roles_available as $user_role_available ) { ?>
 					<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
 				<?php } ?>
 			</select>
 
 			<select name="post-type-selector" id="post-type-selector" style="margin: 1rem 0 0.5rem">
-				<option value="">Choose a post type to view the rules for</option>
+				<option value="">All Post Types</option>
 				<?php foreach ( $post_types_available as $post_type_available ) { ?>
 					<option value="<?php echo esc_attr( $post_type_available ); ?>"><?php echo esc_html( $post_type_available ); ?></option>
 				<?php } ?>
