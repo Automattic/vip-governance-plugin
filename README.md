@@ -199,7 +199,7 @@ This example focuses on restricting for all users, regardless of their role.
             "gradients": [
               {
                 "slug": "vertical-red-to-green",
-                "gradient": "linear-gradient(to bottom,var(--wp--preset--color--custom-red) 0%,var(--wp--preset--color--custom-green) 100%)",
+                "gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
                 "name": "Vertical red to green"
               }
             ]
