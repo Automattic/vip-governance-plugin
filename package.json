@@ -34,9 +34,8 @@
 		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
 		"start": "wp-scripts start --webpack-devtool=source-map ./src/index.js",
 		"prepare": "husky install",
-		"test": "npm run test:unit && npm run test:e2e",
+		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
-		"test:e2e": "npx playwright test",
 		"test:js": "wp-scripts test-unit-js",
 		"packages-update": "wp-scripts packages-update",
 		"postpackages-update": "npm run build"

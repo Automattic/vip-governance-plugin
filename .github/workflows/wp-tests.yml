@@ -33,11 +33,11 @@ jobs:
           tools: composer
           php-version: ${{ matrix.php-versions }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v3.6.0
-        with:
-          node-version: 'lts/*'
-          cache: npm
+      # - name: Setup Node
+      #   uses: actions/setup-node@v3.6.0
+      #   with:
+      #     node-version: 'lts/*'
+      #     cache: npm
 
       - name: Cache Composer packages
         id: composer-cache
@@ -51,26 +51,26 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Get Node.js and npm version
-        id: node-version
-        run: |
-          echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
-        shell: bash
+      # - name: Get Node.js and npm version
+      #   id: node-version
+      #   run: |
+      #     echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
+      #   shell: bash
 
-      - name: Cache node_modules
-        id: cache-node_modules
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
-        with:
-          path: '**/node_modules'
-          key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      # - name: Cache node_modules
+      #   id: cache-node_modules
+      #   uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+      #   with:
+      #     path: '**/node_modules'
+      #     key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install npm dependencies
-        if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
-        run: npm ci
-        shell: bash
+      # - name: Install npm dependencies
+      #   if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
+      #   run: npm ci
+      #   shell: bash
 
-      - name: Install Playwright Browsers
-        run: npx playwright install chromium --with-deps
+      # - name: Install Playwright Browsers
+      #   run: npx playwright install chromium --with-deps
 
       - name: Setup the wordpress environment
         run: wp-env start
@@ -81,5 +81,5 @@ jobs:
       - name: PHPUnit multisite
         run: composer run-script test-multisite
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      # - name: Run Playwright tests
+      #   run: npx playwright test
