@@ -1,10 +1,15 @@
 import { get } from 'lodash';
 
-export const getNestedSettingPaths = (
-	nestedSettings,
-	nestedMetadata = {},
-	currentBlock = false
-) => {
+/**
+ * Find the list of nestedPaths that can be found in the block settings, so that
+ * it's faster to find out if a deeper nested setting exists or not.
+ *
+ * @param {Object} nestedSettings the nestedSettings found from the governance rules.
+ * @param {Object} nestedMetadata the nestedMetadata object that's to be populated with the paths.
+ * @param {String} currentBlock the current nested block name being processed.
+ * @returns {Object} Map of the block name along with the nested paths that can be found inside.
+ */
+export function getNestedSettingPaths( nestedSettings, nestedMetadata = {}, currentBlock = false ) {
 	const SETTINGS_TO_SKIP = [ 'allowedBlocks' ];
 	for ( const [ settingKey, settingValue ] of Object.entries( nestedSettings ) ) {
 		if ( SETTINGS_TO_SKIP.includes( settingKey ) ) {
@@ -34,7 +39,7 @@ export const getNestedSettingPaths = (
 	}
 
 	return nestedMetadata;
-};
+}
 
 /**
  * Find block settings nested in other block settings.
@@ -59,13 +64,13 @@ export const getNestedSettingPaths = (
  * @return {Object}                 Object with keys `depth` and `value`.
  *                                  Destructure the `value` key for the result.
  */
-export const getNestedSetting = (
+export function getNestedSetting(
 	blockNamePath,
 	normalizedPath,
 	settings,
 	result = { depth: 0, value: undefined },
 	depth = 1
-) => {
+) {
 	const [ currentBlockName, ...remainingBlockNames ] = blockNamePath;
 	// eslint-disable-next-line security/detect-object-injection
 	const blockSettings = settings[ currentBlockName ];
@@ -92,8 +97,14 @@ export const getNestedSetting = (
 
 	// Continue down the array of blocks
 	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
-};
+}
 
+/**
+ * Flatten a nested object into a map of paths.
+ * @param {Object} settings The settings value that is to be flattened.
+ * @param {String} prefix The key for the settings value.
+ * @returns {Object} the flattened settings object.
+ */
 function flattenSettingPaths( settings, prefix = '' ) {
 	const result = {};
 
