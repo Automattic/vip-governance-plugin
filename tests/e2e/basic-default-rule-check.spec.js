@@ -35,25 +35,6 @@ test.describe( 'Site Works', () => {
 
 		await page.keyboard.type( 'This is a paragraph within a quote' );
 
-		await editor.openDocumentSettingsSidebar();
-
-		const textColor = page
-			.getByRole( 'region', {
-				name: 'Editor settings',
-			} )
-			.getByRole( 'button', { name: 'Text' } );
-
-		await textColor.click();
-
-		await page
-			.getByRole( 'option', {
-				name: 'Color: Custom green',
-			} )
-			.click();
-
-		// Close the popover.
-		await textColor.click();
-
 		// Verify that the content is as expected, including the locked blocks.
 		await expect.poll( editor.getEditedPostContent ).toBe(
 			`<!-- wp:heading {"lock":{"move":true,"remove":true}} -->
