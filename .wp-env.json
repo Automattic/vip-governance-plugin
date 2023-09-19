@@ -1,7 +1,6 @@
 {
 	"plugins": [ "." ],
 	"mappings": {
-		"wp-content/plugins/vip-governance": ".",
 		"wp-content/private": "./tests/private"
 	},
 	"config": {
