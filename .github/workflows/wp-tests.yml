@@ -84,8 +84,9 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
 
-      - name: Setup upterm session
+      - name: Setup upterm session on failure
         uses: lhotari/action-upterm@v1
+        if: failure()
         with:
           limit-access-to-actor: true
 
