@@ -1,3 +1,10 @@
 {
-	"plugins": [ "." ]
+	"plugins": [ "." ],
+	"mappings": {
+		"wp-content/private": "./tests/private"
+	},
+	"config": {
+		"WPCOM_VIP_PRIVATE_DIR": "/var/www/html/wp-content/private",
+		"WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR": "/wp-content/plugins/vip-governance-plugin"
+	}
 }

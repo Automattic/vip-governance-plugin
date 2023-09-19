@@ -75,11 +75,12 @@ jobs:
       - name: Setup the wordpress environment
         run: wp-env start
 
-      - name: PHPUnit
-        run: composer test
-
-      - name: PHPUnit multisite
-        run: composer run-script test-multisite
-
       - name: Run Playwright tests
         run: npx playwright test
+
+      - name: Upload playwright artifacts on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-artifacts
+          path: artifacts/
