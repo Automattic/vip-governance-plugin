@@ -5,7 +5,7 @@ test.describe( 'Site Works', () => {
 		await admin.createNewPost( { legacyCanvas: true } );
 	} );
 
-	test( 'should confirm that only the blocks allowed are allowed to be inserted', async ( {
+	test( 'should confirm that only the administrator and default allowedBlocks are allowed to be inserted', async ( {
 		editor,
 		page,
 	} ) => {
@@ -60,7 +60,7 @@ test.describe( 'Site Works', () => {
 		] );
 	} );
 
-	test( 'should confirm that the governance rules are loaded as expected', async ( {
+	test( 'should confirm that only the administrator and default block settings are picked, and applied correctly', async ( {
 		editor,
 		page,
 		pageUtils,
@@ -98,7 +98,7 @@ test.describe( 'Site Works', () => {
 			},
 		} );
 
-		// Insert a media-text as that should be allowed as well.
+		// Insert a media-text, and a heading under it as that should be allowed as well.
 		await editor.insertBlock( {
 			name: 'core/media-text',
 		} );
@@ -112,6 +112,7 @@ test.describe( 'Site Works', () => {
 		await page.keyboard.press( 'Enter' );
 		await page.keyboard.type( 'This is a heading inside a media-text' );
 
+		// Pick the custom red colour for the heading.
 		await editor.openDocumentSettingsSidebar();
 		const nestedTextColor = page
 			.getByRole( 'region', {
@@ -122,6 +123,7 @@ test.describe( 'Site Works', () => {
 		await pageUtils.pressKeys( 'Tab' );
 		await pageUtils.pressKeys( 'Enter' );
 
+		// Verify all the settings are exactly like what we expect.
 		await expect.poll( editor.getBlocks ).toMatchObject( [
 			{
 				name: 'core/heading',
