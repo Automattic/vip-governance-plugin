@@ -73,16 +73,10 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Setup the wordpress environment
-        run: wp-env start --debug
+        run: wp-env start
 
       - name: Run Playwright tests
         run: npx playwright test
-
-      - name: Setup upterm session on failure
-        uses: lhotari/action-upterm@v1
-        if: failure()
-        with:
-          limit-access-to-actor: true
 
       - name: Upload playwright artifacts on failure
         uses: actions/upload-artifact@v3
