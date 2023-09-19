@@ -73,7 +73,7 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Setup the wordpress environment
-        run: wp-env start
+        run: wp-env start --debug
 
       - name: PHPUnit
         run: composer test
