@@ -84,7 +84,13 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
 
-      - uses: actions/upload-artifact@v3
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+
+      - name: Upload playwright artifacts on failure
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: playwright-artifacts
