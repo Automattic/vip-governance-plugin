@@ -7,6 +7,15 @@ const DEFAULT_CORE_BLOCK_LIST = {
 	'core/columns': [ 'core/column' ],
 	'core/page-list': [ 'core/page-list-item' ],
 	'core/navigation': [ 'core/navigation-link', 'core/navigation-submenu' ],
+	'core/navigation-link': [ 'core/navigation-link', 'core/navigation-submenu', 'core/page-list' ],
+	'core/quote': [ 'core/paragraph' ],
+	'core/media-text': [ 'core/paragraph' ],
+	'core/social-links': [ 'core/social-link' ],
+	'core/comments-pagination': [
+		'core/comments-pagination-previous',
+		'core/comments-pagination-numbers',
+		'core/comments-pagination-next',
+	],
 };
 
 /**
