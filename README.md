@@ -129,7 +129,7 @@ This is the default rule set used by the plugin.
 ```json
 {
   "$schema": "./governance-schema.json",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "rules": [
     {
       "type": "default",
@@ -154,7 +154,7 @@ This expands the default rule set by adding restrictions for all users and post 
 ```json
 {
   "$schema": "./governance-schema.json",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "rules": [
     {
       "type": "default",
@@ -242,7 +242,7 @@ This example focuses on providing a restrictive default rule set, and expanded p
 ```json
 {
   "$schema": "./governance-schema.json",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "rules": [
     {
       "type": "role",
@@ -324,7 +324,7 @@ This example focuses on providing a restrictive default rule set, and expanded p
 ```json
 {
   "$schema": "./governance-schema.json",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "rules": [
     {
       "type": "postType",
