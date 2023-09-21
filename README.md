@@ -82,17 +82,17 @@ To activate the installed plugin:
 
 ## Usage
 
-The source for how the rules comes from the `governance-rules.json`. Before diving into how it's used, a quick run down of it's schema will help to shed some light on how it works.
+Your governace rules are saved in `governance-rules.json`. Before diving into how it's used, a quick run down the schema will shed light on how it works.
 
 ### Schema Basics
 
 You can find the schema definition used for the rules [here][repo-schema-location]. Including a schema entry in your rules will provide for code completion in most editors.
 
-We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to best troubleshoot these interactions.
+We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to troubleshoot these interactions.
 
-Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described above, and it is the only type that is required in your rule set. 
+Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described below, and it is the only type that is required in your rule set. 
 
-Rule's not of type `default` require an additional field to help use this particular rule. These are broken down below, along with examples of their possible values:
+Rule's not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
 | Rule Type     | Required Field| Possible Values     |
 | ------------- | ------------- | -------------       |
@@ -102,8 +102,8 @@ Rule's not of type `default` require an additional field to help use this partic
 Each rule can have any one of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks`(ability to lock/unlock blocks that will restrict movement/deletion). If you do not want to enable these features, omit them from the array.
-- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block. Additionally, you can set `allowedBlocks` to restrict what blocks can be nested under a parent.
-- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor.
+- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block. 
+- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. Additionally, you can set `allowedBlocks` to restrict what blocks can be nested under a parent.
 
 Non-default rule types will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties. If multiple non-default rule types are provided, they will be applied in the following ascending priority:
 
@@ -116,11 +116,11 @@ So if a matching `postType` and `role` rule is found, the `role` rule will be ap
 
 By default, the plugin uses [this](repo-governance-file-location) `governance-rules.json`. We recommend duplicating this file into your [private folder][wpvip-private-dir], and adapting it for your needs. In order to use the rules schema for in-editor support, duplicate the `governance-schema.json` into your private folder as well.
 
-With this default rule set, all blocks and all features are enabled. It is sensible to set your default rule to the settings you want for your least privileged user then override with role and/or post type-specific rules.
+With this default rule set, all blocks and all features are enabled. It is sensible to set your default rule to the settings you want for your least privileged user then add capabilities with role and/or post type-specific rules.
 
 ### Starter Rule Sets
 
-Below is some rule sets that you can use to build your `governance-rules.json`. They cover a wide range of use cases, and have explanations below them to shed light on exactly what the outcome would be within the editor.
+Below is some rule sets that you can use to build your `governance-rules.json`. They cover a wide range of use cases.
 
 #### Default Rule Set
 
@@ -507,11 +507,11 @@ Select the mode that's used for determining if a block should be allowed or not,
 
 ## Admin Settings
 
-There is an admin settings menu titled `VIP Governance` that's created with the use of this plugin. This page offers some helpful items such as:
+There is an admin settings menu titled `VIP Governance` that's created with the use of this plugin. This page offers:
 
 - Turning on and off the plugin quickly, without re-deploying.
-- View all the rules at once, and also any errors if it's invalid.
-- View the rules as a specific user role and/or for a specific post type.
+- View all the rules at once, and also any errors if the schema is invalid.
+- View combined rules as a specific user role and/or for a specific post type.
 
 ![Admin setting in action][settings-panel-example-gif]
 
@@ -562,7 +562,7 @@ Both of these data points are a counter that is incremented and do not contain a
 
 ## Development
 
-In order to ensure no dev dependencies go in, the following can be done while installing the packages:
+In order to ensure no dev dependencies are installed, the following can be done while installing the packages:
 
 ```
 composer install --no-dev
