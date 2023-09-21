@@ -71,7 +71,7 @@ class GovernanceUtilities {
 	 * 
 	 * @access private
 	 */
-	public static function get_rules_by_type( $governance_rules, $user_roles = [], $post_type = '' ) {
+	public static function get_rules_by_type( $governance_rules, $user_roles = array(), $post_type = '' ) {
 		if ( empty( $governance_rules ) ) {
 			return array();
 		}
@@ -93,7 +93,7 @@ class GovernanceUtilities {
 		// Assumption is that it's been ordered by priority, so it will process those rules first followed by default last.
 		foreach ( RulesParser::RULE_TYPES as $priority ) {
 			// look up the rule in $governance_rules where the field type matches priority.
-			$governance_rules_for_priority = array_filter( $governance_rules, function( $rule ) use ( $priority, $user_roles, $post_type, $type_to_rules_map ) {
+			$governance_rules_for_priority = array_filter( $governance_rules, function ( $rule ) use ( $priority, $user_roles, $post_type, $type_to_rules_map ) {
 				// Its required to have the type, and its corresponding types set unless you are the default rule in which case you only need type set to default.
 				if ( isset( $rule['type'] ) && $priority === $rule['type'] && ( 'default' === $priority || isset( $rule[ $type_to_rules_map[ $priority ] ] ) ) ) {
 					if ( 'default' === $priority ) {
@@ -146,7 +146,7 @@ class GovernanceUtilities {
 			// For the default rule the allowedBlocks and allowedFeatures are combined together.
 			// Otherwise, there can only be one.
 			if ( 'default' === $rule_type ) {
-				return [ ...$allowed_blocks_or_features, ...$governance_rule[ $allowed_type ] ];
+				return array( ...$allowed_blocks_or_features, ...$governance_rule[ $allowed_type ] );
 			} else {
 				$allowed_blocks_or_features = $governance_rule[ $allowed_type ];
 			}
@@ -179,5 +179,4 @@ class GovernanceUtilities {
 
 		return $block_settings;
 	}
-
 }

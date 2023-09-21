@@ -14,13 +14,13 @@ class RulesParserTest extends TestCase {
 	public function test_validate_schema__with_empty_content__returns_empty_rules() {
 		$rules_content = '';
 
-		$this->assertEqualsRules( [], RulesParser::parse( $rules_content ) );
+		$this->assertEqualsRules( array(), RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_empty_object__returns_empty_rules() {
 		$rules_content = '{}';
 
-		$this->assertEqualsRules( [], RulesParser::parse( $rules_content ) );
+		$this->assertEqualsRules( array(), RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_empty_rules_array__returns_empty_rules() {
@@ -29,7 +29,7 @@ class RulesParserTest extends TestCase {
 			"rules": []
 		}';
 
-		$this->assertEqualsRules( [], RulesParser::parse( $rules_content ) );
+		$this->assertEqualsRules( array(), RulesParser::parse( $rules_content ) );
 	}
 
 	#endredion Empty rules tests
@@ -298,16 +298,16 @@ class RulesParserTest extends TestCase {
 			]
 		}';
 
-		$this->assertEqualsRules( [
-			[
+		$this->assertEqualsRules( array(
+			array(
 				'type'          => 'default',
-				'allowedBlocks' => [
+				'allowedBlocks' => array(
 					'core/paragraph',
 					'core/heading',
 					'core/media-text',
-				],
-			],
-		], RulesParser::parse( $rules_content ) );
+				),
+			),
+		), RulesParser::parse( $rules_content ) );
 	}
 
 	#endregion Valid rules testing

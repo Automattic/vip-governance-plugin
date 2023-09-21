@@ -377,5 +377,4 @@ class NestedGovernanceProcessing {
 			return '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
 		}
 	}
-
 }

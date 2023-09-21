@@ -18,7 +18,7 @@ class Analytics {
 	 * 
 	 * @var array
 	 */
-	private static $analytics_to_send = [];
+	private static $analytics_to_send = array();
 
 	/**
 	 * Initialize the Analytics class.
@@ -26,7 +26,7 @@ class Analytics {
 	 * @access private
 	 */
 	public static function init() {
-		add_action( 'shutdown', [ __CLASS__, 'send_analytics' ] );
+		add_action( 'shutdown', array( __CLASS__, 'send_analytics' ) );
 	}
 
 	/**
@@ -83,9 +83,9 @@ class Analytics {
 	 * @return void
 	 */
 	private static function send_pixel( $stats ) {
-		$query_args = [
+		$query_args = array(
 			'v' => 'wpcom-no-pv',
-		];
+		);
 
 		foreach ( $stats as $name => $group ) {
 			$query_param = rawurlencode( 'x_' . $name );

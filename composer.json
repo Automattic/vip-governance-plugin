@@ -8,21 +8,16 @@
 		"phpcs": "phpcs",
 		"phpcs-fix": "phpcbf",
 		"test": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c phpunit.xml.dist",
-		"test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml",
-		"test-watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"nodemon -w ./ --ignore vendor/ -e php --exec 'composer run test'"
-		]
+		"test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
 	},
 	"require": {
 		"seld/jsonlint": "^1.10"
 	},
 	"require-dev": {
-		"automattic/vipwpcs": "2.3.3",
+		"automattic/vipwpcs": "3.0.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.4",
-		"phpunit/phpunit": "9.6.7",
-		"seregazhuk/php-watcher": "^0.5.2",
-		"yoast/phpunit-polyfills": "^2.0"
+		"phpunit/phpunit": "9.6.13",
+		"yoast/phpunit-polyfills": "2.0.0"
 	},
 	"config": {
 		"allow-plugins": {

@@ -63,5 +63,3 @@ if ( ! defined( 'VIP_BLOCK_GOVERNANCE_LOADED' ) ) {
 	// /wp-json/ API.
 	require_once __DIR__ . '/governance/rest/rest-api.php';
 }
-
-

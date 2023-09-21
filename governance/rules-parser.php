@@ -18,13 +18,13 @@ use Seld\JsonLint\ParsingException;
  */
 class RulesParser {
 	// Update this when the rules schema changes.
-	public const TYPE_TO_RULES_MAP = [
+	public const TYPE_TO_RULES_MAP = array(
 		'role'     => 'roles',
 		'postType' => 'postTypes',
-	];
+	);
 	// Keep this order this way, as it's used for determing the priority of rules in governance-utilities.
-	public const RULE_TYPES         = [ 'postType', 'role', 'default' ];
-	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
+	public const RULE_TYPES         = array( 'postType', 'role', 'default' );
+	private const RULE_KEYS_GENERAL = array( 'allowedFeatures', 'allowedBlocks', 'blockSettings' );
 
 	/**
 	 * Parses and validates governance rules.
@@ -38,7 +38,7 @@ class RulesParser {
 	public static function parse( $rules_content ) {
 		if ( empty( $rules_content ) ) {
 			// Allow an empty file to be valid for no rules.
-			return [];
+			return array();
 		}
 
 		// Parse JSON from rules file.
@@ -48,7 +48,7 @@ class RulesParser {
 			return $rules_parsed;
 		} elseif ( empty( $rules_parsed ) ) {
 			// Allow an empty object to be valid for no rules.
-			return [];
+			return array();
 		}
 
 		// Validate governance rule logic.
@@ -91,7 +91,7 @@ class RulesParser {
 
 		if ( empty( $rules_parsed ) ) {
 			// If parsed rules contain an empty object, treat this as a valid form of no rules.
-			return [];
+			return array();
 		}
 
 		return $rules_parsed;
@@ -219,13 +219,13 @@ class RulesParser {
 	 * Format an array into a quoted, comma-separated list of keys for display.
 	 * e.g. [ 'default', 'role' ] => '"default", "role"'.
 	 * 
-	 * @param array $array Parsed rule.
+	 * @param array $input_array Parsed rule.
 	 * 
 	 * @return string Comma-separated list of quoted keys.
 	 */
-	private static function format_array_to_keys( $array ) {
-		return implode( ', ', array_map( function( $item ) {
+	private static function format_array_to_keys( $input_array ) {
+		return implode( ', ', array_map( function ( $item ) {
 			return sprintf( '"%s"', $item );
-		}, $array ) );
+		}, $input_array ) );
 	}
 }
