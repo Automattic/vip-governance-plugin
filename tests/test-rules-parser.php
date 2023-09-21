@@ -25,7 +25,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_empty_rules_array__returns_empty_rules() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": []
 		}';
 
@@ -44,7 +44,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_trailing_comma__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default",
@@ -65,7 +65,7 @@ class RulesParserTest extends TestCase {
 	}
 
 	public function test_validate_schema__without_rules_array__returns_error() {
-		$rules_content = '{ "version": "0.2.0" }';
+		$rules_content = '{ "version": "1.0.0" }';
 
 		$this->assertWPErrorCode( 'logic-missing-rules', RulesParser::parse( $rules_content ) );
 	}
@@ -76,7 +76,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_rules_wrong_type__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": 7
 		}';
 
@@ -85,7 +85,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_rule_missing_type__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [ {} ]
 		}';
 
@@ -94,7 +94,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_incorrect_rule_type__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "notarule",
@@ -113,7 +113,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_empty_rule__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default"
@@ -126,7 +126,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_rule_type_with_roles__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default",
@@ -141,7 +141,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_rule_with_roles__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default",
@@ -155,7 +155,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_rule_with_post_types__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default",
@@ -169,7 +169,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_multiple_default_rules__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default",
@@ -191,7 +191,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_role_rule_missing_roles__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "role",
@@ -205,7 +205,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_role_rule_with_empty_roles__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "role",
@@ -220,7 +220,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_role_empty_rule__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "role",
@@ -238,7 +238,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_post_type_rule_missing_post_types__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "postType",
@@ -252,7 +252,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_post_type_rule_with_empty_post_types__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "postType",
@@ -267,7 +267,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_post_type_empty_rule__returns_error() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "postType",
@@ -285,7 +285,7 @@ class RulesParserTest extends TestCase {
 
 	public function test_validate_schema__with_default_allowed_blocks_rule__passes_validation() {
 		$rules_content = '{
-			"version": "0.2.0",
+			"version": "1.0.0",
 			"rules": [
 				{
 					"type": "default",
