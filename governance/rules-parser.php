@@ -18,13 +18,13 @@ use Seld\JsonLint\ParsingException;
  */
 class RulesParser {
 	// Update this when the rules schema changes.
-	public const TYPE_TO_RULES_MAP = array(
+	public const TYPE_TO_RULES_MAP = [
 		'role'     => 'roles',
 		'postType' => 'postTypes',
-	);
+	];
 	// Keep this order this way, as it's used for determing the priority of rules in governance-utilities.
-	public const RULE_TYPES         = array( 'postType', 'role', 'default' );
-	private const RULE_KEYS_GENERAL = array( 'allowedFeatures', 'allowedBlocks', 'blockSettings' );
+	public const RULE_TYPES         = [ 'postType', 'role', 'default' ];
+	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
 
 	/**
 	 * Parses and validates governance rules.
@@ -38,7 +38,7 @@ class RulesParser {
 	public static function parse( $rules_content ) {
 		if ( empty( $rules_content ) ) {
 			// Allow an empty file to be valid for no rules.
-			return array();
+			return [];
 		}
 
 		// Parse JSON from rules file.
@@ -48,7 +48,7 @@ class RulesParser {
 			return $rules_parsed;
 		} elseif ( empty( $rules_parsed ) ) {
 			// Allow an empty object to be valid for no rules.
-			return array();
+			return [];
 		}
 
 		// Validate governance rule logic.
@@ -91,7 +91,7 @@ class RulesParser {
 
 		if ( empty( $rules_parsed ) ) {
 			// If parsed rules contain an empty object, treat this as a valid form of no rules.
-			return array();
+			return [];
 		}
 
 		return $rules_parsed;

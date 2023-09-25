@@ -27,8 +27,8 @@ class Settings {
 	 * @access private
 	 */
 	public static function init() {
-		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
+		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ] );
 	}
 
 	/**
@@ -39,13 +39,13 @@ class Settings {
 	 * @access private
 	 */
 	public static function register_settings() {
-		register_setting( self::OPTIONS_KEY, self::OPTIONS_KEY, array( __CLASS__, 'validate_options' ) );
+		register_setting( self::OPTIONS_KEY, self::OPTIONS_KEY, [ __CLASS__, 'validate_options' ] );
 
 		$section_id = 'plugin-settings';
 		add_settings_section( $section_id, __( 'Plugin Settings' ), '__return_null', self::MENU_SLUG );
-		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance' ), array( __CLASS__, 'render_is_enabled' ), self::MENU_SLUG, $section_id, array(
+		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
 			'label_for' => self::OPTIONS_KEY_IS_ENABLED,
-		) );
+		] );
 	}
 
 	/**
@@ -56,9 +56,9 @@ class Settings {
 	 * @access private
 	 */
 	public static function register_menu() {
-		$hook = add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, array( __CLASS__, 'render' ), 'dashicons-groups' );
-		add_action( 'load-' . $hook, array( __CLASS__, 'enqueue_scripts' ) );
-		add_action( 'load-' . $hook, array( __CLASS__, 'enqueue_resources' ) );
+		$hook = add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
 	}
 
 	/**
@@ -72,7 +72,7 @@ class Settings {
 		wp_enqueue_style(
 			'wpcomvip-governance-settings',
 			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/governance/settings/settings.css',
-			/* dependencies */ array(),
+			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
 	}
@@ -88,7 +88,7 @@ class Settings {
 		wp_enqueue_script(
 			'wpcomvip-governance-settings',
 			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/governance/settings/settings.js',
-			/* dependencies */ array( 'wp-api' ),
+			/* dependencies */ [ 'wp-api' ],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION,
 			/* in footer */ true
 		);

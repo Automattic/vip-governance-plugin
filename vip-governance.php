@@ -2,7 +2,7 @@
 /**
  * Plugin Name: VIP Governance Plugin
  * Plugin URI: https://wpvip.com
- * Description: Add additional governance capabilities to Gutenberg.
+ * Description: Add additional governance capabilities to the block editor.
  * Author: WordPress VIP
  * Text Domain: vip-governance
  * Version: 1.0.0

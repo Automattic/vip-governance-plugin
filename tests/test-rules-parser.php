@@ -14,13 +14,13 @@ class RulesParserTest extends TestCase {
 	public function test_validate_schema__with_empty_content__returns_empty_rules() {
 		$rules_content = '';
 
-		$this->assertEqualsRules( array(), RulesParser::parse( $rules_content ) );
+		$this->assertEqualsRules( [], RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_empty_object__returns_empty_rules() {
 		$rules_content = '{}';
 
-		$this->assertEqualsRules( array(), RulesParser::parse( $rules_content ) );
+		$this->assertEqualsRules( [], RulesParser::parse( $rules_content ) );
 	}
 
 	public function test_validate_schema__with_empty_rules_array__returns_empty_rules() {
@@ -29,7 +29,7 @@ class RulesParserTest extends TestCase {
 			"rules": []
 		}';
 
-		$this->assertEqualsRules( array(), RulesParser::parse( $rules_content ) );
+		$this->assertEqualsRules( [], RulesParser::parse( $rules_content ) );
 	}
 
 	#endredion Empty rules tests

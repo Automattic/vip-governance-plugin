@@ -23,7 +23,7 @@ class InitGovernance {
 	 * 
 	 * @access private
 	 */
-	public static $governance_configuration = array();
+	public static $governance_configuration = [];
 
 	/**
 	 * Initialize the class
@@ -32,10 +32,10 @@ class InitGovernance {
 	 */
 	public static function init() {
 		// Assets for block editor UI.
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_settings' ) );
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'load_settings' ] );
 
 		// Assets for iframed block editor and editor UI.
-		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_css' ) );
+		add_action( 'enqueue_block_assets', [ __CLASS__, 'load_css' ] );
 	}
 
 	/**
@@ -65,12 +65,12 @@ class InitGovernance {
 
 		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
 
-		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', array(
+		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [ 
 			'error'           => self::$governance_configuration['error'],
 			'governanceRules' => self::$governance_configuration['governanceRules'],
-			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
+			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : [],
 			'urlSettingsPage' => menu_page_url( Settings::MENU_SLUG, /* display */ false ),
-		));
+		]);
 	}
 
 	/**
@@ -92,7 +92,7 @@ class InitGovernance {
 		wp_enqueue_style(
 			'wpcomvip-governance',
 			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
-			/* dependencies */ array(),
+			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
 
@@ -106,8 +106,8 @@ class InitGovernance {
 	 */
 	private static function load_governance_configuration() {
 		$governance_error          = false;
-		$governance_rules_for_user = array();
-		$nested_settings_and_css   = array();
+		$governance_rules_for_user = [];
+		$nested_settings_and_css   = [];
 
 		try {
 			$parsed_governance_rules = GovernanceUtilities::get_parsed_governance_rules();
@@ -130,11 +130,11 @@ class InitGovernance {
 			$governance_error = __( 'Governance rules could not be loaded due to a plugin error.' );
 		}
 
-		return array(
+		return [
 			'error'                => $governance_error,
 			'governanceRules'      => $governance_rules_for_user,
 			'nestedSettingsAndCss' => $nested_settings_and_css,
-		);
+		];
 	}
 }
 

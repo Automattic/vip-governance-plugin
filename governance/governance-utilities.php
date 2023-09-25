@@ -71,9 +71,9 @@ class GovernanceUtilities {
 	 * 
 	 * @access private
 	 */
-	public static function get_rules_by_type( $governance_rules, $user_roles = array(), $post_type = '' ) {
+	public static function get_rules_by_type( $governance_rules, $user_roles = [], $post_type = '' ) {
 		if ( empty( $governance_rules ) ) {
-			return array();
+			return [];
 		}
 
 		// This is the case where its not called by the admin UI, but in factor by the editor.
@@ -83,9 +83,9 @@ class GovernanceUtilities {
 			$post_type    = get_post_type();
 		}
 
-		$allowed_features = array();
-		$allowed_blocks   = array();
-		$block_settings   = array();
+		$allowed_features = [];
+		$allowed_blocks   = [];
+		$block_settings   = [];
 
 		// Because PHP doesn't allow passing this in directly.
 		$type_to_rules_map = RulesParser::TYPE_TO_RULES_MAP;
@@ -122,11 +122,11 @@ class GovernanceUtilities {
 		}
 
 		// return array of allowed_blocks and block_settings.
-		return array(
+		return [
 			'allowedBlocks'   => $allowed_blocks,
 			'blockSettings'   => $block_settings,
 			'allowedFeatures' => $allowed_features,
-		);
+		];
 	}
 
 	/**
@@ -146,7 +146,7 @@ class GovernanceUtilities {
 			// For the default rule the allowedBlocks and allowedFeatures are combined together.
 			// Otherwise, there can only be one.
 			if ( 'default' === $rule_type ) {
-				return array( ...$allowed_blocks_or_features, ...$governance_rule[ $allowed_type ] );
+				return [ ...$allowed_blocks_or_features, ...$governance_rule[ $allowed_type ] ];
 			} else {
 				$allowed_blocks_or_features = $governance_rule[ $allowed_type ];
 			}

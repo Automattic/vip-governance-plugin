@@ -4,7 +4,7 @@
 
 # VIP Governance plugin
 
-This WordPress plugin add additional governance capabilities to the block editor. This is accomplished via two dimensions:
+This WordPress plugin adds additional governance capabilities to the block editor. This is accomplished via two dimensions:
 
 - Insertion: restricts what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced they would not be permitted.
 - Interaction: This adds the ability to control the styling available for blocks at any level.
@@ -82,7 +82,7 @@ To activate the installed plugin:
 
 ## Usage
 
-Your governace rules are saved in `governance-rules.json`. Before diving into how it's used, a quick run down the schema will shed light on how it works.
+Your governance rules are saved in `governance-rules.json`. Before diving into how it's used, a quick run down of the schema will shed light on how it works.
 
 ### Schema Basics
 
@@ -92,7 +92,7 @@ We have allowed significant space for customization. This means it is also possi
 
 Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described below, and it is the only type that is required in your rule set. 
 
-Rule's not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
+Rules not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
 | Rule Type     | Required Field| Possible Values     |
 | ------------- | ------------- | -------------       |
@@ -103,7 +103,7 @@ Each rule can have any one of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks`(ability to lock/unlock blocks that will restrict movement/deletion). If you do not want to enable these features, omit them from the array.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block. 
-- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. Additionally, you can set `allowedBlocks` to restrict what blocks can be nested under a parent.
+- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. Additionally, you can use `allowedBlocks` in `blockSettings` rules to restrict what blocks can be nested under a parent.
 
 Non-default rule types will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties. If multiple non-default rule types are provided, they will be applied in the following ascending priority:
 
