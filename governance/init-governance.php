@@ -65,10 +65,10 @@ class InitGovernance {
 
 		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
 
-		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
+		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [ 
 			'error'           => self::$governance_configuration['error'],
 			'governanceRules' => self::$governance_configuration['governanceRules'],
-			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : array(),
+			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : [],
 			'urlSettingsPage' => menu_page_url( Settings::MENU_SLUG, /* display */ false ),
 		]);
 	}
@@ -92,7 +92,7 @@ class InitGovernance {
 		wp_enqueue_style(
 			'wpcomvip-governance',
 			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
-			/* dependencies */ array(),
+			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
 
@@ -106,8 +106,8 @@ class InitGovernance {
 	 */
 	private static function load_governance_configuration() {
 		$governance_error          = false;
-		$governance_rules_for_user = array();
-		$nested_settings_and_css   = array();
+		$governance_rules_for_user = [];
+		$nested_settings_and_css   = [];
 
 		try {
 			$parsed_governance_rules = GovernanceUtilities::get_parsed_governance_rules();

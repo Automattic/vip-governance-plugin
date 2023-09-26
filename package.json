@@ -1,7 +1,7 @@
 {
 	"name": "block-editor-governance",
 	"version": "1.0.0",
-	"description": "This is a plugin for integrating governance into the block editor",
+	"description": "This is a plugin adding additional governance capabilities to the block editor.",
 	"author": "VIP Bistro",
 	"main": "build/index.js",
 	"devDependencies": {

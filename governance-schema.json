@@ -156,7 +156,7 @@
 		"version": {
 			"description": "Version of governance JSON",
 			"type": "string",
-			"enum": [ "0.2.0" ]
+			"enum": [ "1.0.0" ]
 		},
 		"rules": {
 			"description": "Array of governance rules",

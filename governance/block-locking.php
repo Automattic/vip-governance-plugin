@@ -33,7 +33,8 @@ class BlockLocking {
 			$allow_code_editor = true;
 		}
 
-		add_filter( 'block_editor_settings_all', function( $settings, $context ) use ( $allow_lock_blocks, $allow_code_editor ) {
+		// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		add_filter( 'block_editor_settings_all', function ( $settings, $context ) use ( $allow_lock_blocks, $allow_code_editor ) {
 			if ( false === $allow_lock_blocks ) {
 				// Disable locking and unlocking blocks.
 				$settings['canLockBlocks'] = false;

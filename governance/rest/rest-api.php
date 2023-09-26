@@ -40,21 +40,21 @@ class RestApi {
 			'callback'            => [ __CLASS__, 'get_governance_rules_for_rule_type' ],
 			'args'                => [
 				'role'     => [
-					'validate_callback' => function( $param ) {
+					'validate_callback' => function ( $param ) {
 						$all_roles = array_keys( wp_roles()->roles );
-						$roles     = array( strval( $param ) );
+						$roles     = [ strval( $param ) ];
 						return array_intersect( $all_roles, $roles );
 					},
-					'sanitize_callback' => function( $param ) {
+					'sanitize_callback' => function ( $param ) {
 						return strval( $param );
 					},
 				],
 				'postType' => [
-					'validate_callback' => function( $param ) {
-						$post_types = array( strval( $param ) );
+					'validate_callback' => function ( $param ) {
+						$post_types = [ strval( $param ) ];
 						return array_intersect( get_post_types(), $post_types );
 					},
-					'sanitize_callback' => function( $param ) {
+					'sanitize_callback' => function ( $param ) {
 						return strval( $param );
 					},
 				],
@@ -83,7 +83,7 @@ class RestApi {
 	 * @access private
 	 */
 	public static function get_governance_rules_for_rule_type( $params ) {
-		$role      = isset( $params['role'] ) ? array( $params['role'] ) : array();
+		$role      = isset( $params['role'] ) ? [ $params['role'] ] : [];
 		$post_type = $params['postType'] ?? '';
 
 		try {

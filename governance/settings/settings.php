@@ -115,7 +115,7 @@ class Settings {
 			$governance_error = $governance_rules->get_error_message();
 		}
 
-		include __DIR__ . '/settings.view.php';
+		include __DIR__ . '/settings-view.php';
 	}
 
 	/**

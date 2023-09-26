@@ -219,13 +219,13 @@ class RulesParser {
 	 * Format an array into a quoted, comma-separated list of keys for display.
 	 * e.g. [ 'default', 'role' ] => '"default", "role"'.
 	 * 
-	 * @param array $array Parsed rule.
+	 * @param array $input_array Parsed rule.
 	 * 
 	 * @return string Comma-separated list of quoted keys.
 	 */
-	private static function format_array_to_keys( $array ) {
-		return implode( ', ', array_map( function( $item ) {
+	private static function format_array_to_keys( $input_array ) {
+		return implode( ', ', array_map( function ( $item ) {
 			return sprintf( '"%s"', $item );
-		}, $array ) );
+		}, $input_array ) );
 	}
 }

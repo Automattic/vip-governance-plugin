@@ -84,7 +84,7 @@ class NestedGovernanceProcessing {
 	 * 
 	 * @return array 
 	 */
-	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = array(), $current_selector = null, $current_path = array() ) {
+	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = [], $current_selector = null, $current_path = [] ) {
 		foreach ( $current_block as $block_name => $block ) {
 			if ( array_key_exists( $block_name, $blocks_registered ) ) {
 
@@ -154,8 +154,8 @@ class NestedGovernanceProcessing {
 					continue;
 				}
 
-				$setting        = _wp_array_get( $theme_json, $path_and_selector_of_block['path'], array() );
-				$declarations   = array();
+				$setting        = _wp_array_get( $theme_json, $path_and_selector_of_block['path'], [] );
+				$declarations   = [];
 				$values_by_slug = static::get_settings_values_by_slug( $setting, $preset_metadata );
 				foreach ( $values_by_slug as $slug => $value ) {
 					$declarations[] = array(
@@ -214,7 +214,7 @@ class NestedGovernanceProcessing {
 		if ( ! str_contains( $selector, ',' ) ) {
 			return $selector . $to_append;
 		}
-		$new_selectors = array();
+		$new_selectors = [];
 		$selectors     = explode( ',', $selector );
 		foreach ( $selectors as $sel ) {
 			$new_selectors[] = $sel . $to_append;
@@ -233,9 +233,9 @@ class NestedGovernanceProcessing {
 	 * @return array Array of presets where the key and value are both the slug.
 	 */
 	private static function get_settings_slugs( $settings, $preset_metadata ) {
-		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
+		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], [] );
 
-		$result = array();
+		$result = [];
 		if ( isset( $preset_per_origin[ self::DEFAULT_ORIGIN ] ) ) {
 			foreach ( $preset_per_origin[ self::DEFAULT_ORIGIN ] as $preset ) {
 				$slug = _wp_to_kebab_case( $preset['slug'] );
@@ -310,9 +310,9 @@ class NestedGovernanceProcessing {
 	 * @return array Array of presets where each key is a slug and each value is the preset value.
 	 */
 	private static function get_settings_values_by_slug( $settings, $preset_metadata ) {
-		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], array() );
+		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], [] );
 
-		$result = array();
+		$result = [];
 
 		if ( isset( $preset_per_origin[ self::DEFAULT_ORIGIN ] ) ) {
 			foreach ( $preset_per_origin[ self::DEFAULT_ORIGIN ] as $preset ) {
@@ -377,5 +377,4 @@ class NestedGovernanceProcessing {
 			return '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
 		}
 	}
-
 }

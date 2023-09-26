@@ -17,7 +17,6 @@
 
 	<!-- Other directories -->
 	<exclude-pattern>\.git/*</exclude-pattern>
-	<exclude-pattern>/__tests__/*</exclude-pattern>
 	<exclude-pattern>/bin/*</exclude-pattern>
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
@@ -60,7 +59,7 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
 
 		<!-- Allow short array syntax -->
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
 
 		<!-- Do not enforce 'class-' prefix -->
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />

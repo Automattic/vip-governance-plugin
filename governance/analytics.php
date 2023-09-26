@@ -9,9 +9,6 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-define( 'WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE', 'vip-governance-usage' );
-define( 'WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR', 'vip-governance-usage-error' );
-
 /**
  * Analytics Class that will be used to send data to the WP Pixel.
  */

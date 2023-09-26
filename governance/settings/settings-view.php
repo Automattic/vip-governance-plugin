@@ -10,7 +10,7 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 $is_governance_error        = false !== $governance_error;
-$governance_rules_formatted = join("\n", array_map(function( $line ) {
+$governance_rules_formatted = join("\n", array_map(function ( $line ) {
 	return sprintf( '<code>%s</code>', esc_html( $line ) );
 }, explode( "\n", trim( $governance_rules_json ) )));
 
