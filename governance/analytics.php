@@ -87,8 +87,7 @@ class Analytics {
 	private static function is_wpvip_site() {
 		return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true
 			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
-			&& defined( 'FILES_CLIENT_SITE_ID' )
-				&& function_exists( '\Automattic\VIP\Stats\send_pixel' );
+			&& defined( 'FILES_CLIENT_SITE_ID' ) && function_exists( '\Automattic\VIP\Stats\send_pixel' );
 	}
 }
 
