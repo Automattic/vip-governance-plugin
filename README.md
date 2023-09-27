@@ -1,7 +1,3 @@
----
-### :warning: This plugin is currently in Beta. It is designed to run on [WordPress VIP][wpvip]. This beta release is not intended for use on a production environment.
----
-
 # VIP Governance plugin
 
 This WordPress plugin adds additional governance capabilities to the block editor. This is accomplished via two dimensions:
@@ -86,7 +82,7 @@ Your governance rules are saved in `governance-rules.json`. Before diving into h
 
 ### Schema Basics
 
-You can find the schema definition used for the rules [here][repo-schema-location]. Including a schema entry in your rules will provide for code completion in most editors.
+You can find the schema definition used for the rules [here][repo-schema-location]. You can use `https://api.wpvip.com/schemas/plugins/governance.json` as the schema entry in your rules, to take advantage of code completion in most editors.
 
 We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to troubleshoot these interactions.
 
@@ -94,10 +90,10 @@ Each rule is an object in an array. The one required property is `type`, which c
 
 Rules not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
-| Rule Type     | Required Field| Possible Values     |
-| ------------- | ------------- | -------------       |
-| `role`  | `roles`  | name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles        |
-| `postType`  | `postTypes`  | name/slug of any [default][wp-default-post-types] or [custom][wp-custom-post-types] post types        |
+| Rule Type  | Required Field | Possible Values                                                                                |
+|------------|----------------|------------------------------------------------------------------------------------------------|
+| `role`     | `roles`        | name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles                |
+| `postType` | `postTypes`    | name/slug of any [default][wp-default-post-types] or [custom][wp-custom-post-types] post types |
 
 Each rule can have any one of the following properties.
 
@@ -114,7 +110,7 @@ So if a matching `postType` and `role` rule is found, the `role` rule will be ap
 
 ### Quick Start
 
-By default, the plugin uses [this](repo-governance-file-location) `governance-rules.json`. We recommend duplicating this file into your [private folder][wpvip-private-dir], and adapting it for your needs. In order to use the rules schema for in-editor support, duplicate the `governance-schema.json` into your private folder as well.
+By default, the plugin uses [this][repo-governance-file-location] `governance-rules.json`. We recommend duplicating one of the starter rule sets provided [below](#starter-rule-sets), and adapting it for your needs. In order to take advantage of the rules schema for in-editor support, use `https://api.wpvip.com/schemas/plugins/governance.json`.
 
 With this default rule set, all blocks and all features are enabled. It is sensible to set your default rule to the settings you want for your least privileged user then add capabilities with role and/or post type-specific rules.
 
@@ -128,7 +124,7 @@ This is the default rule set used by the plugin.
 
 ```json
 {
-  "$schema": "./governance-schema.json",
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
   "version": "1.0.0",
   "rules": [
     {
@@ -153,7 +149,7 @@ This expands the default rule set by adding restrictions for all users and post 
 
 ```json
 {
-  "$schema": "./governance-schema.json",
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
   "version": "1.0.0",
   "rules": [
     {
@@ -241,7 +237,7 @@ This example focuses on providing a restrictive default rule set, and expanded p
 
 ```json
 {
-  "$schema": "./governance-schema.json",
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
   "version": "1.0.0",
   "rules": [
     {
@@ -323,7 +319,7 @@ This example focuses on providing a restrictive default rule set, and expanded p
 
 ```json
 {
-  "$schema": "./governance-schema.json",
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
   "version": "1.0.0",
   "rules": [
     {
@@ -525,7 +521,7 @@ It has only three root level keys: `allowedBlocks`, `blockSettings`, and `allowe
 
 #### Example
 
-This example involves making a call to `http://my.site/wp-json/vip-governance/v1/editor/rules` for an `editor` role, while using [this]((#default-and-user-role-rule-set)) rule file found in the starter rule sets:
+This example involves making a call to `http://my.site/wp-json/vip-governance/v1/editor/rules` for an `editor` role, while using [this](#default-and-user-role-rule-set) rule file found in the starter rule sets:
 
 ```json
 {

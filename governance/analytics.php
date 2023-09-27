@@ -1,7 +1,7 @@
 <?php
 /**
  * Analytics for Block Governance.
- * 
+ *
  * @package vip-governance
  */
 
@@ -15,14 +15,14 @@ defined( 'ABSPATH' ) || die();
 class Analytics {
 	/**
 	 * Array of analytics to send to the WP Pixel.
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $analytics_to_send = [];
 
 	/**
 	 * Initialize the Analytics class.
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function init() {
@@ -31,7 +31,7 @@ class Analytics {
 
 	/**
 	 * Record the usage of the plugin, for VIP sites only. For non-VIP sites, this is a no-op.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function record_usage() {
@@ -56,8 +56,8 @@ class Analytics {
 	}
 
 	/**
-	 * Send the analytics, if present. If an error is present, then usage analytics are not sent. 
-	 * 
+	 * Send the analytics, if present. If an error is present, then usage analytics are not sent.
+	 *
 	 * @return void
 	 */
 	public static function send_analytics() {
@@ -73,45 +73,22 @@ class Analytics {
 			unset( self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___USAGE ] );
 		}
 
-		self::send_pixel( self::$analytics_to_send );
-	}
-
-	/**
-	 * Send the stats to the WP Pixel.
-	 *
-	 * @param array $stats Stats to be sent.
-	 * @return void
-	 */
-	private static function send_pixel( $stats ) {
-		$query_args = [
-			'v' => 'wpcom-no-pv',
-		];
-
-		foreach ( $stats as $name => $group ) {
-			$query_param = rawurlencode( 'x_' . $name );
-			$query_value = rawurlencode( $group );
-
-			$query_args[ $query_param ] = $query_value;
+		// Use the built-in mu-plugins methods to send the data to VIP Stats.
+		if ( function_exists( '\Automattic\VIP\Stats\send_pixel' ) ) {
+			\Automattic\VIP\Stats\send_pixel( self::$analytics_to_send );
 		}
-
-		$pixel = add_query_arg( $query_args, 'http://pixel.wp.com/b.gif' );
-
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
-		wp_remote_get( $pixel, array(
-			'blocking' => false,
-			'timeout'  => 1,
-		) );
 	}
 
 	/**
 	 * Check if the site is a WPVIP site.
-	 * 
+	 *
 	 * @return bool true If it is a WPVIP site, false otherwise
 	 */
 	private static function is_wpvip_site() {
 		return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true
 			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
-			&& defined( 'FILES_CLIENT_SITE_ID' );
+			&& defined( 'FILES_CLIENT_SITE_ID' )
+				&& function_exists( '\Automattic\VIP\Stats\send_pixel' );
 	}
 }
 
