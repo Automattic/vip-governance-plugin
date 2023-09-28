@@ -406,6 +406,7 @@ With this rule set, the following rules will apply:
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
 
 - Support for `color.duotone` has not been implemented.
+- `wp-env.json` within this plugin is intended for tests only, it doesn't work locally.
 
 ## Code Filters
 

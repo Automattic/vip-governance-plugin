@@ -25,7 +25,11 @@ class GovernanceUtilities {
 	 */
 	public static function get_parsed_governance_rules() {
 		$governance_rules_json = self::get_governance_rules_json();
-		return RulesParser::parse( $governance_rules_json );
+		if ( is_wp_error( $governance_rules_json ) ) {
+			return $governance_rules_json;
+		} else {
+			return RulesParser::parse( $governance_rules_json );
+		}
 	}
 
 	/**
