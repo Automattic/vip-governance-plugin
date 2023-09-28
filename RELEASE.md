@@ -54,7 +54,7 @@ Now commit these build changes in.
    # Creates a ZIP archive with the prefix folder "vip-governance/" containing files from tag 1.0.2
    ```
 
-2. Visit the [vip-governance create release page](https://github.com/wpcomvip/vip-governance-plugin/releases/new).
+2. Visit the [vip-governance create release page](https://github.com/automattic/vip-governance-plugin/releases/new).
 3. Select the newly created version tag in the dropdown.
 4. For the title, enter the release version name (e.g. `1.0.2`)
 5. Add a description of release changes.
