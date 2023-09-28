@@ -92,7 +92,7 @@ The latest version of the plugin can be downloaded from the [repository's Releas
 
 Your governance rules are saved in `governance-rules.json` in [your private folder][wpvip-private-dir]. Before diving into how it's used, a quick run down of the schema will shed light on how it works.
 
-Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, and while using [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/).
+Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, or while using [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) locally.
 
 ### Schema Basics
 
