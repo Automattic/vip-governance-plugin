@@ -96,7 +96,7 @@ class InitGovernance {
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
 
-		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] );
+		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] ?? '' );
 	}
 
 	/**

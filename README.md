@@ -91,7 +91,9 @@ The latest version of the plugin can be downloaded from the [repository's Releas
 
 ## Usage
 
-Your governance rules are saved in `governance-rules.json`. Before diving into how it's used, a quick run down of the schema will shed light on how it works.
+Your governance rules are saved in `governance-rules.json` in [your private folder][wpvip-private-dir]. Before diving into how it's used, a quick run down of the schema will shed light on how it works.
+
+Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, or while using [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) locally.
 
 ### Schema Basics
 
@@ -123,7 +125,7 @@ So if a matching `postType` and `role` rule is found, the `role` rule will be ap
 
 ### Quick Start
 
-By default, the plugin uses [this][repo-governance-file-location] `governance-rules.json`. We recommend duplicating one of the starter rule sets provided [below](#starter-rule-sets), and adapting it for your needs. In order to take advantage of the rules schema for in-editor support, use `https://api.wpvip.com/schemas/plugins/governance.json`.
+By default, the plugin uses [this][repo-governance-file-location] `governance-rules.json`. To start using the plugin with your own rules, you'll need to create your own `governance-rules.json` in [your private folder][wpvip-private-dir]. We recommend duplicating one of the starter rule sets provided [below](#starter-rule-sets), and adapting it for your needs. In order to take advantage of the rules schema for in-editor support, use `https://api.wpvip.com/schemas/plugins/governance.json`.
 
 With this default rule set, all blocks and all features are enabled. It is sensible to set your default rule to the settings you want for your least privileged user then add capabilities with role and/or post type-specific rules.
 
@@ -405,6 +407,7 @@ With this rule set, the following rules will apply:
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
 
 - Support for `color.duotone` has not been implemented.
+- `wp-env.json` within this plugin is intended for tests only, it doesn't work locally.
 
 ## Code Filters
 

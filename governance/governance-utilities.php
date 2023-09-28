@@ -25,7 +25,11 @@ class GovernanceUtilities {
 	 */
 	public static function get_parsed_governance_rules() {
 		$governance_rules_json = self::get_governance_rules_json();
-		return RulesParser::parse( $governance_rules_json );
+		if ( is_wp_error( $governance_rules_json ) ) {
+			return $governance_rules_json;
+		} else {
+			return RulesParser::parse( $governance_rules_json );
+		}
 	}
 
 	/**
@@ -36,15 +40,17 @@ class GovernanceUtilities {
 	 * @access private
 	 */
 	public static function get_governance_rules_json() {
-		$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
+		// Default rules file within the plugin, that's used for demo purposes.
+		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
+
+		// Only on VIP sites, the private directory exists as well as its config so that use that instead.
+		if ( defined( 'WPCOM_VIP_PRIVATE_DIR' ) && file_exists( WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME ) ) {
+			$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
+		}
 
 		if ( ! file_exists( $governance_file_path ) ) {
-			$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
-
-			if ( ! file_exists( $governance_file_path ) ) {
-				/* translators: %s: governance file name */
-				return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
-			}
+			/* translators: %s: governance file name */
+			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
