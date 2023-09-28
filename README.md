@@ -7,6 +7,8 @@ This WordPress plugin adds additional governance capabilities to the block edito
 
 We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severely limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
 
+This plugin is currently developed for use on WordPress sites hosted on the VIP Platform.
+
 ## Table of contents
 
 - [Installation](#installation)
