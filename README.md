@@ -38,9 +38,29 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 
 ## Installation
 
-The latest version of the VIP Governance plugin is available in the default `trunk` branch of this repository.
+### Install on WordPress VIP
+
+The VIP Governance plugin is authored and maintained by [WordPress VIP][wpvip], and made available to all WordPress sites by [VIP MU plugins][vip-go-mu-plugins]. Customers who host on WordPress VIP or use [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) to develop locally have access to this plugin automatically. We recommend this activation method for WordPress VIP customers.
+
+Enable the plugin by adding the method shown below to your application's [`client-mu-plugins/plugin-loader.php`][vip-go-skeleton-plugin-loader-example]:
+
+```php
+// client-mu-plugins/plugin-loader.php
+
+\Automattic\VIP\Integrations\activate( 'vip-governance' );
+```
+
+Create this path in your WordPress VIP site if it does not yet exist.
+
+This will automatically install and activate the latest mu-plugins release of the VIP Governance plugin. Remove this line to deactivate the plugin.
+
+To use the VIP Governance plugin after activation, skip to [Usage](#usage).
 
 ### Install via `git subtree`
+
+We recommend this method for non-[WordPress VIP][wpvip] customers.
+
+The latest version of the VIP Governance plugin is available in the default `trunk` branch of this repository.
 
 We recommend installing the latest plugin version [via `git subtree`][wpvip-plugin-subtrees] within your site's repository:
 
@@ -49,7 +69,7 @@ We recommend installing the latest plugin version [via `git subtree`][wpvip-plug
 cd my-site-repo/
 
 # Add a subtree for the trunk branch:
-git subtree add --prefix plugins/vip-governance git@github.com:wpcomvip/vip-governance-plugin.git trunk --squash
+git subtree add --prefix plugins/vip-governance git@github.com:Automattic/vip-governance-plugin.git trunk --squash
 ```
 
 To deploy the plugin to a remote branch, `git push` the committed subtree.
@@ -57,7 +77,7 @@ To deploy the plugin to a remote branch, `git push` the committed subtree.
 The `trunk` branch will stay up to date with the latest version of the plugin. Use this command to pull the latest `trunk` branch changes:
 
 ```bash
-git subtree pull --prefix plugins/vip-governance git@github.com:wpcomvip/vip-governance-plugin.git trunk --squash
+git subtree pull --prefix plugins/vip-governance git@github.com:Automattic/vip-governance-plugin.git trunk --squash
 ```
 
 Ensure that the plugin is up-to-date by pulling changes often.
@@ -67,16 +87,6 @@ Note: We **do not recommend** using `git submodule`. [Submodules on WPVIP that r
 ### Install via ZIP file
 
 The latest version of the plugin can be downloaded from the [repository's Releases page][repo-releases]. Unzip the downloaded plugin and add it to the `plugins/` directory of your site's GitHub repository.
-
-### Plugin activation
-
-Usually, VIP recommends [activating plugins with code][wpvip-plugin-activate]. In this case, we are recommending activating the plugin in the WordPress Admin dashboard. This will allow the plugin to be more easily enabled and disabled during testing.
-
-To activate the installed plugin:
-
-1. Navigate to the WordPress Admin dashboard as a logged-in user.
-2. Select **Plugins** from the lefthand navigation menu.
-3. Locate the "VIP Governance" plugin in the list and select the "Activate" link located below it.
 
 ## Usage
 
@@ -597,14 +607,13 @@ npx playwright test
 
 <!-- Links -->
 
-[settings-panel-example-gif]: https://github.com/wpcomvip/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
+[settings-panel-example-gif]: https://github.com/automattic/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
 [analytics-file]: governance/analytics.php
 [repo-governance-file-location]: governance-rules.json
 [repo-schema-location]: governance-schema.json
 [gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
 [repo-analytics]: governance/analytics.php
-[repo-issue-create]: https://github.com/wpcomvip/vip-governance-plugin/issues/new/choose
-[repo-releases]: https://github.com/wpcomvip/vip-governance-plugin/releases
+[repo-releases]: https://github.com/automattic/vip-governance-plugin/releases
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
 [wp-custom-roles]: https://developer.wordpress.org/reference/functions/add_role/
 [wp-default-roles]: https://wordpress.org/documentation/article/roles-and-capabilities/
