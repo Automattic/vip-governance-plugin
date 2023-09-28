@@ -1,5 +1,5 @@
 {
-	"$schema": "./governance-schema.json",
+	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
 	"version": "1.0.0",
 	"rules": [
 		{
