@@ -17,8 +17,8 @@
 
 namespace WPCOMVIP\Governance;
 
-if ( ! defined( 'VIP_BLOCK_GOVERNANCE_LOADED' ) ) {
-	define( 'VIP_BLOCK_GOVERNANCE_LOADED', true );
+if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
+	define( 'VIP_GOVERNANCE_LOADED', true );
 
 	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.0' );
 	define( 'WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION', '1.0.0' );
