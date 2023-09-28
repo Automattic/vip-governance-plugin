@@ -12,6 +12,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 ## Table of contents
 
 - [Installation](#installation)
+    - [Install on WordPress VIP](#install-on-wordpress-vip)
     - [Install via `git subtree`](#install-via-git-subtree)
     - [Install via ZIP file](#install-via-zip-file)
     - [Plugin activation](#plugin-activation)
