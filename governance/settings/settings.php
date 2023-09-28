@@ -108,12 +108,12 @@ class Settings {
 		$post_types_available  = get_post_types();
 		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
+		$governance_error      = false;
 		if ( is_wp_error( $governance_rules_json ) ) {
 			$governance_error      = $governance_rules_json->get_error_message();
 			$governance_rules_json = '';
 		} else {
 			$governance_rules = GovernanceUtilities::get_parsed_governance_rules();
-			$governance_error = false;
 	
 			if ( is_wp_error( $governance_rules ) ) {
 				$governance_error = $governance_rules->get_error_message();
