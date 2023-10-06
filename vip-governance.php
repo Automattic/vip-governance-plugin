@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WordPress VIP Block Governance
- * Plugin URI: https://wpvip.com
+ * Plugin URI: https://github.com/Automattic/vip-governance-plugin
  * Description: Add additional governance capabilities to the block editor.
  * Author: WordPress VIP
  * Text Domain: vip-governance
