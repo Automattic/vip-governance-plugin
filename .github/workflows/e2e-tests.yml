@@ -39,17 +39,8 @@ jobs:
           node-version: 'lts/*'
           cache: npm
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v2
 
       - name: Get Node.js and npm version
         id: node-version

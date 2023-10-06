@@ -107,17 +107,8 @@ jobs:
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v2
 
       - name: PHPCS
         run: composer run-script phpcs
@@ -144,23 +135,14 @@ jobs:
           tools: composer
           php-version: ${{ matrix.php-versions }}
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v2
 
       - name: Setup the wordpress environment
         run: wp-env start
 
       - name: PHPUnit
-        run: composer test
+        run: composer test --no-interaction
 
       - name: PHPUnit multisite
-        run: composer run-script test-multisite
+        run: composer run-script test-multisite --no-interaction
