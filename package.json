@@ -6,6 +6,8 @@
 	"main": "build/index.js",
 	"dependencies": {
 		"@wordpress/block-editor": "^12.11.0",
+		"@wordpress/components": "^25.9.0",
+		"@wordpress/compose": "^6.20.0",
 		"@wordpress/data": "^9.13.0",
 		"@wordpress/hooks": "^3.43.0",
 		"@wordpress/i18n": "^4.43.0",
