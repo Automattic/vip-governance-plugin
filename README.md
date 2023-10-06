@@ -1,4 +1,4 @@
-# VIP Governance plugin
+# WordPress VIP Block Governance plugin
 
 This WordPress plugin adds additional governance capabilities to the block editor. This is accomplished via two dimensions:
 
@@ -41,7 +41,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 
 ### Install on WordPress VIP
 
-The VIP Governance plugin is authored and maintained by [WordPress VIP][wpvip], and made available to all WordPress sites by [VIP MU plugins][vip-go-mu-plugins]. Customers who host on WordPress VIP or use [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) to develop locally have access to this plugin automatically. We recommend this activation method for WordPress VIP customers.
+The WordPress VIP Block Governance plugin is authored and maintained by [WordPress VIP][wpvip], and made available to all WordPress sites by [VIP MU plugins][vip-go-mu-plugins]. Customers who host on WordPress VIP or use [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) to develop locally have access to this plugin automatically. We recommend this activation method for WordPress VIP customers.
 
 Enable the plugin by adding the method shown below to your application's [`client-mu-plugins/plugin-loader.php`][vip-go-skeleton-plugin-loader-example]:
 
@@ -53,15 +53,15 @@ Enable the plugin by adding the method shown below to your application's [`clien
 
 Create this path in your WordPress VIP site if it does not yet exist.
 
-This will automatically install and activate the latest mu-plugins release of the VIP Governance plugin. Remove this line to deactivate the plugin.
+This will automatically install and activate the latest mu-plugins release of the WordPress VIP Block Governance plugin. Remove this line to deactivate the plugin.
 
-To use the VIP Governance plugin after activation, skip to [Usage](#usage).
+To use the WordPress VIP Block Governance plugin after activation, skip to [Usage](#usage).
 
 ### Install via `git subtree`
 
 We recommend this method for non-[WordPress VIP][wpvip] customers.
 
-The latest version of the VIP Governance plugin is available in the default `trunk` branch of this repository.
+The latest version of the WordPress VIP Block Governance plugin is available in the default `trunk` branch of this repository.
 
 We recommend installing the latest plugin version [via `git subtree`][wpvip-plugin-subtrees] within your site's repository:
 
@@ -566,7 +566,7 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 
 The plugin records two data points for analytics, on VIP sites:
 
-1. A usage metric when the block editor is loaded with the VIP Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata. It will only include the customer site ID to associate the usage.
+1. A usage metric when the block editor is loaded with the WordPress VIP Block Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata. It will only include the customer site ID to associate the usage.
    
 2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up.
 

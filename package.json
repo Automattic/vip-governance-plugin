@@ -4,17 +4,17 @@
 	"description": "This is a plugin adding additional governance capabilities to the block editor.",
 	"author": "VIP Bistro",
 	"main": "build/index.js",
+	"dependencies": {
+		"@wordpress/block-editor": "^12.11.0",
+		"@wordpress/data": "^9.13.0",
+		"@wordpress/hooks": "^3.43.0",
+		"@wordpress/i18n": "^4.43.0",
+		"@wordpress/notices": "^4.11.0"
+	},
 	"devDependencies": {
 		"@automattic/eslint-plugin-wpvip": "0.6.0",
 		"@playwright/test": "^1.36.1",
-		"@wordpress/block-editor": "^12.9.0",
-		"@wordpress/components": "^25.7.0",
-		"@wordpress/compose": "^6.18.0",
-		"@wordpress/data": "^9.11.0",
 		"@wordpress/e2e-test-utils-playwright": "^0.9.0",
-		"@wordpress/hooks": "^3.41.0",
-		"@wordpress/i18n": "^4.41.0",
-		"@wordpress/notices": "^4.9.0",
 		"@wordpress/scripts": "^26.12.0",
 		"babel-jest": "29.5.0",
 		"eslint": "8.47.0",
@@ -37,9 +37,7 @@
 		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
 		"test:e2e": "npx playwright test",
-		"test:js": "wp-scripts test-unit-js",
-		"packages-update": "wp-scripts packages-update",
-		"postpackages-update": "npm run build"
+		"test:js": "wp-scripts test-unit-js"
 	},
 	"jest": {
 		"testMatch": [
