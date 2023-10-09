@@ -1,6 +1,6 @@
 {
 	"name": "block-editor-governance",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "This is a plugin adding additional governance capabilities to the block editor.",
 	"author": "VIP Bistro",
 	"main": "build/index.js",
@@ -37,9 +37,7 @@
 		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
 		"test:e2e": "npx playwright test",
-		"test:js": "wp-scripts test-unit-js",
-		"packages-update": "wp-scripts packages-update",
-		"postpackages-update": "npm run build"
+		"test:js": "wp-scripts test-unit-js"
 	},
 	"jest": {
 		"testMatch": [
