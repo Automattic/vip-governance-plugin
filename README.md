@@ -519,7 +519,7 @@ Select the mode that's used for determining if a block should be allowed or not,
 
 ## Admin Settings
 
-There is an admin settings menu titled `VIP Governance` that's created with the use of this plugin. This page offers:
+There is an admin settings menu titled `VIP Block Governance` that's created with the use of this plugin. This page offers:
 
 - Turning on and off the plugin quickly, without re-deploying.
 - View all the rules at once, and also any errors if the schema is invalid.
