@@ -48,6 +48,23 @@ class GovernanceUtilities {
 			$governance_file_path = WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
 		}
 
+		// Filter options that can be used to customize the governance rules that could be used.
+		$filter_options = [
+			'site_id' => get_current_blog_id(),
+		];
+
+		/**
+		 * Filter the governance file path, based on the filter options provided.
+		 * 
+		 * Currently supported keys:
+		 * 
+		 * site_id: The site ID for the current site.
+		 * 
+		 * @param string $governance_file_path Path to the governance file.
+		 * @param array $filter_options Options that can be used as a filter for determining the right file.
+		 */
+		$governance_file_path = apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
+
 		if ( ! file_exists( $governance_file_path ) ) {
 			/* translators: %s: governance file name */
 			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );

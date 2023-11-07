@@ -413,6 +413,36 @@ With this rule set, the following rules will apply:
 
 There are filters in place that can be applied to change the behavior for what's allowed and what's not allowed.
 
+### `vip_governance__governance_file_path`
+
+Change the governance rules file that's used by the plugin, based on a variety of filter options that are available. By default, it is set to
+the path to `governance-rules.json` in the private directory in a VIP site. For non-vip sites, it is set to the path to `governance-rules.json` in the plugin directory.
+
+```php
+/**
+ * Filter the governance file path, based on the filter options provided.
+ * 
+ * Currently supported keys:
+ * 
+ * site_id: The site ID for the current site.
+ * 
+ * @param string $governance_file_path Path to the governance file.
+ * @param array $filter_options Options that can be used as a filter for determining the right file.
+ */
+apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
+```
+
+For example, this filter can be used to customize the rules file used for a subsite:
+
+```php
+add_filter( 'vip_governance__governance_file_path', function ( $governance_file_path, $filter_options ) {
+      if ( $filter_options['site_id'] === 2 ) {
+        return WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME . '-2';
+      }
+		  return $governance_file_path;
+		}, 10, 2 );
+```
+
 ### `vip_governance__is_block_allowed_for_insertion`
 
 Change what blocks are allowed to be inserted in the block editor. By default, root level and children blocks are compared against the governance rules, and then a decision is made to allow or reject them. This filter will allow you to override the default logic for insertion.
