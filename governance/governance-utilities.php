@@ -67,7 +67,7 @@ class GovernanceUtilities {
 
 		if ( ! file_exists( $governance_file_path ) ) {
 			/* translators: %s: governance file name */
-			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found in private or plugin folders.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
+			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $governance_file_path ) );
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
@@ -75,7 +75,7 @@ class GovernanceUtilities {
 
 		if ( false === $governance_rules_json ) {
 			/* translators: %s: governance file name */
-			return new WP_Error( 'governance-file-not-readable', sprintf( __( 'Governance rules (%s) could not be read from private folder.', 'vip-governance' ), WPCOMVIP_GOVERNANCE_RULES_FILENAME ) );
+			return new WP_Error( 'governance-file-not-readable', sprintf( __( 'Governance rules (%s) could not be read from specified folder.', 'vip-governance' ), $governance_file_path ) );
 		}
 
 		return $governance_rules_json;
