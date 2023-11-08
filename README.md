@@ -407,8 +407,8 @@ For example, this filter can be used to customize the rules file used for a subs
 
 ```php
 add_filter( 'vip_governance__governance_file_path', function ( $governance_file_path, $filter_options ) {
-      if ( $filter_options['site_id'] === 2 ) {
-        return WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME . '-2';
+      if ( isset( $filter_options['site_id'] ) && $filter_options['site_id'] === 2 ) {
+        return WPCOM_VIP_PRIVATE_DIR . '/site' . '/' . '2/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
       }
 		  return $governance_file_path;
 		}, 10, 2 );
