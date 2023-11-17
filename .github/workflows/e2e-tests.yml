@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           repository: Automattic/vip-go-skeleton
+          path: vip-go-skeleton
 
       - name: Show Working directory
         run: ls
@@ -33,7 +34,7 @@ jobs:
       - name: Check out Application code
         uses: actions/checkout@v4.1.1
         with:
-          path: vip-go-skeleton/plugins/
+          path: plugins/
 
       - name: Show Working directory
         run: ls plugins/
@@ -49,7 +50,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: vip-go-skeleton/plugins/vip-governance-plugin/package-lock.json
+          cache-dependency-path: vip-governance-plugin/package-lock.json
+
+      - name: Show Working directory
+        run: ls
 
       - name: Install VIP CLI
         run: npm install -g @automattic/vip
@@ -57,20 +61,22 @@ jobs:
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v2
         with:
-          working-directory: vip-go-skeleton/plugins/vip-governance-plugin
+          working-directory: vip-governance-plugin
+
+      - name: Show Working directory
+        run: ls
 
       - name: Install npm dependencies
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
+        working-directory: vip-governance-plugin
         run: npm ci
 
       - name: Install Playwright Browsers
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
+        working-directory: vip-governance-plugin
         run: npx playwright install chromium --with-deps
 
-      - name: Run a script
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin/tests/bin
+      - name: Run a scriptvip-go-skeleton/plugins/vip-governance-plugin/tests/bin
         run: ./setup-env.sh
 
       - name: Run Playwright tests
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
+        working-directory: vip-governance-plugin
         run: npx playwright test
