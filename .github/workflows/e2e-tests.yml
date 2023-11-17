@@ -34,10 +34,10 @@ jobs:
       - name: Check out Application code
         uses: actions/checkout@v4.1.1
         with:
-          path: plugins/vip-governance-plugin
+          path: vip-go-skeleton/plugins/vip-governance-plugin
 
       - name: Show Working directory
-        run: ls plugins/
+        run: ls
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
