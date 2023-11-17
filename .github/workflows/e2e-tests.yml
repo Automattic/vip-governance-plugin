@@ -22,10 +22,21 @@ jobs:
           - 8.0
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out VIP Skeleton code
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: Automattic/vip-go-skeleton
 
-      - name: Install wordpress environment
-        run: npm -g install @wordpress/env
+      - name: Show Working directory
+        run: ls
+
+      - name: Check out Application code
+        uses: actions/checkout@v4.1.1
+        with:
+          path: vip-go-skeleton/plugins/
+
+      - name: Show Working directory
+        run: ls
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -39,8 +50,13 @@ jobs:
           node-version: 'lts/*'
           cache: npm
 
+      - name: Install VIP CLI
+        run: npm install -g @automattic/vip
+
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v2
+        with:
+          working-directory: vip-go-skeleton/plugins/vip-governance-plugin
 
       - name: Get Node.js and npm version
         id: node-version
@@ -52,26 +68,23 @@ jobs:
         id: cache-node_modules
         uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
-          path: '**/node_modules'
+          path: 'vip-go-skeleton/plugins/vip-governance-plugin/node_modules'
           key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install npm dependencies
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
         run: npm ci
         shell: bash
 
       - name: Install Playwright Browsers
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npx playwright install chromium --with-deps
 
-      - name: Setup the wordpress environment
-        run: wp-env start
+      - name: Run a script
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin/tests/bin
+        run: ./setup-env.sh
 
       - name: Run Playwright tests
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npx playwright test
-
-      - name: Upload playwright artifacts on failure
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: playwright-artifacts
-          path: artifacts/
