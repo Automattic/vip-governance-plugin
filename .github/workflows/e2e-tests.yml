@@ -37,7 +37,10 @@ jobs:
           path: vip-go-skeleton/plugins/vip-governance-plugin
 
       - name: Show Working directory
-        run: ls vip-go-skeleton/plugins && ls ../
+        run: ls vip-go-skeleton/plugins
+
+      - name: Show Working directory
+        run: ls ../
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -61,23 +64,23 @@ jobs:
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v2
         with:
-          working-directory: plugins/vip-governance-plugin
+          working-directory: vip-go-skeleton/plugins/vip-governance-plugin
 
       - name: Show Working directory
         run: ls
 
       - name: Install npm dependencies
-        working-directory: plugins/vip-governance-plugin
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npm ci
 
       - name: Install Playwright Browsers
-        working-directory: plugins/vip-governance-plugin
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npx playwright install chromium --with-deps
 
       - name: Run a script
-        working-directory: plugins/vip-governance-plugin/tests/bin
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin/tests/bin
         run: chmod +x setup-env.sh && ./setup-env.sh
 
       - name: Run Playwright tests
-        working-directory: plugins/vip-governance-plugin
+        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npx playwright test
