@@ -76,7 +76,7 @@ jobs:
 
       - name: Run a script
         working-directory: plugins/vip-governance-plugin/tests/bin
-        run: ./setup-env.sh
+        run: chmod +x setup-env.sh && ./setup-env.sh
 
       - name: Run Playwright tests
         working-directory: plugins/vip-governance-plugin
