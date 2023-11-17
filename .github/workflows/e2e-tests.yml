@@ -34,7 +34,7 @@ jobs:
       - name: Check out Application code
         uses: actions/checkout@v4.1.1
         with:
-          path: plugins/
+          path: plugins/vip-governance-plugin
 
       - name: Show Working directory
         run: ls plugins/
