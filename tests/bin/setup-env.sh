@@ -5,7 +5,7 @@ set -ex
 basedir="${0%/*}/.."
 
 version=latest
-appCodePath="${basedir}/../../../vip-go-skeleton"
+appCodePath="${basedir}/../../../"
 defaultImage=demo
 
 while getopts v:p:c: flag
