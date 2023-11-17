@@ -36,7 +36,7 @@ jobs:
           path: vip-go-skeleton/plugins/
 
       - name: Show Working directory
-        run: ls
+        run: ls plugins/
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -45,10 +45,11 @@ jobs:
           php-version: ${{ matrix.php-versions }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: 20
           cache: npm
+          cache-dependency-path: vip-go-skeleton/plugins/vip-governance-plugin/package-lock.json
 
       - name: Install VIP CLI
         run: npm install -g @automattic/vip
@@ -58,24 +59,9 @@ jobs:
         with:
           working-directory: vip-go-skeleton/plugins/vip-governance-plugin
 
-      - name: Get Node.js and npm version
-        id: node-version
-        run: |
-          echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Cache node_modules
-        id: cache-node_modules
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
-        with:
-          path: 'vip-go-skeleton/plugins/vip-governance-plugin/node_modules'
-          key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
-
       - name: Install npm dependencies
         working-directory: vip-go-skeleton/plugins/vip-governance-plugin
-        if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
         run: npm ci
-        shell: bash
 
       - name: Install Playwright Browsers
         working-directory: vip-go-skeleton/plugins/vip-governance-plugin
