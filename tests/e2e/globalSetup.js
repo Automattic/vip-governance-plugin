@@ -9,20 +9,20 @@ import { request } from '@playwright/test';
 import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 
 async function globalSetup( config ) {
-	const user = process.env.E2E_USER ? process.env.E2E_USER : 'vipgo';
-	const pass = process.env.E2E_PASSWORD ? process.env.E2E_PASSWORD : 'password';
 	const { storageState, baseURL } = config.projects[ 0 ].use;
 	const storageStatePath = typeof storageState === 'string' ? storageState : undefined;
 
 	const requestContext = await request.newContext( {
 		baseURL,
-		httpCredentials: {
-			username: user,
-			password: pass,
-		},
 	} );
 
+	const user = {
+		username: process.env.E2E_USER ? process.env.E2E_USER : 'vipgo',
+		password: process.env.E2E_PASSWORD ? process.env.E2E_PASSWORD : 'password',
+	};
+
 	const requestUtils = new RequestUtils( requestContext, {
+		user,
 		storageStatePath,
 	} );
 
