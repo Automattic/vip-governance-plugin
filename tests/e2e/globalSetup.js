@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { request } from '@playwright/test';
 
 /**
  * WordPress dependencies
@@ -8,10 +9,14 @@
 import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 
 async function globalSetup( config ) {
-	const { storageState } = config.projects[ 0 ].use;
+	const { storageState, baseURL } = config.projects[ 0 ].use;
 	const storageStatePath = typeof storageState === 'string' ? storageState : undefined;
 
-	const requestUtils = await RequestUtils.setup( {
+	const requestContext = await request.newContext( {
+		baseURL,
+	} );
+
+	const requestUtils = new RequestUtils( requestContext, {
 		storageStatePath,
 	} );
 

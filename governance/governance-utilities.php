@@ -77,6 +77,9 @@ class GovernanceUtilities {
 		$governance_rules_json = file_get_contents( $governance_file_path );
 
 		if ( false === $governance_rules_json ) {
+			// remove WP_CONTENT_DIR from the path, so that sensitive paths are not exposed to the user.
+			$governance_file_path = str_replace( WP_CONTENT_DIR, '', $governance_file_path );
+
 			/* translators: %s: governance file name */
 			return new WP_Error( 'governance-file-not-readable', sprintf( __( 'Governance rules (%s) could not be read from specified folder.', 'vip-governance' ), $governance_file_path ) );
 		}
