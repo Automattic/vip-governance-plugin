@@ -386,8 +386,7 @@ There are filters in place that can be applied to change the behavior for what's
 
 ### `vip_governance__governance_file_path`
 
-Change the governance rules file that's used by the plugin, based on a variety of filter options that are available. By default, it is set to
-the path to `governance-rules.json` in the private directory in a VIP site. For non-vip sites, it is set to the path to `governance-rules.json` in the plugin directory.
+Change the governance rules file that's used by the plugin, based on a variety of filter options that are available. By default, it is set to the path to `governance-rules.json` in the private directory in a VIP site. For non-vip sites, it is set to the path to `governance-rules.json` in the plugin directory.
 
 ```php
 /**

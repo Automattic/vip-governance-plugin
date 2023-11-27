@@ -66,6 +66,9 @@ class GovernanceUtilities {
 		$governance_file_path = apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
 
 		if ( ! file_exists( $governance_file_path ) ) {
+			// remove WP_CONTENT_DIR from the path, so that sensitive paths are not exposed to the user.
+			$governance_file_path = str_replace( WP_CONTENT_DIR, '', $governance_file_path );
+
 			/* translators: %s: governance file name */
 			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $governance_file_path ) );
 		}

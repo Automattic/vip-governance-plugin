@@ -97,6 +97,13 @@ export function getNestedSetting(
 	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
 }
 
+/**
+ * Port of lodash's get function from https://gist.github.com/andrewchilds/30a7fb18981d413260c7a36428ed13da?permalink_comment_id=4433741#gistcomment-4433741
+ * @param {Object} value The value to query.
+ * @param {String} query The query to run.
+ * @param {Object} defaultVal The default value to return if the query doesn't exist.
+ * @returns
+ */
 function deepGet( value, query, defaultVal = undefined ) {
 	const splitQuery = Array.isArray( query )
 		? query
