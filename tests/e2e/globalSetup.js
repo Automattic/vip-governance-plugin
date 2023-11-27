@@ -29,6 +29,8 @@ async function globalSetup( config ) {
 		requestUtils.deleteAllBlocks(),
 		requestUtils.resetPreferences(),
 	] );
+
+	await requestContext.dispose();
 }
 
 export default globalSetup;
