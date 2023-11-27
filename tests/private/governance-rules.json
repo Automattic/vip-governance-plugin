@@ -1,0 +1,69 @@
+{
+	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+	"version": "1.0.0",
+	"rules": [
+		{
+			"type": "role",
+			"roles": [ "administrator" ],
+			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
+			"allowedBlocks": [ "core/media-text" ],
+			"blockSettings": {
+				"core/media-text": {
+					"allowedBlocks": [ "core/image" ],
+					"core/heading": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#ff0000",
+									"name": "Custom red",
+									"slug": "custom-red"
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"type": "postType",
+			"postTypes": [ "post" ],
+			"allowedFeatures": [ "lockBlocks" ],
+			"allowedBlocks": [ "core/quote" ],
+			"blockSettings": {
+				"core/quote": {
+					"core/paragraph": {
+						"color": {
+							"text": true,
+							"palette": [
+								{
+									"color": "#00FF00",
+									"name": "Custom green",
+									"slug": "custom-green"
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"type": "default",
+			"allowedBlocks": [ "core/heading", "core/paragraph", "core/image" ],
+			"blockSettings": {
+				"core/heading": {
+					"color": {
+						"text": true,
+						"palette": [
+							{
+								"color": "#FFFF00",
+								"name": "Custom yellow",
+								"slug": "custom-yellow"
+							}
+						]
+					}
+				}
+			}
+		}
+	]
+}
