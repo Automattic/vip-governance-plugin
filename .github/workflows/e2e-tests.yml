@@ -22,25 +22,10 @@ jobs:
           - 8.0
 
     steps:
-      - name: Check out VIP Skeleton code
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: Automattic/vip-go-skeleton
-          path: vip-go-skeleton
+      - uses: actions/checkout@v2
 
-      - name: Show Working directory
-        run: ls
-
-      - name: Check out Application code
-        uses: actions/checkout@v4.1.1
-        with:
-          path: vip-go-skeleton/plugins/vip-governance-plugin
-
-      - name: Show Working directory
-        run: ls vip-go-skeleton/plugins
-
-      - name: Show Working directory
-        run: ls ../
+      - name: Install wordpress environment
+        run: npm -g install @wordpress/env
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -49,38 +34,44 @@ jobs:
           php-version: ${{ matrix.php-versions }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3.6.0
         with:
-          node-version: 20
+          node-version: 'lts/*'
           cache: npm
-          cache-dependency-path: vip-go-skeleton/plugins/vip-governance-plugin/package-lock.json
-
-      - name: Show Working directory
-        run: ls
-
-      - name: Install VIP CLI
-        run: npm install -g @automattic/vip
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v2
-        with:
-          working-directory: vip-go-skeleton/plugins/vip-governance-plugin
 
-      - name: Show Working directory
-        run: ls
+      - name: Get Node.js and npm version
+        id: node-version
+        run: |
+          echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: '**/node_modules'
+          key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install npm dependencies
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
+        if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
         run: npm ci
+        shell: bash
 
       - name: Install Playwright Browsers
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npx playwright install chromium --with-deps
 
-      - name: Run a script
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin/tests/bin
-        run: chmod +x setup-env.sh && ./setup-env.sh
+      - name: Setup the wordpress environment
+        run: wp-env start
 
       - name: Run Playwright tests
-        working-directory: vip-go-skeleton/plugins/vip-governance-plugin
         run: npx playwright test
+
+      - name: Upload playwright artifacts on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-artifacts
+          path: artifacts/

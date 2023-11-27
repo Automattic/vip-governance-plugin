@@ -20,9 +20,7 @@ const config = defineConfig( {
 	outputDir: path.join( process.cwd(), 'artifacts/test-results' ),
 	snapshotPathTemplate: '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}',
 	use: {
-		baseURL: process.env.E2E_BASE_URL
-			? process.env.E2E_BASE_URL
-			: 'http://e2e-test-site.vipdev.lndo.site',
+		baseURL: process.env.WP_BASE_URL || 'http://localhost:8889',
 		headless: true,
 		viewport: {
 			width: 960,

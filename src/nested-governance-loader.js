@@ -1,5 +1,3 @@
-import { get } from 'lodash';
-
 /**
  * Find the list of nestedPaths that can be found in the block settings, so that
  * it's faster to find out if a deeper nested setting exists or not.
@@ -76,7 +74,7 @@ export function getNestedSetting(
 	const blockSettings = settings[ currentBlockName ];
 
 	if ( remainingBlockNames.length === 0 ) {
-		const settingValue = get( blockSettings, normalizedPath );
+		const settingValue = deepGet( blockSettings, normalizedPath );
 
 		if ( settingValue !== undefined && depth >= result.depth ) {
 			result.depth = depth;
@@ -97,6 +95,32 @@ export function getNestedSetting(
 
 	// Continue down the array of blocks
 	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
+}
+
+function deepGet( value, query, defaultVal = undefined ) {
+	const splitQuery = Array.isArray( query )
+		? query
+		: query
+				.replace( /(\[(\d)\])/g, '.$2' )
+				.replace( /^\./, '' )
+				.split( '.' );
+
+	if ( ! splitQuery.length || splitQuery[ 0 ] === undefined ) return value;
+
+	const key = splitQuery[ 0 ];
+
+	if (
+		typeof value !== 'object' ||
+		value === null ||
+		! ( key in value ) ||
+		// eslint-disable-next-line security/detect-object-injection
+		value[ key ] === undefined
+	) {
+		return defaultVal;
+	}
+
+	// eslint-disable-next-line security/detect-object-injection
+	return deepGet( value[ key ], splitQuery.slice( 1 ), defaultVal );
 }
 
 /**
