@@ -64,24 +64,22 @@ class GovernanceUtilities {
 		 * @param array $filter_options Options that can be used as a filter for determining the right file.
 		 */
 		$governance_file_path = apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
+		
+		// Make sure the path is normalized. Note that file_exists() is still.
+		$governance_file_path = realpath( $governance_file_path );
 
+		// Make sure the file exists and is in the wp-content/ directory.
 		if ( ! file_exists( $governance_file_path ) ) {
-			// remove WP_CONTENT_DIR from the path, so that sensitive paths are not exposed to the user.
-			$governance_file_path = str_replace( WP_CONTENT_DIR, '', $governance_file_path );
-
-			/* translators: %s: governance file name */
-			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $governance_file_path ) );
+			return new WP_Error( 'governance-file-not-found', __( 'Governance rules could not be found.', 'vip-governance' ) );
+		} elseif ( substr( $governance_file_path, 0, strlen( WP_CONTENT_DIR ) ) !== WP_CONTENT_DIR ) {
+			return new WP_Error( 'governance-file-not-in-wp-content', __( 'Governance rules must be in the wp-content/ directory.', 'vip-governance' ) );
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$governance_rules_json = file_get_contents( $governance_file_path );
 
 		if ( false === $governance_rules_json ) {
-			// remove WP_CONTENT_DIR from the path, so that sensitive paths are not exposed to the user.
-			$governance_file_path = str_replace( WP_CONTENT_DIR, '', $governance_file_path );
-
-			/* translators: %s: governance file name */
-			return new WP_Error( 'governance-file-not-readable', sprintf( __( 'Governance rules (%s) could not be read from specified folder.', 'vip-governance' ), $governance_file_path ) );
+			return new WP_Error( 'governance-file-not-readable', __( 'Governance rules could not be read from specified folder.', 'vip-governance' ) );
 		}
 
 		return $governance_rules_json;
