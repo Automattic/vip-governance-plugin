@@ -13,9 +13,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 
 - [Installation](#installation)
     - [Install on WordPress VIP](#install-on-wordpress-vip)
-    - [Install via `git subtree`](#install-via-git-subtree)
     - [Install via ZIP file](#install-via-zip-file)
-    - [Plugin activation](#plugin-activation)
 - [Usage](#usage)
     - [Schema Basics](#schema-basics)
     - [Quick Start](#quick-start)
@@ -26,6 +24,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
         - [Default and Post Type Rule Set](#default-and-post-type-rule-set)
     - [Limitations](#limitations)
 - [Code Filters](#code-filters)
+    - [`vip_governance__governance_file_path`](#vip_governance__governance_file_path)
     - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
     - [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
     - [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
@@ -38,6 +37,8 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
     - [Tests](#tests)
 
 ## Installation
+
+To use the WordPress VIP Block Governance plugin after activation, skip to [Usage](#usage).
 
 ### Install on WordPress VIP
 
@@ -54,36 +55,6 @@ Enable the plugin by adding the method shown below to your application's [`clien
 Create this path in your WordPress VIP site if it does not yet exist.
 
 This will automatically install and activate the latest mu-plugins release of the WordPress VIP Block Governance plugin. Remove this line to deactivate the plugin.
-
-To use the WordPress VIP Block Governance plugin after activation, skip to [Usage](#usage).
-
-### Install via `git subtree`
-
-We recommend this method for non-[WordPress VIP][wpvip] customers.
-
-The latest version of the WordPress VIP Block Governance plugin is available in the default `trunk` branch of this repository.
-
-We recommend installing the latest plugin version [via `git subtree`][wpvip-plugin-subtrees] within your site's repository:
-
-```bash
-# Enter your project's root directory:
-cd my-site-repo/
-
-# Add a subtree for the trunk branch:
-git subtree add --prefix plugins/vip-governance git@github.com:Automattic/vip-governance-plugin.git trunk --squash
-```
-
-To deploy the plugin to a remote branch, `git push` the committed subtree.
-
-The `trunk` branch will stay up to date with the latest version of the plugin. Use this command to pull the latest `trunk` branch changes:
-
-```bash
-git subtree pull --prefix plugins/vip-governance git@github.com:Automattic/vip-governance-plugin.git trunk --squash
-```
-
-Ensure that the plugin is up-to-date by pulling changes often.
-
-Note: We **do not recommend** using `git submodule`. [Submodules on WPVIP that require authentication][wpvip-plugin-submodules] will fail to deploy.
 
 ### Install via ZIP file
 
@@ -412,6 +383,35 @@ With this rule set, the following rules will apply:
 ## Code Filters
 
 There are filters in place that can be applied to change the behavior for what's allowed and what's not allowed.
+
+### `vip_governance__governance_file_path`
+
+Change the governance rules file that's used by the plugin, based on a variety of filter options that are available. By default, it is set to the path to `governance-rules.json` in the private directory in a VIP site. For non-vip sites, it is set to the path to `governance-rules.json` in the plugin directory.
+
+```php
+/**
+ * Filter the governance file path, based on the filter options provided.
+ * 
+ * Currently supported keys:
+ * 
+ * site_id: The site ID for the current site.
+ * 
+ * @param string $governance_file_path Path to the governance file.
+ * @param array $filter_options Options that can be used as a filter for determining the right file.
+ */
+apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
+```
+
+For example, this filter can be used to customize the rules file used for a subsite:
+
+```php
+add_filter( 'vip_governance__governance_file_path', function ( $governance_file_path, $filter_options ) {
+      if ( isset( $filter_options['site_id'] ) && $filter_options['site_id'] === 2 ) {
+        return WPCOM_VIP_PRIVATE_DIR . '/site' . '/' . '2/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
+      }
+		  return $governance_file_path;
+		}, 10, 2 );
+```
 
 ### `vip_governance__is_block_allowed_for_insertion`
 
