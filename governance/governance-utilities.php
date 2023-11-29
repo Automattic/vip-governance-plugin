@@ -72,7 +72,7 @@ class GovernanceUtilities {
 		if ( ! file_exists( $governance_file_path ) ) {
 			return new WP_Error( 'governance-file-not-found', __( 'Governance rules could not be found.', 'vip-governance' ) );
 		} elseif ( substr( $governance_file_path, 0, strlen( WP_CONTENT_DIR ) ) !== WP_CONTENT_DIR ) {
-			return new WP_Error( 'governance-file-not-in-wp-content', __( 'Governance rules must be in the wp-content/ directory.', 'vip-governance' ) );
+			return new WP_Error( 'governance-file-not-in-wp-content', __( 'Governance rules must be stored within the wp-content/ directory or a subdirectory.', 'vip-governance' ) );
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
