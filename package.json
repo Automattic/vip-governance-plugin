@@ -15,7 +15,7 @@
 		"@wordpress/hooks": "^3.41.0",
 		"@wordpress/i18n": "^4.41.0",
 		"@wordpress/notices": "^4.9.0",
-		"@wordpress/scripts": "^26.12.0",
+		"@wordpress/scripts": "^26.18.0",
 		"babel-jest": "29.5.0",
 		"eslint": "8.47.0",
 		"husky": "8.0.3",
