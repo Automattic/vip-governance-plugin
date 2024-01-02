@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { request } from '@playwright/test';
-
 /**
  * WordPress dependencies
  */
