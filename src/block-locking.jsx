@@ -54,11 +54,11 @@ export function setupBlockLocking( governanceRules ) {
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
 			} else {
-				try {
+
+				// Only available on WP 6.4 and above, so this guards against that.
+				if ( wp?.blockEditor?.useBlockEditingMode ) {
 					const { useBlockEditingMode } = wp.blockEditor;
 					useBlockEditingMode( 'disabled' );
-				} catch (e) {
-					console.log(e);
 				}
 
 				// Mark block as locked so that children can detect they're within an existing locked block
