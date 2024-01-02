@@ -5,7 +5,7 @@
   "author": "VIP Bistro",
   "main": "build/index.js",
   "devDependencies": {
-    "@automattic/eslint-plugin-wpvip": "0.9.1",
+    "@automattic/eslint-plugin-wpvip": "0.6.0",
     "@playwright/test": "^1.36.1",
     "@wordpress/block-editor": "^12.9.0",
     "@wordpress/components": "^25.7.0",
