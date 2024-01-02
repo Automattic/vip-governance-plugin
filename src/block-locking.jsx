@@ -54,6 +54,13 @@ export function setupBlockLocking( governanceRules ) {
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
 			} else {
+				try {
+					const { useBlockEditingMode } = wp.blockEditor;
+					useBlockEditingMode( 'disabled' );
+				} catch (e) {
+					console.log(e);
+				}
+
 				// Mark block as locked so that children can detect they're within an existing locked block
 				setBlockLocked( clientId );
 
