@@ -41,7 +41,7 @@ class GovernanceUtilities {
 	 */
 	public static function get_governance_rules_json() {
 		// Default rules file within the plugin, that's used for demo purposes.
-		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
+		$governance_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . WPCOMVIP_GOVERNANCE_RULES_FILENAME;
 
 		// Only on VIP sites, the private directory exists as well as its config so that use that instead.
 		if ( defined( 'WPCOM_VIP_PRIVATE_DIR' ) && file_exists( WPCOM_VIP_PRIVATE_DIR . '/' . WPCOMVIP_GOVERNANCE_RULES_FILENAME ) ) {

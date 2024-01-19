@@ -28,7 +28,7 @@ if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 	}
 
 	if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR' ) ) {
-		define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', __DIR__ );
+		define( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR', plugin_dir_url( __FILE__ ) );
 	}
 
 	define( 'WPCOMVIP_GOVERNANCE_RULES_FILENAME', 'governance-rules.json' );

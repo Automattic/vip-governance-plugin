@@ -53,11 +53,11 @@ class InitGovernance {
 			self::$governance_configuration = self::load_governance_configuration();
 		}
 
-		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
+		$asset_file = include WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . 'build/index.asset.php';
 
 		wp_enqueue_script(
 			'wpcomvip-governance',
-			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.js',
+			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . 'build/index.js',
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true /* in_footer */
@@ -91,7 +91,7 @@ class InitGovernance {
 
 		wp_enqueue_style(
 			'wpcomvip-governance',
-			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
+			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . 'css/vip-governance.css',
 			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
