@@ -481,7 +481,7 @@ For example, this filter can be used to allow the editing of a custom block type
 
 ```js
 addFilter(
-    'vip_governance__is_block_allowed_for_insertion',
+    'vip_governance__is_block_allowed_for_editing',
     'example/allow-custom-block-editing',
     ( isAllowed, blockName, parentBlockNames, governanceRules ) => {
         if ( blockName === 'custom/my-amazing-block' ) {
