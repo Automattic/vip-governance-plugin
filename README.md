@@ -402,7 +402,7 @@ Change the governance rules file that's used by the plugin, based on a variety o
 apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
 ```
 
-For example, this filter can be used to customize the rules file used for a subsite:
+For example, this filter can be used to customize the rules file used for a network site:
 
 ```php
 add_filter( 'vip_governance__governance_file_path', function ( $governance_file_path, $filter_options ) {
