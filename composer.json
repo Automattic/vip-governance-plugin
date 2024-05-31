@@ -11,6 +11,7 @@
 		"test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
 	},
 	"require": {
+		"php": ">=8.0",
 		"seld/jsonlint": "^1.10"
 	},
 	"require-dev": {
@@ -24,9 +25,6 @@
 			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"mnsami/composer-custom-directory-installer": false
 		},
-		"sort-packages": true,
-		"platform": {
-			"php": "7.4"
-		}
+		"sort-packages": true
 	}
 }
