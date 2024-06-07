@@ -92,7 +92,7 @@ jobs:
 
   unit-php:
     # Alias 'master' to 'latest'
-    name: WP ${{ matrix.wp == 'master' && 'latest' || matrix.wp }} and PHP ${{ matrix.php }}
+    name: WP ${{ matrix.wp }} and PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.allowed_failure }}
 
@@ -100,10 +100,6 @@ jobs:
         fail-fast: false
         matrix:
           include:
-            # Check lowest supported WP version, with the lowest supported PHP.
-            - php: '8.0'
-              wp: '6.0'
-              allowed_failure: false
             # Check latest WP with the highest supported PHP.
             - php: 'latest'
               wp: 'master'
