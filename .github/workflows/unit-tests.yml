@@ -19,31 +19,18 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3.6.0
+      - name: Set up NodeJS
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: npm
 
-      - name: Get Node.js and npm version
-        id: node-version
+      - name: Build the plugin
         run: |
-          echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Cache node_modules
-        id: cache-node_modules
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
-        with:
-          path: '**/node_modules'
-          key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Install npm dependencies
-        if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
-        run: npm ci
-        shell: bash
+          npm ci
 
       - name: Lint JS files
         run: npm run lint:js
@@ -56,31 +43,18 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3.6.0
+      - name: Set up NodeJS
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: npm
 
-      - name: Get Node.js and npm version
-        id: node-version
+      - name: Build the plugin
         run: |
-          echo "NODE_VERSION=$(node -v)" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Cache node_modules
-        id: cache-node_modules
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
-        with:
-          path: '**/node_modules'
-          key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Install npm dependencies
-        if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
-        run: npm ci
-        shell: bash
+          npm ci
 
       - name: Running the tests
         run: npm run test:js
@@ -96,7 +70,8 @@ jobs:
           - 8.0
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -108,38 +83,50 @@ jobs:
         run: composer validate --strict
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress
 
       - name: PHPCS
         run: composer run-script phpcs
 
   unit-php:
-    name: PHP Unit Tests
+    # Alias 'master' to 'latest'
+    name: WP ${{ matrix.wp }} and PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.allowed_failure }}
 
     strategy:
-      fail-fast: false
-      matrix:
-        php-versions:
-          - 8.0
+        fail-fast: false
+        matrix:
+          include:
+            # Check latest WP with the highest supported PHP.
+            - php: 'latest'
+              wp: 'master'
+              allowed_failure: false
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install wordpress environment
         run: npm -g install @wordpress/env
 
-      - name: Setup PHP
+      - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
+          php-version: ${{ matrix.php }}
           tools: composer
-          php-version: ${{ matrix.php-versions }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress
 
-      - name: Setup the wordpress environment
+      - name: Setup wp-env
         run: wp-env start
+        env:
+          WP_ENV_CORE: WordPress/WordPress#${{ matrix.wp }}
 
       - name: PHPUnit
         run: composer test --no-interaction

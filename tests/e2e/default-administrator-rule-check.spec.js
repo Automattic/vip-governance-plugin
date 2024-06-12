@@ -1,4 +1,4 @@
-import { test, expect } from '@wordpress/e2e-test-utils-playwright';
+import { expect, test } from '@wordpress/e2e-test-utils-playwright';
 
 test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', () => {
 	test.beforeEach( async ( { admin } ) => {
@@ -137,7 +137,6 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 					textColor: 'custom-yellow',
 				},
 				innerBlocks: [],
-				isValid: true,
 			},
 			{
 				name: 'core/paragraph',
@@ -146,7 +145,6 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 					dropCap: false,
 				},
 				innerBlocks: [],
-				isValid: true,
 			},
 			{
 				name: 'core/media-text',
@@ -166,7 +164,6 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 							placeholder: 'Content…',
 						},
 						innerBlocks: [],
-						isValid: true,
 					},
 					{
 						name: 'core/heading',
@@ -176,7 +173,6 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 							textColor: 'custom-red',
 						},
 						innerBlocks: [],
-						isValid: true,
 					},
 				],
 			},
