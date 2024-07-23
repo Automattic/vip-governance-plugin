@@ -11,30 +11,31 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 
 ## Table of contents
 
+- [Table of contents](#table-of-contents)
 - [Installation](#installation)
-    - [Install on WordPress VIP](#install-on-wordpress-vip)
-    - [Install via ZIP file](#install-via-zip-file)
+	- [Install on WordPress VIP](#install-on-wordpress-vip)
+	- [Install via ZIP file](#install-via-zip-file)
 - [Usage](#usage)
-    - [Schema Basics](#schema-basics)
-    - [Quick Start](#quick-start)
-    - [Starter Rule Sets](#starter-rule-sets)
-        - [Default Rule Set](#default-rule-set)
-        - [Default Rule Set With Restrictions](#default-rule-set-with-restrictions)
-        - [Default and User Role Rule Set](#default-and-user-role-rule-set)
-        - [Default and Post Type Rule Set](#default-and-post-type-rule-set)
-    - [Limitations](#limitations)
+	- [Schema Basics](#schema-basics)
+	- [Quick Start](#quick-start)
+	- [Starter Rule Sets](#starter-rule-sets)
+		- [Default Rule Set](#default-rule-set)
+		- [Default Rule Set With Restrictions](#default-rule-set-with-restrictions)
+		- [Default and User Role Rule Set](#default-and-user-role-rule-set)
+		- [Default and Post Type Rule Set](#default-and-post-type-rule-set)
+	- [Limitations](#limitations)
 - [Code Filters](#code-filters)
-    - [`vip_governance__governance_file_path`](#vip_governance__governance_file_path)
-    - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
-    - [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
-    - [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
+	- [`vip_governance__governance_file_path`](#vip_governance__governance_file_path)
+	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+	- [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
+	- [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
-    - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
-        - [Example](#example)
+	- [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
+		- [Example](#example)
 - [Analytics](#analytics)
 - [Development](#development)
-    - [Tests](#tests)
+	- [Tests](#tests)
 
 ## Installation
 
@@ -77,7 +78,7 @@ Each rule is an object in an array. The one required property is `type`, which c
 Rules not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
 | Rule Type  | Required Field | Possible Values                                                                                |
-|------------|----------------|------------------------------------------------------------------------------------------------|
+| ---------- | -------------- | ---------------------------------------------------------------------------------------------- |
 | `role`     | `roles`        | name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles                |
 | `postType` | `postTypes`    | name/slug of any [default][wp-default-post-types] or [custom][wp-custom-post-types] post types |
 
@@ -151,8 +152,8 @@ This expands the default rule set by adding restrictions for all users and post 
                 "slug": "300",
                 "name": "12"
               }
-            ],
-          },
+            ]
+          }
         },
         "core/heading": {
           "color": {
