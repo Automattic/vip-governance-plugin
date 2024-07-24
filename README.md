@@ -9,9 +9,7 @@ We have approached this plugin from an opt-in standpoint. In other words, enabli
 
 This plugin is currently developed for use on WordPress sites hosted on the VIP Platform.
 
-## Table of contents
-
-- [Table of contents](#table-of-contents)
+- [Try it out](#try-it-out)
 - [Installation](#installation)
 	- [Install on WordPress VIP](#install-on-wordpress-vip)
 	- [Install via ZIP file](#install-via-zip-file)
@@ -36,6 +34,10 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 - [Analytics](#analytics)
 - [Development](#development)
 	- [Tests](#tests)
+
+## Try it out
+
+Try out the VIP Governance plugin in your browser [with WordPress Playground][playground-blueprint].
 
 ## Installation
 
@@ -613,6 +615,7 @@ npx playwright test
 
 <!-- Links -->
 
+[playground-blueprint]: https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Automattic/vip-governance-plugin/trunk/blueprint.json
 [settings-panel-example-gif]: https://github.com/automattic/vip-governance-plugin/blob/media/vip-governance-admin-settings-animation.gif
 [analytics-file]: governance/analytics.php
 [repo-governance-file-location]: governance-rules.json
