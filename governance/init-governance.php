@@ -47,10 +47,11 @@ class InitGovernance {
 	 */
 	public static function load_settings() {
 		// ToDo: Turn this into a configurable rule in the future.
-		// Only load the settings for the new post/page editor.
-		$should_load_settings_for_current_page = 'page-new.php' === $GLOBALS['pagenow'] || 'post-new.php' === $GLOBALS['pagenow'];
+		// Only load the settings for the post/page editor.
+		$allowed_pages                         = [ 'page-new.php', 'post-new.php', 'post.php' ];
+		$should_load_settings_for_current_page = in_array( $GLOBALS['pagenow'], $allowed_pages, true );
 
-		// Only load the settings if the plugin is enabled, from the wp-admin settings page.
+		// Only load the settings if the plugin is enabled, from the wp-admin settings page or a post/page is being edited.
 		if ( ! Settings::is_enabled() || ! $should_load_settings_for_current_page ) {
 			return;
 		} elseif ( empty( self::$governance_configuration ) ) {
