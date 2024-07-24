@@ -380,6 +380,7 @@ With this rule set, the following rules will apply:
 
 - Support for `color.duotone` has not been implemented.
 - `wp-env.json` within this plugin is intended for tests only, it doesn't work locally.
+- Currently, the plugin is restricted to new and existing posts/pages only. So it won't work on the site-editor, widgets, etc. We have support coming in the future to make this possible.
 
 ## Code Filters
 
