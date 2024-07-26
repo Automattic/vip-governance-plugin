@@ -53,15 +53,10 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 
 	// Only execute this if we are determining the block under a parent.
 	if ( parentBlockNames.length > 0 ) {
-		// Filter to enhance the default core block list.
-		const defaultCoreBlockList = applyFilters(
-			'vip_governance__default_core_block_list',
-			DEFAULT_CORE_BLOCK_LIST
-		);
 		// Shortcircuit the parent-child hierarchy for some core blocks
 		if (
-			defaultCoreBlockList[ parentBlockNames[ 0 ] ] &&
-			defaultCoreBlockList[ parentBlockNames[ 0 ] ].includes( blockName )
+			DEFAULT_CORE_BLOCK_LIST[ parentBlockNames[ 0 ] ] &&
+			DEFAULT_CORE_BLOCK_LIST[ parentBlockNames[ 0 ] ].includes( blockName )
 		) {
 			return true;
 		}
