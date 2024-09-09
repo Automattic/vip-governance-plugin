@@ -21,17 +21,17 @@
 		"husky": "^9.0.11",
 		"lint-staged": "^15.2.5",
 		"phplint": "^2.0.5",
-		"prettier": "npm:wp-prettier@2.8.5"
+		"prettier": "npm:wp-prettier@2.8.5",
+		"webpack": "^5.91.0"
 	},
 	"scripts": {
+		"build": "webpack --mode production",
+    	"dev": "webpack --watch",
 		"lint:js": "eslint . --ext .js",
-		"build": "wp-scripts build ./src/index.js",
-		"build:watch": "wp-scripts build --watch ./src/index.js",
 		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' '!build' > /dev/null",
 		"phpcs": "vendor/bin/phpcs --cache",
 		"phpcs:fix": "vendor/bin/phpcbf",
 		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
-		"start": "wp-scripts start --webpack-devtool=source-map ./src/index.js",
 		"prepare": "husky install",
 		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
@@ -50,7 +50,7 @@
 			"/tests/"
 		],
 		"transform": {
-			"^.+\\.[jt]sx?$": "<rootDir>/tests/jest/babel-transformer.js"
+			"^.+\\.[jt]sx?$": "@wordpress/scripts/config/babel-transform.js"
 		}
 	}
 }
