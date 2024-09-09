@@ -80,6 +80,7 @@ function setup() {
 		'blockEditor.useSetting.before',
 		`wpcomvip-governance/nested-block-settings`,
 		( result, path, clientId, blockName ) => {
+			// ToDo: Ensure regex blockNames in the rules are supported
 			const hasCustomSetting =
 				// eslint-disable-next-line security/detect-object-injection
 				nestedSettingPaths[ blockName ] !== undefined &&

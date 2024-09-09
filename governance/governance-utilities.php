@@ -1,7 +1,7 @@
 <?php
 /**
  * Utilities for Block Governance.
- * 
+ *
  * @package vip-governance
  */
 
@@ -20,7 +20,7 @@ class GovernanceUtilities {
 	 * Retrieve parsed governance rules from the private directory, or the plugin directory if not found.
 	 *
 	 * @return array|WP_Error
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function get_parsed_governance_rules() {
@@ -36,7 +36,7 @@ class GovernanceUtilities {
 	 * Get raw governance rules content from the private directory, or the plugin directory if not found.
 	 *
 	 * @return string|WP_Error
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function get_governance_rules_json() {
@@ -55,16 +55,16 @@ class GovernanceUtilities {
 
 		/**
 		 * Filter the governance file path, based on the filter options provided.
-		 * 
+		 *
 		 * Currently supported keys:
-		 * 
+		 *
 		 * site_id: The site ID for the current site.
-		 * 
+		 *
 		 * @param string $governance_file_path Path to the governance file.
 		 * @param array $filter_options Options that can be used as a filter for determining the right file.
 		 */
 		$filter_file_path = apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
-		
+
 		// Make sure the path is normalized. Note that file_exists() is still needed at times.
 		$filter_file_path = realpath( $filter_file_path );
 
@@ -99,20 +99,34 @@ class GovernanceUtilities {
 			return new WP_Error( 'governance-file-not-readable', __( 'Governance rules could not be read from specified folder.', 'vip-governance' ) );
 		}
 
+		/**
+		 * Filter the governance rules, based on the filter options provided.
+		 *
+		 * Currently supported keys:
+		 *
+		 * site_id: The site ID for the current site.
+		 *
+		 * This filter can be used to either modify the governance rules content before it's parsed, or to generate the content dynamically.
+		 *
+		 * @param string $governance_rules_json Governance rules content.
+		 * @param array $filter_options Options that can be used as a filter for determining the right rules.
+		 */
+		$governance_rules_json = apply_filters( 'vip_governance__governance_rules_json', $governance_rules_json, $filter_options );
+
 		return $governance_rules_json;
 	}
 
 	/**
 	 * Get the rules using the provided type.
-	 * 
+	 *
 	 * The default rule is the base upon which the other rules are built. Currently, that's postType and role.
 	 *
 	 * @param array $governance_rules Governance rules, not filtered based on the user role.
 	 * @param array $user_roles User roles for the current WP site.
 	 * @param array $post_type Post type for the current post.
-	 * 
+	 *
 	 * @return array Governance rules, filtered by the matching user role or post type.
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function get_rules_by_type( $governance_rules, $user_roles = [], $post_type = '' ) {
@@ -175,7 +189,7 @@ class GovernanceUtilities {
 
 	/**
 	 * Get the new allowedBlocks or allowedFeatures based on the rule type
-	 * 
+	 *
 	 * The default rule's allowedBlocks and allowedFeatures is combined with the other rule types.
 	 * For non-default rule types, only one allowedBlocks and allowedFeatures can be picked. It's not combined together.
 	 *
@@ -201,7 +215,7 @@ class GovernanceUtilities {
 
 	/**
 	 * Get the new blockSettings based on the rule type
-	 * 
+	 *
 	 * The default rule's blockSettings is combined with the other rule types.
 	 * For non-default rule types, only one blockSettings can be picked. It's not combined together.
 	 *

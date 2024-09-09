@@ -1,7 +1,7 @@
 <?php
 /**
  * Nested governance processing.
- * 
+ *
  * @package vip-governance
  */
 
@@ -35,9 +35,9 @@ class NestedGovernanceProcessing {
 	 * Get the nested settings and css that's used to process nested settings.
 	 *
 	 * @param array $governance_rules Ggovernance rules, specific to a user.
-	 * 
+	 *
 	 * @return array Nested settings and css.
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function get_nested_settings_and_css( $governance_rules ) {
@@ -81,8 +81,8 @@ class NestedGovernanceProcessing {
 	 * @param array $nodes             The metadata of the nodes that have been built so far.
 	 * @param array $current_selector  The current selector of the current block.
 	 * @param array $current_path      The current path to the block.
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 */
 	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = [], $current_selector = null, $current_path = [] ) {
 		foreach ( $current_block as $block_name => $block ) {
@@ -111,6 +111,19 @@ class NestedGovernanceProcessing {
 				);
 
 				$nodes = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $selector, $path );
+			} elseif ( str_ends_with( $block_name, '/*' ) ) {
+				$looked_up_selector = '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
+				$selector           = is_null( $current_selector ) ? null : $current_selector;
+				if ( ! is_null( $looked_up_selector ) ) {
+					$selector = $selector . ' ' . $looked_up_selector;
+				}
+				$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
+				array_push( $path, $block_name );
+				$nodes[] = array(
+					'path'     => $path,
+					'selector' => $selector,
+				);
+				$nodes   = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $current_selector, $current_path );
 			}
 		}
 
@@ -123,7 +136,7 @@ class NestedGovernanceProcessing {
 	 * @param [type] $governance_rules  Governance rules to be used.
 	 * @param [type] $path_and_selector_of_blocks the map of paths and selectors for each block.
 	 * @param [type] $presets_metadata Preset metadata from Gutenberg/WordPress.
-	 * 
+	 *
 	 * @return array
 	 */
 	private static function get_css_and_theme_settings( $governance_rules, $path_and_selector_of_blocks, $presets_metadata ) {
@@ -171,7 +184,7 @@ class NestedGovernanceProcessing {
 					foreach ( $slugs as $slug ) {
 						$css_var    = static::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
 						$class_name = static::replace_slug_in_string( $class, $slug );
-	
+
 						// $selector is often empty, so we can save ourselves the `append_to_selector()` call then.
 						$new_selector = '' === $path_and_selector_of_block['selector'] ? $class_name : static::append_to_selector( $path_and_selector_of_block['selector'], $class_name );
 						$stylesheet  .= static::to_ruleset(
@@ -207,7 +220,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param string $selector  Original selector.
 	 * @param string $to_append Selector to append.
-	 * 
+	 *
 	 * @return string New selector.
 	 */
 	private static function append_to_selector( $selector, $to_append ) {
@@ -229,7 +242,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param array $settings        Settings to process.
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
-	 * 
+	 *
 	 * @return array Array of presets where the key and value are both the slug.
 	 */
 	private static function get_settings_slugs( $settings, $preset_metadata ) {
@@ -255,7 +268,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param string $selector     CSS selector.
 	 * @param array  $declarations List of declarations.
-	 * 
+	 *
 	 * @return string Resulting CSS ruleset.
 	 */
 	private static function to_ruleset( $selector, $declarations ) {
@@ -306,7 +319,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param array $settings        Settings to process.
 	 * @param array $preset_metadata One of the PRESETS_METADATA values.
-	 * 
+	 *
 	 * @return array Array of presets where each key is a slug and each value is the preset value.
 	 */
 	private static function get_settings_values_by_slug( $settings, $preset_metadata ) {
@@ -347,7 +360,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @param string $input String to replace.
 	 * @param string $slug  Slug value to use to generate the custom property.
-	 * 
+	 *
 	 * @return string CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
 	 */
 	private static function replace_slug_in_string( $input, $slug ) {
@@ -356,9 +369,9 @@ class NestedGovernanceProcessing {
 
 	/**
 	 * Get the CSS selector for a block using the block name
-	 * 
+	 *
 	 * This method is only used for WordPress versions below 6.3. After 6.3, we have a built in
-	 * way of accessing this selector. This will be deprecated once 6.3 is available for a 
+	 * way of accessing this selector. This will be deprecated once 6.3 is available for a
 	 * majority of VIP sites.
 	 *
 	 * @param string $block_name Name of the block.
