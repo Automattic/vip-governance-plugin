@@ -28,15 +28,14 @@ class NestedGovernanceProcessingTest extends TestCase {
 				],
 			],
 			'core/quote'      => [
-				'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
-				'core/paragraph' => [
+				'allowedBlocks' => [ 'core/paragraph', 'core/heading' ],
+				'core/*'        => [
 					'color' => [
-						'text'    => true,
-						'palette' => [
+						'gradients' => [
 							[
-								'name'  => 'Custom green',
-								'slug'  => 'custom-green',
-								'color' => '#00FF00',
+								'slug'     => 'vertical-red-to-green',
+								'gradient' => 'linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)',
+								'name'     => 'Vertical red to green',
 							],
 						],
 					],
@@ -76,18 +75,17 @@ class NestedGovernanceProcessingTest extends TestCase {
 					],
 				],
 				'core/quote'      => [
-					'allowedBlocks'  => [ 'core/paragraph', 'core/heading' ],
-					'core/paragraph' => [
+					'allowedBlocks' => [ 'core/paragraph', 'core/heading' ],
+					'core/*'        => [
 						'color' => [
-							'text'    => true,
-							'palette' => [
+							'gradients' => [
 								'theme' => [
 									[
-										'name'  => 'Custom green',
-										'slug'  => 'custom-green',
-										'color' => '#00FF00',
+										'name'     => 'Vertical red to green',
+										'slug'     => 'vertical-red-to-green',
+										'gradient' => 'linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)',
 									],
-								],   
+								],
 							],
 						],
 					],
