@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticeStore } from '@wordpress/notices';
 
 import { setupBlockLocking } from './block-locking';
-import { isBlockAllowedInHierarchy } from './block-utils';
+import { doesBlockNameMatchBlockRegex, isBlockAllowedInHierarchy } from './block-utils';
 import { getNestedSetting, getNestedSettingPaths } from './nested-governance-loader';
 
 function setup() {
@@ -80,28 +80,38 @@ function setup() {
 		'blockEditor.useSetting.before',
 		`wpcomvip-governance/nested-block-settings`,
 		( result, path, clientId, blockName ) => {
-			// ToDo: Ensure regex blockNames in the rules are supported
-			const hasCustomSetting =
-				// eslint-disable-next-line security/detect-object-injection
-				nestedSettingPaths[ blockName ] !== undefined &&
-				// eslint-disable-next-line security/detect-object-injection
-				nestedSettingPaths[ blockName ][ path ] === true;
-
-			if ( ! hasCustomSetting ) {
+			if ( ! blockName ) {
 				return result;
 			}
 
-			const blockNamePath = [
-				clientId,
-				...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
-			]
-				.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
-				.reverse();
+			// iterate through the nestedSettingPaths to find the blockName
+			for ( const nestedBlockName in nestedSettingPaths ) {
+				if (
+					doesBlockNameMatchBlockRegex( blockName, nestedBlockName ) &&
+					// eslint-disable-next-line security/detect-object-injection
+					nestedSettingPaths[ nestedBlockName ][ path ] === true
+				) {
+					const blockNamePath = [
+						clientId,
+						...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
+					]
+						.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
+						.reverse();
 
-			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
+					// Replace the original block name with the matched regex block name, for easier lookup.
+					// This will be at the end of the blockNamePath array.
+					if ( nestedBlockName.indexOf( '*' ) !== -1 ) {
+						blockNamePath[ blockNamePath.length - 1 ] = nestedBlockName;
+					}
 
-			// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
-			return result && result.theme ? result.theme : result;
+					( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
+
+					// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+					return result && result.theme ? result.theme : result;
+				}
+			}
+
+			return result;
 		}
 	);
 

@@ -86,45 +86,35 @@ class NestedGovernanceProcessing {
 	 */
 	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = [], $current_selector = null, $current_path = [] ) {
 		foreach ( $current_block as $block_name => $block ) {
-			if ( array_key_exists( $block_name, $blocks_registered ) ) {
-
-				$selector = is_null( $current_selector ) ? null : $current_selector;
-
-				// This function is only available in 6.3 and above.
-				if ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {
-					$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
-				} else {
-					// Once the 6.3 upgrade is done, this will be deprecated.
-					$looked_up_selector = self::get_css_selector_for_block( $block_name, $blocks_registered );
-				}
-
-				if ( ! is_null( $looked_up_selector ) ) {
-					$selector = $selector . ' ' . $looked_up_selector;
-				}
-
-				$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
-				array_push( $path, $block_name );
-
-				$nodes[] = array(
-					'path'     => $path,
-					'selector' => $selector,
-				);
-
-				$nodes = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $selector, $path );
-			} elseif ( str_ends_with( $block_name, '/*' ) ) {
-				$looked_up_selector = '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
-				$selector           = is_null( $current_selector ) ? null : $current_selector;
-				if ( ! is_null( $looked_up_selector ) ) {
-					$selector = $selector . ' ' . $looked_up_selector;
-				}
-				$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
-				array_push( $path, $block_name );
-				$nodes[] = array(
-					'path'     => $path,
-					'selector' => $selector,
-				);
-				$nodes   = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $current_selector, $current_path );
+			if ( ! array_key_exists( $block_name, $blocks_registered ) && ! str_ends_with( $block_name, '/*' ) ) {
+				continue;
 			}
+
+			$selector = is_null( $current_selector ) ? null : $current_selector;
+
+			// If the block name ends with /*, then it's a regex rule and we need to use the wp-block selector to match against any block.
+			if ( str_ends_with( $block_name, '/*' ) ) {
+				$looked_up_selector = '.wp-block';
+			} elseif ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {
+				$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
+			} else {
+				// Once the 6.3 upgrade is done, this will be deleted.
+				$looked_up_selector = self::get_css_selector_for_block( $block_name, $blocks_registered );
+			}
+
+			if ( ! is_null( $looked_up_selector ) ) {
+				$selector = $selector . ' ' . $looked_up_selector;
+			}
+
+			$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
+			array_push( $path, $block_name );
+
+			$nodes[] = array(
+				'path'     => $path,
+				'selector' => $selector,
+			);
+
+			$nodes = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $selector, $path );
 		}
 
 		return $nodes;
