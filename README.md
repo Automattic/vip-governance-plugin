@@ -15,15 +15,18 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 	- [Install via ZIP file](#install-via-zip-file)
 - [Usage](#usage)
 	- [Schema Basics](#schema-basics)
+		- [Wildcards](#wildcards)
 	- [Quick Start](#quick-start)
 	- [Starter Rule Sets](#starter-rule-sets)
 		- [Default Rule Set](#default-rule-set)
 		- [Default Rule Set With Restrictions](#default-rule-set-with-restrictions)
 		- [Default and User Role Rule Set](#default-and-user-role-rule-set)
 		- [Default and Post Type Rule Set](#default-and-post-type-rule-set)
+		- [Default Wildcard Rule Set](#default-wildcard-rule-set)
 	- [Limitations](#limitations)
 - [Code Filters](#code-filters)
 	- [`vip_governance__governance_file_path`](#vip_governance__governance_file_path)
+	- [`vip_governance__governance_rules_json`](#vip_governance__governance_rules_json)
 	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
 	- [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
 	- [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
@@ -96,6 +99,14 @@ Non-default rule types will be merged with the default rule. This is done intent
 2. Role
 
 So if a matching `postType` and `role` rule is found, the `role` rule will be applied, and the `postType` rule will be ignored. The best analogy is the CSS cascade where more specific rules overwrite less specific rules. We are making a choice that Role-based rules should overwrite Post Type rules. We will introduce a filter in the near future to allow this priority to be customized.
+
+#### Wildcards
+
+The wildcard `*` can be used within `allowedBlocks` and within `blockSettings` to target more than 1 block. The intention is that it will limit repeated rules, and allow greater flexibility in controlling the editor experience.
+
+For an example of this feature, refer [here](#default-wildcard-rule-set).
+
+Note: `allowedBlocks` are not respected under a wildcard block within `blockSettings`. This will only be respected under a targeted block such as `core/quote`.
 
 ### Quick Start
 
@@ -371,6 +382,63 @@ With this rule set, the following rules will apply:
     - The code editor is accessible.
     - Blocks can be locked, unlocked and moved.
 
+#### Default Wildcard Rule Set
+
+This example focuses on providing a default rule set, using wildcards within the `blockSettings` and `allowedBlocks`. The use of a wildcard is helpful in targetting a wide variety of blocks, with minimal configuration.
+
+```json
+{
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/*" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        },
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],
+          "core/*": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+With this rule set, the following rules will apply:
+
+- Default: Rules that apply to everyone as a baseline:
+    - All core blocks are allowed
+    - Within a quote block, only heading and paragraph is allowed
+    - For a heading at the root level, a custom yellow color will appear as a possible text color option.
+    - For a heading or paragraph within the quote block, a custom green color will appear as a possible text color option.
+    - Blocks can be locked/unlocked or moved.
+    - The code editor is accessible.
+
 ### Limitations
 
 - We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
@@ -416,6 +484,59 @@ add_filter( 'vip_governance__governance_file_path', function ( $governance_file_
 		  return $governance_file_path;
 		}, 10, 2 );
 ```
+
+### `vip_governance__governance_rules_json`
+
+Change, or programmatically set the governance rules used by the plugin, based on a variety of filter options that are available. By default, the rules read from the `governance-rules.json` are set regardless of a site being VIP or non-vip.
+
+```php
+/**
+ * Filter the governance rules, based on the filter options provided.
+ *
+ * Currently supported keys:
+ *
+ * site_id: The site ID for the current site.
+ *
+ * This filter can be used to either modify the governance rules content before it's parsed, or to generate the content dynamically.
+ *
+ * @param string $governance_rules_json Governance rules content.
+ * @param array $filter_options Options that can be used as a filter for determining the right rules.
+ */
+apply_filters( 'vip_governance__governance_rules_json', $governance_rules_json, $filter_options );
+```
+
+For example, this filter can be used to programmatically set the rules used by the plugin instead of using the default rule set provided by the plugin:
+
+```php
+add_filter( 'vip_governance__governance_rules_json', function ( $governance_rules_json, $filter_options ) {
+			return '{
+				"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+				"version": "1.0.0",
+				"rules": [
+					{
+					"type": "default",
+					"allowedFeatures": [ "codeEditor", "lockBlocks" ],
+					"allowedBlocks": [ "core/heading", "core/paragraph" ],
+					"blockSettings": {
+						"core/heading": {
+						"typography": {
+							"fontFamilies": [
+							{
+								"name": "Arial",
+								"slug": "arial",
+								"css": "Arial, sans-serif"
+							}
+							]
+						}
+						}
+					}
+					}
+				]
+			}';
+		}, 10, 2 );
+```
+
+This way the `governance-rules.json` no longer needs to be created outside the plugin.
 
 ### `vip_governance__is_block_allowed_for_insertion`
 
