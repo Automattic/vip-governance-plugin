@@ -92,7 +92,7 @@ class NestedGovernanceProcessing {
 
 			$selector = is_null( $current_selector ) ? null : $current_selector;
 
-			// If the block name ends with /*, then it's a regex rule and we need to use the wp-block selector to match against any block.
+			// If the block name ends with /*, then it's a wildcard rule and we need to use the wp-block selector to match against any block.
 			if ( str_ends_with( $block_name, '/*' ) ) {
 				$looked_up_selector = '.wp-block';
 			} elseif ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {

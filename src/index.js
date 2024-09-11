@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticeStore } from '@wordpress/notices';
 
 import { setupBlockLocking } from './block-locking';
-import { doesBlockNameMatchBlockRegex, isBlockAllowedInHierarchy } from './block-utils';
+import { doesBlockNameMatchBlockWildcard, isBlockAllowedInHierarchy } from './block-utils';
 import { getNestedSetting, getNestedSettingPaths } from './nested-governance-loader';
 
 function setup() {
@@ -87,7 +87,7 @@ function setup() {
 			// iterate through the nestedSettingPaths to find the blockName
 			for ( const nestedBlockName in nestedSettingPaths ) {
 				if (
-					doesBlockNameMatchBlockRegex( blockName, nestedBlockName ) &&
+					doesBlockNameMatchBlockWildcard( blockName, nestedBlockName ) &&
 					// eslint-disable-next-line security/detect-object-injection
 					nestedSettingPaths[ nestedBlockName ][ path ] === true
 				) {
@@ -98,7 +98,7 @@ function setup() {
 						.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
 						.reverse();
 
-					// Replace the original block name with the matched regex block name, for easier lookup.
+					// Replace the original block name with the matched wildcard block name, for easier lookup.
 					// This will be at the end of the blockNamePath array.
 					if ( nestedBlockName.indexOf( '*' ) !== -1 ) {
 						blockNamePath[ blockNamePath.length - 1 ] = nestedBlockName;
