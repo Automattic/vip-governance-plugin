@@ -20,6 +20,19 @@ namespace WPCOMVIP\Governance;
 if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 	define( 'VIP_GOVERNANCE_LOADED', true );
 
+	// ToDo: When 6.4 is our min version, switch to wp_admin_notice.
+	global $wp_version;
+	if ( version_compare( phpversion(), '8.0', '<' ) || version_compare( $wp_version, '6.0', '<' ) ) {
+		add_action( 'admin_notices', function () {
+			?>
+			<div class="notice notice-error">
+					<p><?php esc_html_e( 'WordPress VIP Block Governance requires PHP 8.0+ and WordPress 6.0+.', 'vip-governance' ); ?></p>
+				</div>
+			<?php
+		}, 10, 0 );
+		return;
+	}
+
 	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.9' );
 	define( 'WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION', '1.0.0' );
 
