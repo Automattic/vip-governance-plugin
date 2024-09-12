@@ -98,7 +98,7 @@ class NestedGovernanceProcessing {
 			} elseif ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {
 				$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
 			} else {
-				// Once the 6.3 upgrade is done, this will be deleted.
+				// Once our minimum WordPress version >= 6.3, this can be deleted.
 				$looked_up_selector = self::get_css_selector_for_block( $block_name, $blocks_registered );
 			}
 
