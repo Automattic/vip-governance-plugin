@@ -84,6 +84,11 @@ function setup() {
 				return result;
 			}
 
+			// if (blockName === 'core/paragraph') {
+			// 	debugger;
+			// 	console.log('blockName', blockName);
+			// }
+
 			// iterate through the nestedSettingPaths to find the blockName
 			for ( const nestedBlockName in nestedSettingPaths ) {
 				if (

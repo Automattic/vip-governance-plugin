@@ -14,7 +14,7 @@ export function getNestedSettingPaths( nestedSettings, nestedMetadata = {}, curr
 			continue;
 		}
 
-		const isNestedBlock = settingKey.includes( '/' );
+		const isNestedBlock = settingKey.includes( '/' ) || settingKey === '*';
 
 		if ( isNestedBlock ) {
 			// This setting contains another block, look at the child for metadata

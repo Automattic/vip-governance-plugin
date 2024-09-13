@@ -86,19 +86,21 @@ class NestedGovernanceProcessing {
 	 */
 	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = [], $current_selector = null, $current_path = [] ) {
 		foreach ( $current_block as $block_name => $block ) {
-			if ( ! array_key_exists( $block_name, $blocks_registered ) && ! str_ends_with( $block_name, '/*' ) ) {
+			if ( ! self::is_block_supported( $block_name, $blocks_registered ) ) {
 				continue;
 			}
 
 			$selector = is_null( $current_selector ) ? null : $current_selector;
 
-			// If the block name ends with /*, then it's a wildcard rule and we need to use the wp-block selector to match against any block.
-			if ( str_ends_with( $block_name, '/*' ) ) {
-				$looked_up_selector = '.wp-block';
+			// If the block name ends with /* or is just *, then it's a wildcard rule and we need to use the wp-block selector to match against any block.
+			if ( str_ends_with( $block_name, '/*' ) || ( '*' === $block_name ) ) {
+				// Due to the fact that the paragraph block doesn't have a wp-block-paragraph class, we need to add it manually.
+				// In addition, wp-block is prefixed to the block name so this allows us to target all blocks.
+				$looked_up_selector = 'p, [class*=wp-block]';
 			} elseif ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {
 				$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
 			} else {
-				// Once our minimum WordPress version >= 6.3, this can be deleted.
+				// ToDo: Once our minimum WordPress version >= 6.3, this can be deleted.
 				$looked_up_selector = self::get_css_selector_for_block( $block_name, $blocks_registered );
 			}
 
@@ -118,6 +120,19 @@ class NestedGovernanceProcessing {
 		}
 
 		return $nodes;
+	}
+
+	/**
+	 * Validates if a block is supported.
+	 *
+	 * Supported blocks are blocks that are registered in the block registry, or blocks that are wildcard blocks.
+	 *
+	 * @param string $block_name     The name of the block.
+	 * @param array  $blocks_registered The blocks that are registered in the block registry.
+	 * @return boolean True if the block is supported, false otherwise.
+	 */
+	private static function is_block_supported( $block_name, $blocks_registered ) {
+		return array_key_exists( $block_name, $blocks_registered ) || str_ends_with( $block_name, '/*' ) || ( '*' === $block_name );
 	}
 
 	/**
