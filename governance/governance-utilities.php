@@ -94,6 +94,20 @@ class GovernanceUtilities {
 			return new WP_Error( 'governance-file-not-readable', __( 'Governance rules could not be read from specified folder.', 'vip-governance' ) );
 		}
 
+		/**
+		 * Filter the governance rules, based on the filter options provided.
+		 *
+		 * Currently supported keys:
+		 *
+		 * site_id: The site ID for the current site.
+		 *
+		 * This filter can be used to either modify the governance rules content before it's parsed, or to generate the content dynamically.
+		 *
+		 * @param string $governance_rules_json Governance rules content.
+		 * @param array $filter_options Options that can be used as a filter for determining the right rules.
+		 */
+		$governance_rules_json = apply_filters( 'vip_governance__governance_rules_json', $governance_rules_json, $filter_options );
+
 		return $governance_rules_json;
 	}
 

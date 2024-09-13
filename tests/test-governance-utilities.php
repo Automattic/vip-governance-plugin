@@ -105,7 +105,7 @@ class GovernanceUtilitiesTest extends TestCase {
 			),
 			'blockSettings'   => array(
 				'core/quote'   => array(
-					'core/paragraph' => array(
+					'core/*' => array(
 						'color' => array(
 							'text'    => true,
 							'palette' => array(
@@ -289,7 +289,7 @@ class GovernanceUtilitiesTest extends TestCase {
 				),
 				'blockSettings'   => array(
 					'core/quote' => array(
-						'core/paragraph' => array(
+						'core/*' => array(
 							'color' => array(
 								'text'    => true,
 								'palette' => array(

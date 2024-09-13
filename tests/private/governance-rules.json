@@ -32,7 +32,7 @@
 			"allowedBlocks": [ "core/quote" ],
 			"blockSettings": {
 				"core/quote": {
-					"core/paragraph": {
+					"core/*": {
 						"color": {
 							"text": true,
 							"palette": [
