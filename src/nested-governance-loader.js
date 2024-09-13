@@ -14,6 +14,7 @@ export function getNestedSettingPaths( nestedSettings, nestedMetadata = {}, curr
 			continue;
 		}
 
+		// A nested block would be in the form of blockName/childBlockName or blockName/* or *
 		const isNestedBlock = settingKey.includes( '/' ) || settingKey === '*';
 
 		if ( isNestedBlock ) {

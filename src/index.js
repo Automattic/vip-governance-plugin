@@ -76,6 +76,24 @@ function setup() {
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
+	// pull out all the wildcard block names.
+	const nestedWildcardPaths = Object.keys( nestedSettingPaths ).reduce( ( acc, blockName ) => {
+		if ( blockName.indexOf( '*' ) !== -1 ) {
+			// eslint-disable-next-line security/detect-object-injection
+			acc[ blockName ] = nestedSettingPaths[ blockName ];
+		}
+		return acc;
+	}, {} );
+
+	// pull all the non wildcard block names.
+	const nestedNonWildcardPaths = Object.keys( nestedSettingPaths ).reduce( ( acc, blockName ) => {
+		if ( blockName.indexOf( '*' ) === -1 ) {
+			// eslint-disable-next-line security/detect-object-injection
+			acc[ blockName ] = nestedSettingPaths[ blockName ];
+		}
+		return acc;
+	}, {} );
+
 	addFilter(
 		'blockEditor.useSetting.before',
 		`wpcomvip-governance/nested-block-settings`,
@@ -84,35 +102,49 @@ function setup() {
 				return result;
 			}
 
-			// if (blockName === 'core/paragraph') {
-			// 	debugger;
-			// 	console.log('blockName', blockName);
-			// }
+			// Test if the blockName is in the nestedNonWildcardPaths.
+			if (
+				// eslint-disable-next-line security/detect-object-injection
+				nestedNonWildcardPaths[ blockName ] !== undefined &&
+				// eslint-disable-next-line security/detect-object-injection
+				nestedNonWildcardPaths[ blockName ][ path ] === true
+			) {
+				const blockNamePath = [
+					clientId,
+					...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
+				]
+					.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
+					.reverse();
+				( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
-			// iterate through the nestedSettingPaths to find the blockName
-			for ( const nestedBlockName in nestedSettingPaths ) {
-				if (
-					doesBlockNameMatchBlockWildcard( blockName, nestedBlockName ) &&
-					// eslint-disable-next-line security/detect-object-injection
-					nestedSettingPaths[ nestedBlockName ][ path ] === true
-				) {
-					const blockNamePath = [
-						clientId,
-						...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
-					]
-						.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
-						.reverse();
+				// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+				return result && result.theme ? result.theme : result;
+				// Test if the blockName is in the nestedWildcardPaths.
+			} else if ( nestedWildcardPaths.length !== 0 ) {
+				for ( const nestedBlockName in nestedWildcardPaths ) {
+					if (
+						doesBlockNameMatchBlockWildcard( blockName, nestedBlockName ) &&
+						// eslint-disable-next-line security/detect-object-injection
+						nestedWildcardPaths[ nestedBlockName ][ path ] === true
+					) {
+						const blockNamePath = [
+							clientId,
+							...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
+						]
+							.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
+							.reverse();
 
-					// Replace the original block name with the matched wildcard block name, for easier lookup.
-					// This will be at the end of the blockNamePath array.
-					if ( nestedBlockName.indexOf( '*' ) !== -1 ) {
-						blockNamePath[ blockNamePath.length - 1 ] = nestedBlockName;
+						// Replace the original block name with the matched wildcard block name, for easier lookup.
+						// This will be at the end of the blockNamePath array.
+						if ( nestedBlockName.indexOf( '*' ) !== -1 ) {
+							blockNamePath[ blockNamePath.length - 1 ] = nestedBlockName;
+						}
+
+						( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
+
+						// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+						return result && result.theme ? result.theme : result;
 					}
-
-					( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
-
-					// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
-					return result && result.theme ? result.theme : result;
 				}
 			}
 
