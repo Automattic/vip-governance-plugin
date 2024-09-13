@@ -73,15 +73,10 @@ class GovernanceUtilities {
 			return new WP_Error( 'governance-file-not-found', __( 'Governance rules could not be found.', 'vip-governance' ) );
 		}
 
-		// Make sure the file is under wp-content or private directory.
-		if ( $filter_file_path && $filter_file_path !== $governance_file_path ) {
-			$is_in_wp_content = substr( $filter_file_path, 0, strlen( WP_CONTENT_DIR ) ) === WP_CONTENT_DIR;
-			$is_in_private    = defined( 'WPCOM_VIP_PRIVATE_DIR' ) ? substr( $filter_file_path, 0, strlen( WPCOM_VIP_PRIVATE_DIR ) ) === WPCOM_VIP_PRIVATE_DIR : false;
-
-			if ( ! $is_in_wp_content && ! $is_in_private ) {
-				/* translators: %s: filter file name */
-				return new WP_Error( 'governance-file-not-in-wp-content-or-private', sprintf( __( 'Governance rules (%s) must be stored under the wp-content or private directory/subdirectory.', 'vip-governance' ), $filter_file_path ) );
-			}
+		// Make sure the file is a JSON file.
+		if ( $filter_file_path && $filter_file_path !== $governance_file_path && ! str_ends_with( $filter_file_path, '.json' ) ) {
+			/* translators: %s: filter file path */
+			return new WP_Error( 'governance-file-not-json', sprintf( __( 'Governance rules (%s) must be a JSON file.', 'vip-governance' ), $filter_file_path ) );
 		}
 
 		$governance_file_path = $filter_file_path;
