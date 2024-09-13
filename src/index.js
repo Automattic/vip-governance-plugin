@@ -80,12 +80,12 @@ function setup() {
 	const nestedNonWildcardPaths = {};
 
 	for ( const blockName in nestedSettingPaths ) {
-		if ( blockName.indexOf( '*' ) !== -1 ) {
-			// eslint-disable-next-line security/detect-object-injection
-			nestedWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
-		} else {
+		if ( blockName.indexOf( '*' ) === -1 ) {
 			// eslint-disable-next-line security/detect-object-injection
 			nestedNonWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
+		} else {
+			// eslint-disable-next-line security/detect-object-injection
+			nestedWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
 		}
 	}
 
