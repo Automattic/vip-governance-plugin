@@ -1,56 +1,60 @@
 {
-	"name": "block-editor-governance",
-	"version": "1.0.9",
-	"description": "This is a plugin adding additional governance capabilities to the block editor.",
-	"author": "VIP Bistro",
-	"main": "build/index.js",
-	"devDependencies": {
-		"@automattic/eslint-plugin-wpvip": "^0.11.0",
-		"@playwright/test": "^1.44.1",
-		"@wordpress/block-editor": "^13.0.0",
-		"@wordpress/components": "^28.0.0",
-		"@wordpress/compose": "^7.0.0",
-		"@wordpress/data": "^10.0.0",
-		"@wordpress/e2e-test-utils-playwright": "^1.0.0",
-		"@wordpress/hooks": "^4.0.0",
-		"@wordpress/i18n": "^5.0.0",
-		"@wordpress/notices": "^5.0.0",
-		"@wordpress/scripts": "^27.0.0",
-		"babel-jest": "^29.7.0",
-		"eslint": "^8.56.0",
-		"husky": "^9.0.11",
-		"lint-staged": "^15.2.5",
-		"phplint": "^2.0.5",
-		"prettier": "npm:wp-prettier@2.8.5"
-	},
-	"scripts": {
-		"lint:js": "eslint . --ext .js",
-		"build": "wp-scripts build ./src/index.js",
-		"build:watch": "wp-scripts build --watch ./src/index.js",
-		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' '!build' > /dev/null",
-		"phpcs": "vendor/bin/phpcs --cache",
-		"phpcs:fix": "vendor/bin/phpcbf",
-		"lint": "npm run phplint && npm run phpcs && npm run lint:js",
-		"start": "wp-scripts start --webpack-devtool=source-map ./src/index.js",
-		"prepare": "husky install",
-		"test": "npm run test:unit",
-		"test:unit": "npm run test:php && npm run test:js",
-		"test:e2e": "npx playwright test",
-		"test:js": "wp-scripts test-unit-js"
-	},
-	"jest": {
-		"testMatch": [
-			"<rootDir>/src/**/*.test.js"
-		],
-		"preset": "@wordpress/jest-preset-default",
-		"testPathIgnorePatterns": [
-			"/.git/",
-			"/node_modules/",
-			"/governance/",
-			"/tests/"
-		],
-		"transform": {
-			"^.+\\.[jt]sx?$": "<rootDir>/tests/jest/babel-transformer.js"
-		}
-	}
+  "name": "block-editor-governance",
+  "version": "1.0.9",
+  "description": "This is a plugin adding additional governance capabilities to the block editor.",
+  "author": "VIP Bistro",
+  "main": "build/index.js",
+  "devDependencies": {
+    "@automattic/eslint-plugin-wpvip": "^0.11.0",
+    "@playwright/test": "^1.44.1",
+    "@wordpress/block-editor": "^13.0.0",
+    "@wordpress/components": "^28.0.0",
+    "@wordpress/compose": "^7.0.0",
+    "@wordpress/data": "^10.0.0",
+    "@wordpress/e2e-test-utils-playwright": "^1.0.0",
+    "@wordpress/hooks": "^4.0.0",
+    "@wordpress/i18n": "^5.0.0",
+    "@wordpress/notices": "^5.0.0",
+    "@wordpress/scripts": "^27.0.0",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.56.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.5",
+    "phplint": "^2.0.5",
+    "prettier": "npm:wp-prettier@2.8.5"
+  },
+  "scripts": {
+    "build": "wp-scripts build ./src/index.js",
+    "build:watch": "wp-scripts build --watch ./src/index.js",
+    "cmd:format": "prettier '**/*.(js|json|jsx|md|ts|tsx|yml|yaml)'",
+    "format": "npm run cmd:format -- --write",
+    "format:check": "npm run cmd:format -- --check",
+    "lint": "npm run lint:js && npm run lint:php && npm run lint:phpcs",
+    "lint:php": "phplint '**/*.php' '!build/**' '!vendor/**' '!node_modules/**' > /dev/null",
+    "lint:phpcs": "vendor/bin/phpcs -p -s -v -n . --standard=\"phpcs.xml.dist\" --extensions=php --ignore=\"/vendor/*,/node_modules/*\"",
+    "lint:phpcs:fix": "vendor/bin/phpcbf -p -s -v -n . --standard=\"phpcs.xml.dist\" --extensions=php --ignore=\"/vendor/*,/node_modules/*\"",
+    "lint:js": "eslint --ext 'js,jsx,ts,tsx' --quiet",
+    "lint:js:fix": "eslint --ext 'js,jsx,ts,tsx' --quiet --fix",
+    "start": "wp-scripts start --webpack-devtool=source-map ./src/index.js",
+    "prepare": "husky install",
+    "test": "npm run test:unit",
+    "test:unit": "npm run test:php && npm run test:js",
+    "test:e2e": "npx playwright test",
+    "test:js": "wp-scripts test-unit-js"
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/src/**/*.test.js"
+    ],
+    "preset": "@wordpress/jest-preset-default",
+    "testPathIgnorePatterns": [
+      "/.git/",
+      "/node_modules/",
+      "/governance/",
+      "/tests/"
+    ],
+    "transform": {
+      "^.+\\.[jt]sx?$": "<rootDir>/tests/jest/babel-transformer.js"
+    }
+  }
 }

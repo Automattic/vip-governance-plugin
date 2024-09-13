@@ -97,13 +97,13 @@ jobs:
     continue-on-error: ${{ matrix.allowed_failure }}
 
     strategy:
-        fail-fast: false
-        matrix:
-          include:
-            # Check latest WP with the highest supported PHP.
-            - php: 'latest'
-              wp: 'master'
-              allowed_failure: false
+      fail-fast: false
+      matrix:
+        include:
+          # Check latest WP with the highest supported PHP.
+          - php: 'latest'
+            wp: 'master'
+            allowed_failure: false
 
     steps:
       - name: Checkout code
