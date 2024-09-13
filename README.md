@@ -78,7 +78,7 @@ You can find the schema definition used for the rules [here][repo-schema-locatio
 
 We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to troubleshoot these interactions.
 
-Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described below, and it is the only type that is required in your rule set. 
+Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described below, and it is the only type that is required in your rule set.
 
 Rules not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
@@ -90,7 +90,7 @@ Rules not of type `default` require an additional field. These are broken down b
 Each rule can have any one of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks`(ability to lock/unlock blocks that will restrict movement/deletion). If you do not want to enable these features, omit them from the array.
-- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block. 
+- `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block.
 - `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. Additionally, you can use `allowedBlocks` in `blockSettings` rules to restrict what blocks can be nested under a parent.
 
 Non-default rule types will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties. If multiple non-default rule types are provided, they will be applied in the following ascending priority:
@@ -104,9 +104,37 @@ So if a matching `postType` and `role` rule is found, the `role` rule will be ap
 
 The wildcard `*` can be used within `allowedBlocks` and within `blockSettings` to target more than 1 block. The intention is that it will limit repeated rules, and allow greater flexibility in controlling the editor experience.
 
-For an example of this feature, refer [here](#default-wildcard-rule-set).
+For an example of this feature, [refer to the example file here](#default-wildcard-rule-set).
 
-Note: `allowedBlocks` are not respected under a wildcard block within `blockSettings`. This will only be respected under a targeted block such as `core/quote`.
+Note: `allowedBlocks` are not respected when a parent `blockSettings` also has a wildcard. For example, this will not work:
+
+##### ❌ Using `allowedBlocks` under a parent wildcard:
+
+```js
+{
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/*" ],
+      "blockSettings": {
+        "core/*": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],  // ← Not allowed under "core/*"
+          "color": {
+            "text": true,
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+Instead, only apply block settings to wildcards, and specify `allowedBlocks` to individual parent blocks:
+
+##### ✅ Using `allowedBlocks` under defined blocks:
 
 ```json
 {
@@ -119,6 +147,14 @@ Note: `allowedBlocks` are not respected under a wildcard block within `blockSett
       "allowedBlocks": [ "core/*" ],
       "blockSettings": {
         "core/*": {
+          "color": {
+            "text": true
+          }
+        },
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ]
+        },
+        "core/media-text": {
           "allowedBlocks": [ "core/paragraph", "core/heading" ]
         }
       }
@@ -126,8 +162,6 @@ Note: `allowedBlocks` are not respected under a wildcard block within `blockSett
   ]
 }
 ```
-
-This would be an example of unsupported use of the wildcard, in order to limit the `allowedBlocks` under any block. At this time, we don't support this feature. The wildcards can only be used within the `allowedBlocks` or within the name of a block under which only block settings like color, etc (from  the `theme.json`) are used.
 
 ### Quick Start
 
@@ -484,11 +518,11 @@ Change the governance rules file that's used by the plugin, based on a variety o
 ```php
 /**
  * Filter the governance file path, based on the filter options provided.
- * 
+ *
  * Currently supported keys:
- * 
+ *
  * site_id: The site ID for the current site.
- * 
+ *
  * @param string $governance_file_path Path to the governance file.
  * @param array $filter_options Options that can be used as a filter for determining the right file.
  */
@@ -713,7 +747,7 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 The plugin records two data points for analytics, on VIP sites:
 
 1. A usage metric when the block editor is loaded with the WordPress VIP Block Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata. It will only include the customer site ID to associate the usage.
-   
+
 2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up.
 
 Both of these data points are a counter that is incremented and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][repo-analytics].
