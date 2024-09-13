@@ -76,23 +76,18 @@ function setup() {
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
-	// pull out all the wildcard block names.
-	const nestedWildcardPaths = Object.keys( nestedSettingPaths ).reduce( ( acc, blockName ) => {
+	const nestedWildcardPaths = {};
+	const nestedNonWildcardPaths = {};
+
+	for ( const blockName in nestedSettingPaths ) {
 		if ( blockName.indexOf( '*' ) !== -1 ) {
 			// eslint-disable-next-line security/detect-object-injection
-			acc[ blockName ] = nestedSettingPaths[ blockName ];
-		}
-		return acc;
-	}, {} );
-
-	// pull all the non wildcard block names.
-	const nestedNonWildcardPaths = Object.keys( nestedSettingPaths ).reduce( ( acc, blockName ) => {
-		if ( blockName.indexOf( '*' ) === -1 ) {
+			nestedWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
+		} else {
 			// eslint-disable-next-line security/detect-object-injection
-			acc[ blockName ] = nestedSettingPaths[ blockName ];
+			nestedNonWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
 		}
-		return acc;
-	}, {} );
+	}
 
 	addFilter(
 		'blockEditor.useSetting.before',
