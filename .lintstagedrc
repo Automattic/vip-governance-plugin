@@ -1,9 +1,5 @@
 {
-    "*.php": [
-        "phplint",
-        "vendor/bin/phpcs"
-    ],
-    "*.js": [
-        "eslint . --ext .js"
-    ]
+	"*.php": [ "phplint", "vendor/bin/phpcs" ],
+	"*.js": [ "eslint . --ext .js" ],
+	"*.{json, md, yml, yaml}": [ "prettier --write" ]
 }
