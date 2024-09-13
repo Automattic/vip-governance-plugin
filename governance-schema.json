@@ -55,7 +55,13 @@
 				{
 					"core/paragraph": {
 						"color": {
-							"text": false
+							"gradients": [
+								{
+									"slug": "vertical-red-to-green",
+									"gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
+									"name": "Vertical red to green"
+								}
+							]
 						}
 					},
 					"core/*": {

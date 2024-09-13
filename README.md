@@ -108,6 +108,27 @@ For an example of this feature, refer [here](#default-wildcard-rule-set).
 
 Note: `allowedBlocks` are not respected under a wildcard block within `blockSettings`. This will only be respected under a targeted block such as `core/quote`.
 
+```json
+{
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/*" ],
+      "blockSettings": {
+        "core/*": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ]
+        }
+      }
+    }
+  ]
+}
+```
+
+This would be an example of unsupported use of the wildcard, in order to limit the `allowedBlocks` under any block. At this time, we don't support this feature. The wildcards can only be used within the `allowedBlocks` or within the name of a block under which only block settings like color, etc (from  the `theme.json`) are used.
+
 ### Quick Start
 
 By default, the plugin uses [this][repo-governance-file-location] `governance-rules.json`. To start using the plugin with your own rules, you'll need to create your own `governance-rules.json` in [your private folder][wpvip-private-dir]. We recommend duplicating one of the starter rule sets provided [below](#starter-rule-sets), and adapting it for your needs. In order to take advantage of the rules schema for in-editor support, use `https://api.wpvip.com/schemas/plugins/governance.json`.
