@@ -26,7 +26,7 @@
 	},
 	"scripts": {
 		"build": "webpack --mode production",
-    	"dev": "webpack --watch",
+    		"dev": "webpack --watch",
 		"lint:js": "eslint . --ext .js",
 		"phplint": "npx phplint '**/*.php' '!vendor/**' '!node_modules/**' '!build' > /dev/null",
 		"phpcs": "vendor/bin/phpcs --cache",
