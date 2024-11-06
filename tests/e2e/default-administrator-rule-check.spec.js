@@ -57,7 +57,6 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 			'Heading',
 			'Image',
 			'Media & Text',
-			"Something that doesn't belong",
 		] );
 	} );
 
@@ -182,7 +181,7 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 		// Verify if the CSS was actually applied.
 		const frame = page.frame( 'editor-canvas' );
 		const rootHeading = frame.locator( 'text="This is a heading"' );
-		await expect( rootHeading ).toHaveCSS( 'color', 'rgb(255, 255, 100)' );
+		await expect( rootHeading ).toHaveCSS( 'color', 'rgb(255, 255, 0)' );
 
 		const nestedHeading = frame.locator( 'text="This is a heading inside a media-text"' );
 		await expect( nestedHeading ).toHaveCSS( 'color', 'rgb(255, 0, 0)' );
