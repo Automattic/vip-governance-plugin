@@ -45,7 +45,7 @@ jobs:
         run: npx playwright test
 
       - name: Upload playwright artifacts on failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-artifacts
