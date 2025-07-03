@@ -4,6 +4,14 @@
 	"description": "This is a plugin adding additional governance capabilities to the block editor.",
 	"author": "WPVIP",
 	"main": "build/index.js",
+	"files": [
+		"build/",
+		"governance/",
+		"vendor/",
+		"vip-governance.php",
+		"governance-rules.json",
+		"governance-schema.json"
+	],
 	"devDependencies": {
 		"@automattic/eslint-plugin-wpvip": "^0.13.0",
 		"@playwright/test": "^1.44.1",
