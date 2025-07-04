@@ -1,6 +1,6 @@
 {
 	"name": "vip-governance",
-	"version": "1.0.13",
+	"version": "1.0.12",
 	"description": "This is a plugin adding additional governance capabilities to the block editor.",
 	"author": "WPVIP",
 	"main": "build/index.js",
