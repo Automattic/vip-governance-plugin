@@ -504,8 +504,8 @@ With this rule set, the following rules will apply:
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
 
 - Support for `color.duotone` has not been implemented.
-- `wp-env.json` within this plugin is intended for tests only, it doesn't work locally.
-- Currently, the plugin is restricted to new and existing posts/pages only. So it won't work on the site-editor, widgets, etc. We have support coming in the future to make this possible.
+- Currently, the plugin is restricted to the post editor only and won't work on other pages like site-editor, widgets, etc.
+- Starting from WordPress 6.8, the block inserter sidebar will show all the blocks regardless of the ability to insert them or not. Upon attempting to insert a block that isn't allowed, a snack will show up in the lower left corner to highlight that this isn't possible. The regular `/blockname` approach will work just fine, and would be the recommended way of inserting blocks when using this plugin. We are looking at how to improve this.
 
 ## Code Filters
 
