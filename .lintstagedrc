@@ -1,9 +1,6 @@
+
 {
-    "*.php": [
-        "phplint",
-        "vendor/bin/phpcs"
-    ],
-    "*.js": [
-        "eslint . --ext .js"
-    ]
+  "*.{js,jsx,ts,tsx}": [ "npm run lint" ],
+  "*.php": [ "npm run lint:php" ],
+  "*.{js,json,jsx,md,ts,tsx,yml,yaml}": [ "npm run format:check" ]
 }

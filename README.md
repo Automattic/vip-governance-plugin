@@ -505,7 +505,7 @@ With this rule set, the following rules will apply:
 
 - Support for `color.duotone` has not been implemented.
 - Currently, the plugin is restricted to the post editor only and won't work on other pages like site-editor, widgets, etc.
-- Starting from WordPress 6.8, the block inserter sidebar will show all the blocks regardless of the ability to insert them or not. Upon attempting to insert a block that isn't allowed, a snack will show up in the lower left corner to highlight that this isn't possible. The regular `/blockname` approach will work just fine, and would be the recommended way of inserting blocks when using this plugin. We are looking at how to improve this.
+- Starting from WordPress 6.8, the block inserter sidebar will show all the blocks regardless of the ability to insert them or not. Upon attempting to insert a block that isn't allowed, a snackbar will show up in the lower left corner to highlight that this isn't possible. The regular `/blockname` approach will work just fine, and would be the recommended way of inserting blocks when using this plugin.
 
 ## Code Filters
 
