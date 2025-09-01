@@ -11,32 +11,32 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 
 - [Try it out](#try-it-out)
 - [Installation](#installation)
-  - [Install on WordPress VIP](#install-on-wordpress-vip)
-  - [Install via ZIP file](#install-via-zip-file)
+	- [Install on WordPress VIP](#install-on-wordpress-vip)
+	- [Install via ZIP file](#install-via-zip-file)
 - [Usage](#usage)
-  - [Schema Basics](#schema-basics)
-    - [Wildcards](#wildcards)
-  - [Quick Start](#quick-start)
-  - [Starter Rule Sets](#starter-rule-sets)
-    - [Default Rule Set](#default-rule-set)
-    - [Default Rule Set With Restrictions](#default-rule-set-with-restrictions)
-    - [Default and User Role Rule Set](#default-and-user-role-rule-set)
-    - [Default and Post Type Rule Set](#default-and-post-type-rule-set)
-    - [Default Wildcard Rule Set](#default-wildcard-rule-set)
-  - [Limitations](#limitations)
+	- [Schema Basics](#schema-basics)
+		- [Wildcards](#wildcards)
+	- [Quick Start](#quick-start)
+	- [Starter Rule Sets](#starter-rule-sets)
+		- [Default Rule Set](#default-rule-set)
+		- [Default Rule Set With Restrictions](#default-rule-set-with-restrictions)
+		- [Default and User Role Rule Set](#default-and-user-role-rule-set)
+		- [Default and Post Type Rule Set](#default-and-post-type-rule-set)
+		- [Default Wildcard Rule Set](#default-wildcard-rule-set)
+	- [Limitations](#limitations)
 - [Code Filters](#code-filters)
-  - [`vip_governance__governance_file_path`](#vip_governance__governance_file_path)
-  - [`vip_governance__governance_rules_json`](#vip_governance__governance_rules_json)
-  - [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
-  - [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
-  - [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
+	- [`vip_governance__governance_file_path`](#vip_governance__governance_file_path)
+	- [`vip_governance__governance_rules_json`](#vip_governance__governance_rules_json)
+	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
+	- [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
+	- [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
-  - [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
-    - [Example](#example)
+	- [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
+		- [Example](#example)
 - [Analytics](#analytics)
 - [Development](#development)
-  - [Tests](#tests)
+	- [Tests](#tests)
 
 ## Try it out
 
@@ -138,28 +138,28 @@ Instead, only apply block settings to wildcards, and specify `allowedBlocks` to 
 
 ```json
 {
-	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-	"version": "1.0.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "core/*" ],
-			"blockSettings": {
-				"core/*": {
-					"color": {
-						"text": true
-					}
-				},
-				"core/quote": {
-					"allowedBlocks": [ "core/paragraph", "core/heading" ]
-				},
-				"core/media-text": {
-					"allowedBlocks": [ "core/paragraph", "core/heading" ]
-				}
-			}
-		}
-	]
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/*" ],
+      "blockSettings": {
+        "core/*": {
+          "color": {
+            "text": true
+          }
+        },
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ]
+        },
+        "core/media-text": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ]
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -179,15 +179,15 @@ This is the default rule set used by the plugin.
 
 ```json
 {
-	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-	"version": "1.0.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "*" ]
-		}
-	]
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "*" ]
+    }
+  ]
 }
 ```
 
@@ -204,87 +204,87 @@ This expands the default rule set by adding restrictions for all users and post 
 
 ```json
 {
-	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-	"version": "1.0.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "core/group", "core/heading", "core/paragraph", "core/image" ],
-			"blockSettings": {
-				"core/group": {
-					"spacing": {
-						"spacingSizes": [
-							{
-								"size": "clamp(2.5rem, 6vw, 3rem)",
-								"slug": "300",
-								"name": "12"
-							}
-						]
-					}
-				},
-				"core/heading": {
-					"color": {
-						"palette": [
-							{
-								"color": "#ff0000",
-								"name": "Custom red",
-								"slug": "custom-red"
-							},
-							{
-								"color": "#00FF00",
-								"name": "Custom green",
-								"slug": "custom-green"
-							},
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						],
-						"gradients": [
-							{
-								"slug": "vertical-red-to-green",
-								"gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
-								"name": "Vertical red to green"
-							}
-						]
-					},
-					"typography": {
-						"fontFamilies": [
-							{
-								"fontFamily": "Consolas, Fira Code, monospace",
-								"slug": "code-font",
-								"name": "Code Font"
-							}
-						],
-						"fontSizes": [
-							{
-								"name": "Large",
-								"size": "2.75rem",
-								"slug": "large"
-							},
-							{
-								"name": "X-Large",
-								"size": "3.75rem",
-								"slug": "x-large"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/group", "core/heading", "core/paragraph", "core/image" ],
+      "blockSettings": {
+        "core/group": {
+          "spacing": {
+            "spacingSizes": [
+              {
+                "size": "clamp(2.5rem, 6vw, 3rem)",
+                "slug": "300",
+                "name": "12"
+              }
+            ]
+          }
+        },
+        "core/heading": {
+          "color": {
+            "palette": [
+              {
+                "color": "#ff0000",
+                "name": "Custom red",
+                "slug": "custom-red"
+              },
+              {
+                "color": "#00FF00",
+                "name": "Custom green",
+                "slug": "custom-green"
+              },
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ],
+            "gradients": [
+              {
+                "slug": "vertical-red-to-green",
+                "gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
+                "name": "Vertical red to green"
+              }
+            ]
+          },
+          "typography": {
+            "fontFamilies": [
+              {
+                "fontFamily": "Consolas, Fira Code, monospace",
+                "slug": "code-font",
+                "name": "Code Font"
+              }
+            ],
+            "fontSizes": [
+              {
+                "name": "Large",
+                "size": "2.75rem",
+                "slug": "large"
+              },
+              {
+                "name": "X-Large",
+                "size": "3.75rem",
+                "slug": "x-large"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
 With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
-  - The only blocks allowed are group, heading, paragraph and image. Under the group block, only heading, paragraph, image and group can be inserted.
-  - The code editor is accessible, and blocks can be locked/unlocked or moved.
-  - For a heading at the root level, there are 3 custom colors as well as a custom gradient that will show up in the color palette. In addition, a custom font called Code Font as well as 2 custom font sizes will show up in the typography panel.
-  - For a group block, there will be only one option for a spacing size available in padding/margin and block spacing.
+    - The only blocks allowed are group, heading, paragraph and image. Under the group block, only heading, paragraph, image and group can be inserted.
+    - The code editor is accessible, and blocks can be locked/unlocked or moved.
+    - For a heading at the root level, there are 3 custom colors as well as a custom gradient that will show up in the color palette. In addition, a custom font called Code Font as well as 2 custom font sizes will show up in the typography panel.
+    - For a group block, there will be only one option for a spacing size available in padding/margin and block spacing.
 
 #### Default and User Role Rule Set
 
@@ -292,81 +292,81 @@ This example focuses on providing a restrictive default rule set, and expanded p
 
 ```json
 {
-	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-	"version": "1.0.0",
-	"rules": [
-		{
-			"type": "role",
-			"roles": [ "administrator" ],
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
-			"blockSettings": {
-				"core/media-text": {
-					"core/heading": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#ff0000",
-									"name": "Custom red",
-									"slug": "custom-red"
-								}
-							]
-						}
-					}
-				},
-				"core/quote": {
-					"core/paragraph": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#00FF00",
-									"name": "Custom green",
-									"slug": "custom-green"
-								}
-							]
-						}
-					}
-				}
-			}
-		},
-		{
-			"type": "default",
-			"allowedBlocks": [ "core/heading", "core/paragraph" ],
-			"blockSettings": {
-				"core/heading": {
-					"color": {
-						"text": true,
-						"palette": [
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "role",
+      "roles": [ "administrator" ],
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/quote", "core/media-text", "core/image" ],
+      "blockSettings": {
+        "core/media-text": {
+          "core/heading": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#ff0000",
+                  "name": "Custom red",
+                  "slug": "custom-red"
+                }
+              ]
+            }
+          }
+        },
+        "core/quote": {
+          "core/paragraph": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "default",
+      "allowedBlocks": [ "core/heading", "core/paragraph" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
 With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
-  - Heading/paragraph blocks are allowed
-  - For a heading at the root level, a custom yellow color will appear as a possible text color option.
-  - Blocks cannot be locked/unlocked or moved.
-  - The code editor is not accessible.
+    - Heading/paragraph blocks are allowed
+    - For a heading at the root level, a custom yellow color will appear as a possible text color option.
+    - Blocks cannot be locked/unlocked or moved.
+    - The code editor is not accessible.
 - Administrator role: Role-specific rules combined with the default set of rules:
-  - In addition to the default allowed blocks, quote/media-text and image blocks are allowed as well. Both the quote, and media-text blocks are allowed to have heading, paragraph, and image blocks inserted under it.
-  - A heading at the root level is a custom yellow color as a possible text color option.
-  - A heading inside a media-text is allowed to have a custom red color.
-  - A paragraph inside a quote is allowed to have a custom green color.
-  - The code editor is accessible.
-  - Blocks can be locked, unlocked, and moved.
+    - In addition to the default allowed blocks, quote/media-text and image blocks are allowed as well. Both the quote, and media-text blocks are allowed to have heading, paragraph, and image blocks inserted under it.
+    - A heading at the root level is a custom yellow color as a possible text color option.
+    - A heading inside a media-text is allowed to have a custom red color.
+    - A paragraph inside a quote is allowed to have a custom green color.
+    - The code editor is accessible.
+    - Blocks can be locked, unlocked, and moved.
 
 #### Default and Post Type Rule Set
 
@@ -374,68 +374,68 @@ This example focuses on providing a restrictive default rule set, and expanded p
 
 ```json
 {
-	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-	"version": "1.0.0",
-	"rules": [
-		{
-			"type": "postType",
-			"postTypes": [ "post" ],
-			"allowedFeatures": [ "lockBlocks" ],
-			"allowedBlocks": [ "core/quote", "core/image" ],
-			"blockSettings": {
-				"core/quote": {
-					"allowedBlocks": [ "core/paragraph", "core/heading" ],
-					"core/paragraph": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#00FF00",
-									"name": "Custom green",
-									"slug": "custom-green"
-								}
-							]
-						}
-					}
-				}
-			}
-		},
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor" ],
-			"allowedBlocks": [ "core/heading", "core/paragraph" ],
-			"blockSettings": {
-				"core/heading": {
-					"color": {
-						"text": true,
-						"palette": [
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						]
-					}
-				}
-			}
-		}
-	]
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "postType",
+      "postTypes": [ "post" ],
+      "allowedFeatures": [ "lockBlocks" ],
+      "allowedBlocks": [ "core/quote", "core/image" ],
+      "blockSettings": {
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],
+          "core/paragraph": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor" ],
+      "allowedBlocks": [ "core/heading", "core/paragraph" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
 With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
-  - Heading/paragraph blocks are allowed
-  - For a heading at the root level, a custom yellow color will appear as a possible text color option.
-  - Blocks cannot be locked/unlocked or moved.
-  - The code editor is accessible.
+    - Heading/paragraph blocks are allowed
+    - For a heading at the root level, a custom yellow color will appear as a possible text color option.
+    - Blocks cannot be locked/unlocked or moved.
+    - The code editor is accessible.
 - Posts: Post specific rules combined with the default set of rules:
-  - In addition to the default allowed blocks, quote and image blocks are allowed as well. A quote block is allowed to have heading, paragraph and if [cascading mode](#vip_governance__is_block_allowed_in_hierarchy) is enabled then an image block as well.
-  - A heading at the root level is a custom yellow color as a possible text color option.
-  - A paragraph inside a quote is allowed to have a custom green color.
-  - The code editor is accessible.
-  - Blocks can be locked, unlocked and moved.
+    - In addition to the default allowed blocks, quote and image blocks are allowed as well. A quote block is allowed to have heading, paragraph and if [cascading mode](#vip_governance__is_block_allowed_in_hierarchy) is enabled then an image block as well.
+    - A heading at the root level is a custom yellow color as a possible text color option.
+    - A paragraph inside a quote is allowed to have a custom green color.
+    - The code editor is accessible.
+    - Blocks can be locked, unlocked and moved.
 
 #### Default Wildcard Rule Set
 
@@ -443,65 +443,65 @@ This example focuses on providing a default rule set, using wildcards within the
 
 ```json
 {
-	"$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-	"version": "1.0.0",
-	"rules": [
-		{
-			"type": "default",
-			"allowedFeatures": [ "codeEditor", "lockBlocks" ],
-			"allowedBlocks": [ "core/*" ],
-			"blockSettings": {
-				"core/heading": {
-					"color": {
-						"text": true,
-						"palette": [
-							{
-								"color": "#FFFF00",
-								"name": "Custom yellow",
-								"slug": "custom-yellow"
-							}
-						]
-					}
-				},
-				"core/quote": {
-					"allowedBlocks": [ "core/paragraph", "core/heading" ],
-					"core/*": {
-						"color": {
-							"text": true,
-							"palette": [
-								{
-									"color": "#00FF00",
-									"name": "Custom green",
-									"slug": "custom-green"
-								}
-							]
-						}
-					}
-				}
-			}
-		}
-	]
+  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "type": "default",
+      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
+      "allowedBlocks": [ "core/*" ],
+      "blockSettings": {
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": [
+              {
+                "color": "#FFFF00",
+                "name": "Custom yellow",
+                "slug": "custom-yellow"
+              }
+            ]
+          }
+        },
+        "core/quote": {
+          "allowedBlocks": [ "core/paragraph", "core/heading" ],
+          "core/*": {
+            "color": {
+              "text": true,
+              "palette": [
+                {
+                  "color": "#00FF00",
+                  "name": "Custom green",
+                  "slug": "custom-green"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
 With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
-  - All core blocks are allowed
-  - Within a quote block, only heading and paragraph is allowed
-  - For a heading at the root level, a custom yellow color will appear as a possible text color option.
-  - For a heading or paragraph within the quote block, a custom green color will appear as a possible text color option.
-  - Blocks can be locked/unlocked or moved.
-  - The code editor is accessible.
+    - All core blocks are allowed
+    - Within a quote block, only heading and paragraph is allowed
+    - For a heading at the root level, a custom yellow color will appear as a possible text color option.
+    - For a heading or paragraph within the quote block, a custom green color will appear as a possible text color option.
+    - Blocks can be locked/unlocked or moved.
+    - The code editor is accessible.
 
 ### Limitations
 
 - We highly recommend including `core/paragraph` in `allowedBlocks` for the `default` rule so that all users have access to use paragraph blocks. There are some limitations with the editor that make this necessary:
 
-  - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
-  - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
+    - The Gutenberg editor uses `core/paragraph` blocks as an insertion primitive. If a user is unable to insert paragraph blocks, then they will also be unable to insert any other block in the same place.
+    - Some `core` blocks automatically insert `core/paragraph` blocks that can not be blocked by plugin code. For example, the `core/quote` block has a child `core/paragraph` block built-in to block output. Even if a user has `core/paragraph` blocks disabled, they may still be able to access built-in child blocks.
 
-  It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
+    It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
 
 - Support for `color.duotone` has not been implemented.
 - Currently, the plugin is restricted to the post editor only and won't work on other pages like site-editor, widgets, etc.
@@ -610,11 +610,11 @@ Change what blocks are allowed to be inserted in the block editor. By default, r
  *                                    rules for the current user.
  */
 return applyFilters(
-	'vip_governance__is_block_allowed_for_insertion',
-	isAllowed,
-	blockType.name,
-	parentBlockNames,
-	governanceRules
+    'vip_governance__is_block_allowed_for_insertion',
+    isAllowed,
+    blockType.name,
+    parentBlockNames,
+    governanceRules
 );
 ```
 
@@ -622,15 +622,15 @@ For example, this filter can be used to allow the insertion of a custom block ev
 
 ```js
 addFilter(
-	'vip_governance__is_block_allowed_for_insertion',
-	'example/allow-custom-block-insertion',
-	( isAllowed, blockName, parentBlockNames, governanceRules ) => {
-		if ( blockName === 'custom/my-amazing-block' ) {
-			return true;
-		}
+    'vip_governance__is_block_allowed_for_insertion',
+    'example/allow-custom-block-insertion',
+    ( isAllowed, blockName, parentBlockNames, governanceRules ) => {
+        if ( blockName === 'custom/my-amazing-block' ) {
+            return true;
+        }
 
-		return isAllowed;
-	}
+        return isAllowed;
+    }
 );
 ```
 
@@ -650,11 +650,11 @@ Change what blocks are allowed to be edited in the block editor. Disabled blocks
  *                                    rules for the current user.
  */
 applyFilters(
-	'vip_governance__is_block_allowed_for_editing',
-	isAllowed,
-	blockName,
-	parentBlockNames,
-	governanceRules
+    'vip_governance__is_block_allowed_for_editing',
+    isAllowed,
+    blockName,
+    parentBlockNames,
+    governanceRules
 );
 ```
 
@@ -662,15 +662,15 @@ For example, this filter can be used to allow the editing of a custom block type
 
 ```js
 addFilter(
-	'vip_governance__is_block_allowed_for_editing',
-	'example/allow-custom-block-editing',
-	( isAllowed, blockName, parentBlockNames, governanceRules ) => {
-		if ( blockName === 'custom/my-amazing-block' ) {
-			return true;
-		}
+    'vip_governance__is_block_allowed_for_editing',
+    'example/allow-custom-block-editing',
+    ( isAllowed, blockName, parentBlockNames, governanceRules ) => {
+        if ( blockName === 'custom/my-amazing-block' ) {
+            return true;
+        }
 
-		return isAllowed;
-	}
+        return isAllowed;
+    }
 );
 ```
 
@@ -689,13 +689,13 @@ Select the mode that's used for determining if a block should be allowed or not,
  * @param {Object}   governanceRules  An object containing the full set of governance
  *                                    rules for the current user.
  */
-applyFilters(
-	'vip_governance__is_block_allowed_in_hierarchy',
-	true,
-	blockName,
-	parentBlockNames,
-	governanceRules
-);
+  applyFilters(
+    'vip_governance__is_block_allowed_in_hierarchy',
+    true,
+    blockName,
+    parentBlockNames,
+    governanceRules
+  );
 ```
 
 ## Admin Settings
@@ -722,22 +722,22 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 
 ```json
 {
-	"allowedBlocks": [ "core/heading", "core/paragraph" ],
-	"blockSettings": {
-		"core/heading": {
-			"color": {
-				"text": true,
-				"palette": [
-					{
-						"color": "#FFFF00",
-						"name": "Custom yellow",
-						"slug": "custom-yellow"
-					}
-				]
-			}
-		}
-	},
-	"allowedFeatures": []
+  "allowedBlocks": [ "core/heading", "core/paragraph" ],
+  "blockSettings": {
+    "core/heading": {
+      "color": {
+        "text": true,
+        "palette": [
+          {
+            "color": "#FFFF00",
+            "name": "Custom yellow",
+            "slug": "custom-yellow"
+          }
+        ]
+      }
+    }
+  },
+  "allowedFeatures": []
 }
 ```
 
