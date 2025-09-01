@@ -14,4 +14,3 @@ Example:
 1. Run `npm run build`.
 1. Test the thing.`
 1. Verify cookies are delicious.
-
