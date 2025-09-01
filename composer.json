@@ -11,7 +11,7 @@
     "test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
   },
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.1",
     "seld/jsonlint": "^1.11"
   },
   "require-dev": {
