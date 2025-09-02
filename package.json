@@ -27,9 +27,9 @@
 		"@wordpress/scripts": "^30.22.0",
 		"babel-jest": "^30.1.2",
 		"eslint": "^8.57.0",
-		"husky": "^9.1.7",
 		"lint-staged": "^16.1.0",
 		"prettier": "npm:wp-prettier@2.8.5",
+		"simple-git-hooks": "^2.13.1",
 		"webpack": "^5.91.0"
 	},
 	"scripts": {
@@ -48,7 +48,6 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "npm run build && composer install --prefer-dist --optimize-autoloader --no-dev && wp-scripts plugin-zip",
 		"postinstall": "composer install",
-		"prepare": "husky install",
 		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
 		"test:e2e": "npx playwright test",
@@ -69,5 +68,8 @@
 		"transform": {
 			"^.+\\.[jt]sx?$": "@wordpress/scripts/config/babel-transform.js"
 		}
+	},
+	"simple-git-hooks": {
+		"pre-commit": "npx lint-staged"
 	}
 }

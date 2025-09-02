@@ -5,7 +5,6 @@
 
 # Directories
 /.github/                   export-ignore
-/.husky/                    export-ignore
 /.vscode/                   export-ignore
 /tests/                     export-ignore
 
