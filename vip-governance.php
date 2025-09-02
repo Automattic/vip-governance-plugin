@@ -22,11 +22,11 @@ if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 
 	// ToDo: When 6.4 is our min version, switch to wp_admin_notice.
 	global $wp_version;
-	if ( version_compare( phpversion(), '8.0', '<' ) || version_compare( $wp_version, '6.0', '<' ) ) {
+	if ( version_compare( phpversion(), '8.1', '<' ) || version_compare( $wp_version, '6.0', '<' ) ) {
 		add_action( 'admin_notices', function () {
 			?>
 			<div class="notice notice-error">
-					<p><?php esc_html_e( 'WordPress VIP Block Governance requires PHP 8.0+ and WordPress 6.0+.', 'vip-governance' ); ?></p>
+					<p><?php esc_html_e( 'WordPress VIP Block Governance requires PHP 8.1+ and WordPress 6.0+.', 'vip-governance' ); ?></p>
 				</div>
 			<?php
 		}, 10, 0 );
