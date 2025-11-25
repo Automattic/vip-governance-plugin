@@ -112,6 +112,70 @@ class GovernanceUtilities {
 	}
 
 	/**
+	 * Get user roles for governance checks, applying filter when user has no roles.
+	 *
+	 * In WordPress multisite environments, superadmins may have no role for a specific site.
+	 * This function applies a filter to allow custom code to provide an alternative role
+	 * instead of falling back to the default ruleset.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $user_roles Optional. User roles array. If empty or not provided, will retrieve from current user.
+	 * @return array User roles array, potentially filtered if originally empty.
+	 */
+	private static function get_user_roles_for_governance( $user_roles = [] ) {
+		// If roles are provided and not empty, use them as-is (e.g., from REST API with explicit role).
+		if ( ! empty( $user_roles ) ) {
+			return $user_roles;
+		}
+
+		// Get roles from current user if not provided or empty.
+		$current_user = wp_get_current_user();
+		$user_roles   = $current_user->roles;
+
+		// If user has no roles (e.g., superadmin in multisite), allow filter to provide an alternative role.
+		if ( empty( $user_roles ) ) {
+			/**
+			 * Filter the role to use when a user has no assigned roles.
+			 *
+			 * In WordPress multisite environments, superadmins may have no role for a specific site.
+			 * This filter allows custom code to provide an alternative role to use instead of
+			 * falling back to the default ruleset.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param string|array|null $default_role The role(s) to use when user has no roles. Can be a single role string, array of roles, or null to use default ruleset.
+			 * @param WP_User $current_user The current user object.
+			 * @param int $site_id The current site ID.
+			 */
+			$filtered_role = apply_filters( 'vip_governance__default_role_for_user_without_roles', null, $current_user, get_current_blog_id() );
+
+			if ( null !== $filtered_role ) {
+				// Normalize to array format.
+				$filtered_roles = [];
+				if ( is_string( $filtered_role ) ) {
+					$filtered_roles = [ $filtered_role ];
+				} elseif ( is_array( $filtered_role ) ) {
+					$filtered_roles = $filtered_role;
+				}
+
+				// Validate that all returned roles exist in WordPress to prevent privilege escalation.
+				if ( ! empty( $filtered_roles ) ) {
+					$all_roles = array_keys( wp_roles()->roles );
+					$valid_roles = array_intersect( $filtered_roles, $all_roles );
+
+					// Only use validated roles. If none are valid, fall back to default ruleset.
+					if ( ! empty( $valid_roles ) ) {
+						$user_roles = array_values( $valid_roles );
+					}
+				}
+			}
+		}
+
+		return $user_roles;
+	}
+
+	/**
 	 * Get the rules using the provided type.
 	 *
 	 * The default rule is the base upon which the other rules are built. Currently, that's postType and role.
@@ -129,12 +193,13 @@ class GovernanceUtilities {
 			return [];
 		}
 
-		// This is the case where its not called by the admin UI, but in factor by the editor.
-		if ( empty( $user_roles ) && empty( $post_type ) ) {
-			$current_user = wp_get_current_user();
-			$user_roles   = $current_user->roles;
-			$post_type    = get_post_type();
+		// This is the case where its not called by the admin UI, but in fact by the editor.
+		if ( empty( $post_type ) ) {
+			$post_type = get_post_type();
 		}
+
+		// Always apply the filter to get user roles, which handles empty roles case.
+		$user_roles = self::get_user_roles_for_governance( $user_roles );
 
 		$allowed_features = [];
 		$allowed_blocks   = [];
