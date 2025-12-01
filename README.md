@@ -48,19 +48,9 @@ To use the WordPress VIP Block Governance plugin after activation, skip to [Usag
 
 ### Install on WordPress VIP
 
-The WordPress VIP Block Governance plugin is authored and maintained by [WordPress VIP][wpvip], and made available to all WordPress sites by [VIP MU plugins][vip-go-mu-plugins]. Customers who host on WordPress VIP or use [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) to develop locally have access to this plugin automatically. We recommend this activation method for WordPress VIP customers.
+The WordPress VIP Block Governance plugin is authored and maintained by [WordPress VIP][wpvip], and made available to all WordPress sites by the  [VIP Integrations Center][vip-ic]. Customers who host on WordPress VIP or use [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) to develop locally have access to this plugin automatically. We recommend this activation method for WordPress VIP customers.
 
-Enable the plugin by adding the method shown below to your application's [`client-mu-plugins/plugin-loader.php`][vip-go-skeleton-plugin-loader-example]:
-
-```php
-// client-mu-plugins/plugin-loader.php
-
-\Automattic\VIP\Integrations\activate( 'vip-governance' );
-```
-
-Create this path in your WordPress VIP site if it does not yet exist.
-
-This will automatically install and activate the latest mu-plugins release of the WordPress VIP Block Governance plugin. Remove this line to deactivate the plugin.
+Enable the Integration by [adding it to your organization][vip-ic-org]. Once that is complete, you can [activate the integration on your application][vip-ic-app]. Activation is for the current environment only, so you may need to activate the Integration on multiple environments.
 
 ### Install via ZIP file
 
@@ -812,3 +802,6 @@ npx playwright test
 [wpvip-plugin-subtrees]: https://docs.wpvip.com/technical-references/plugins/installing-plugins-best-practices/#h-subtrees
 [wpvip-private-dir]: https://docs.wpvip.com/technical-references/vip-codebase/private-directory/
 [wpvip]: https://wpvip.com/
+[vip-ic]:https://docs.wpvip.com/integrations/center/
+[vip-ic-org]:https://docs.wpvip.com/integrations/org-integrations/
+[vip-ic-app]:https://docs.wpvip.com/integrations/app-integrations/
