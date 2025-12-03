@@ -452,13 +452,14 @@ class GovernanceUtilitiesTest extends TestCase {
 	public function test_get_rules_by_type__filter_receives_correct_parameters() {
 		$received_user    = null;
 		$received_site_id = null;
+		$value            = null;
 
 		// Add filter to capture parameters.
-		add_filter( 'vip_governance__default_role_for_user_without_roles', function () use ( &$received_user, &$received_site_id ) {
+		add_filter( 'vip_governance__default_role_for_user_without_roles', function ( $value, $current_user, $site_id ) use ( &$received_user, &$received_site_id ) {
 			$received_user    = $current_user;
 			$received_site_id = $site_id;
 			return 'administrator';
-		}, 10, 0 );
+		}, 10, 3 );
 
 		// Call with explicit empty roles array.
 		GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), array() );
