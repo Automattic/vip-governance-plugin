@@ -161,7 +161,7 @@ class GovernanceUtilities {
 
 				// Validate that all returned roles exist in WordPress to prevent privilege escalation.
 				if ( ! empty( $filtered_roles ) ) {
-					$all_roles = array_keys( wp_roles()->roles );
+					$all_roles   = array_keys( wp_roles()->roles );
 					$valid_roles = array_intersect( $filtered_roles, $all_roles );
 
 					// Only use validated roles. If none are valid, fall back to default ruleset.

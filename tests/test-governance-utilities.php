@@ -251,9 +251,9 @@ class GovernanceUtilitiesTest extends TestCase {
 	 */
 	public function test_get_rules_by_type__empty_roles_with_filter_returning_string() {
 		// Add filter to return 'editor' role for users with no roles.
-		add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) {
+		add_filter( 'vip_governance__default_role_for_user_without_roles', function () {
 			return 'editor';
-		}, 10, 3 );
+		}, 10, 0 );
 
 		// Call with explicit empty roles array.
 		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules_with_editor(), array() );
@@ -296,9 +296,9 @@ class GovernanceUtilitiesTest extends TestCase {
 	 */
 	public function test_get_rules_by_type__empty_roles_with_filter_returning_array() {
 		// Add filter to return array of roles for users with no roles.
-		add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) {
+		add_filter( 'vip_governance__default_role_for_user_without_roles', function () {
 			return array( 'administrator' );
-		}, 10, 3 );
+		}, 10, 0 );
 
 		// Call with explicit empty roles array.
 		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), array() );
@@ -359,9 +359,9 @@ class GovernanceUtilitiesTest extends TestCase {
 	 */
 	public function test_get_rules_by_type__empty_roles_with_filter_returning_null() {
 		// Add filter that returns null (should use default ruleset).
-		add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) {
+		add_filter( 'vip_governance__default_role_for_user_without_roles', function () {
 			return null;
-		}, 10, 3 );
+		}, 10, 0 );
 
 		// Call with explicit empty roles array.
 		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), array() );
@@ -405,10 +405,10 @@ class GovernanceUtilitiesTest extends TestCase {
 		// Add filter that would return 'administrator' for users with no roles.
 		// This should NOT be called since we're passing 'editor' role.
 		$filter_called = false;
-		add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) use ( &$filter_called ) {
+		add_filter( 'vip_governance__default_role_for_user_without_roles', function () use ( &$filter_called ) {
 			$filter_called = true;
 			return 'administrator';
-		}, 10, 3 );
+		}, 10, 0 );
 
 		// Call with explicit editor role.
 		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules_with_editor(), array( 'editor' ) );
@@ -450,15 +450,15 @@ class GovernanceUtilitiesTest extends TestCase {
 	 * @since 1.1.0
 	 */
 	public function test_get_rules_by_type__filter_receives_correct_parameters() {
-		$received_user = null;
+		$received_user    = null;
 		$received_site_id = null;
 
 		// Add filter to capture parameters.
-		add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) use ( &$received_user, &$received_site_id ) {
-			$received_user = $current_user;
+		add_filter( 'vip_governance__default_role_for_user_without_roles', function () use ( &$received_user, &$received_site_id ) {
+			$received_user    = $current_user;
 			$received_site_id = $site_id;
 			return 'administrator';
-		}, 10, 3 );
+		}, 10, 0 );
 
 		// Call with explicit empty roles array.
 		GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), array() );
