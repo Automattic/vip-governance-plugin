@@ -60,8 +60,8 @@ jobs:
 
       - name: Create Release
         if: steps.version_check.outputs.new_version
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2'd
         with:
-          tag_name: v${{ steps.version_check.outputs.new_version }}
+          tag_name: ${{ steps.version_check.outputs.new_version }}
           files: vip-governance-${{ steps.version_check.outputs.new_version }}.zip
           generate_release_notes: true
