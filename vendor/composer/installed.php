@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'automattic/vip-governance',
-        'pretty_version' => 'dev-trunk',
-        'version' => 'dev-trunk',
-        'reference' => 'e25b3070d1a74e39db23465a5d465d1c7a2991e5',
+        'pretty_version' => 'dev-copilot/sub-pr-122',
+        'version' => 'dev-copilot/sub-pr-122',
+        'reference' => '28662b22a66b1ea08ff48984262c4c8add990fe0',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'automattic/vip-governance' => array(
-            'pretty_version' => 'dev-trunk',
-            'version' => 'dev-trunk',
-            'reference' => 'e25b3070d1a74e39db23465a5d465d1c7a2991e5',
+            'pretty_version' => 'dev-copilot/sub-pr-122',
+            'version' => 'dev-copilot/sub-pr-122',
+            'reference' => '28662b22a66b1ea08ff48984262c4c8add990fe0',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
