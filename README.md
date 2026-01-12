@@ -30,6 +30,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
 	- [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
 	- [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
+	- [`vip_governance__default_role_for_user_without_roles`](#vip_governance__default_role_for_user_without_roles)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
 	- [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
@@ -686,6 +687,76 @@ Select the mode that's used for determining if a block should be allowed or not,
     parentBlockNames,
     governanceRules
   );
+```
+
+### `vip_governance__default_role_for_user_without_roles`
+
+**Since:** 1.1.0
+
+Provide an alternative role to use when a user has no assigned roles. In WordPress multisite environments, superadmins may have no role for a specific site. This filter allows custom code to provide an alternative role to use instead of falling back to the default ruleset.
+
+**Security Note:** This filter only applies when a user has no assigned roles. Returned roles are validated against existing WordPress roles - invalid or non-existent roles are ignored and the default ruleset is used. Only trusted plugins should hook into this filter, as it can affect governance rule assignment.
+
+```php
+/**
+ * Filter the role to use when a user has no assigned roles.
+ *
+ * In WordPress multisite environments, superadmins may have no role for a specific site.
+ * This filter allows custom code to provide an alternative role to use instead of
+ * falling back to the default ruleset.
+ *
+ * @param string|array|null $default_role The role(s) to use when user has no roles. Can be a single role string, array of roles, or null to use default ruleset.
+ * @param WP_User $current_user The current user object.
+ * @param int $site_id The current site ID.
+ */
+apply_filters( 'vip_governance__default_role_for_user_without_roles', null, $current_user, $site_id );
+```
+
+**Return values:**
+- `string`: Single role name (e.g., `'editor'`)
+- `array`: Multiple role names (e.g., `['editor', 'custom_role']`)
+- `null`: Use default ruleset (no custom role assignment)
+
+**Examples:**
+
+**Example 1:** Assign administrator role to superadmins in multisite when they have no site-specific role:
+
+```php
+add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) {
+    // For superadmins in multisite, use administrator role
+    if ( is_multisite() && is_super_admin( $current_user->ID ) ) {
+        return 'administrator';
+    }
+
+    return $default_role; // null to use default ruleset
+}, 10, 3 );
+```
+
+**Example 2:** Site-specific roles based on site ID:
+
+```php
+add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) {
+    if ( is_multisite() && is_super_admin( $current_user->ID ) ) {
+        // Assign different roles based on site
+        return match ( $site_id ) {
+            1 => 'administrator',      // Main site
+            2 => 'editor',              // Staging site
+            default => 'contributor',   // Other sites
+        };
+    }
+    return $default_role;
+}, 10, 3 );
+```
+
+**Example 3:** Assign multiple roles:
+
+```php
+add_filter( 'vip_governance__default_role_for_user_without_roles', function( $default_role, $current_user, $site_id ) {
+    if ( is_super_admin( $current_user->ID ) ) {
+        return array( 'editor', 'custom_role' );
+    }
+    return $default_role;
+}, 10, 3 );
 ```
 
 ## Admin Settings
