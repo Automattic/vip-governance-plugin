@@ -69,6 +69,7 @@ WPCOMVIP_GOVERNANCE_RULES_FILENAME         // 'governance-rules.json'
 ### JavaScript Global
 
 The plugin exposes `VIP_GOVERNANCE` to the block editor with:
+
 - `error` — Error string or `false`
 - `governanceRules` — Parsed rules for the current user
 - `nestedSettings` — Pre-computed nested block settings
@@ -78,11 +79,11 @@ The plugin exposes `VIP_GOVERNANCE` to the block editor with:
 
 ### Rule Types
 
-| Type       | Required Field | Description                         |
-|------------|---------------|-------------------------------------|
-| `default`  | (none)        | Baseline rules for all users        |
-| `role`     | `roles`       | Rules for specific WordPress roles  |
-| `postType` | `postTypes`   | Rules for specific post types       |
+| Type       | Required Field | Description                        |
+| ---------- | -------------- | ---------------------------------- |
+| `default`  | (none)         | Baseline rules for all users       |
+| `role`     | `roles`        | Rules for specific WordPress roles |
+| `postType` | `postTypes`    | Rules for specific post types      |
 
 ### Rule Properties
 
@@ -103,14 +104,14 @@ Non-default rules merge with the default rule. Schema: `https://api.wpvip.com/sc
 
 ## PHP Filters (Hooks)
 
-| Filter | Language | Purpose |
-|--------|----------|---------|
-| `vip_governance__governance_file_path` | PHP | Change which rules file is loaded |
-| `vip_governance__governance_rules_json` | PHP | Modify or dynamically set rules JSON |
-| `vip_governance__is_block_allowed_for_insertion` | JS | Override block insertion decisions |
-| `vip_governance__is_block_allowed_for_editing` | JS | Override block editing decisions |
-| `vip_governance__is_block_allowed_in_hierarchy` | JS | Toggle cascading vs restrictive mode |
-| `vip_governance__default_role_for_user_without_roles` | PHP | Provide fallback role for roleless users (e.g., multisite superadmins) |
+| Filter                                                | Language | Purpose                                                                |
+| ----------------------------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `vip_governance__governance_file_path`                | PHP      | Change which rules file is loaded                                      |
+| `vip_governance__governance_rules_json`               | PHP      | Modify or dynamically set rules JSON                                   |
+| `vip_governance__is_block_allowed_for_insertion`      | JS       | Override block insertion decisions                                     |
+| `vip_governance__is_block_allowed_for_editing`        | JS       | Override block editing decisions                                       |
+| `vip_governance__is_block_allowed_in_hierarchy`       | JS       | Toggle cascading vs restrictive mode                                   |
+| `vip_governance__default_role_for_user_without_roles` | PHP      | Provide fallback role for roleless users (e.g., multisite superadmins) |
 
 ## Development
 
@@ -145,6 +146,7 @@ npm run format       # Auto-format with Prettier
 ### Testing
 
 **PHP unit tests:**
+
 ```bash
 wp-env start
 composer install
@@ -152,12 +154,14 @@ composer run test
 ```
 
 **JS unit tests:**
+
 ```bash
 npm install
 npm run test:js
 ```
 
 **E2E tests:**
+
 ```bash
 wp-env start
 composer install
@@ -167,6 +171,7 @@ npx playwright test
 ```
 
 **Combined unit tests:**
+
 ```bash
 npm run test         # Runs both PHP and JS unit tests
 ```
@@ -197,6 +202,7 @@ npm run test         # Runs both PHP and JS unit tests
 - **Multisite tests**: `composer test-multisite` (uses `tests/phpunit/multisite.xml`)
 
 Example structure:
+
 ```php
 namespace WPCOMVIP\Governance\Tests;
 
@@ -220,13 +226,14 @@ class MyNewTest extends TestCase {
 - **Run one file**: `npx jest src/block-utils.test.js`
 
 Example structure:
+
 ```js
 import { myFunction } from './my-module';
 
 describe( 'myFunction', () => {
-    it( 'should do something', () => {
-        expect( myFunction( input ) ).toBe( expected );
-    } );
+	it( 'should do something', () => {
+		expect( myFunction( input ) ).toBe( expected );
+	} );
 } );
 ```
 
@@ -240,17 +247,18 @@ describe( 'myFunction', () => {
 - **Run one file**: `npx playwright test tests/e2e/my-test.spec.js`
 
 Example structure:
+
 ```js
 import { expect, test } from '@wordpress/e2e-test-utils-playwright';
 
 test.describe( 'My Feature', () => {
-    test.beforeEach( async ( { admin } ) => {
-        await admin.createNewPost( { legacyCanvas: true } );
-    } );
+	test.beforeEach( async ( { admin } ) => {
+		await admin.createNewPost( { legacyCanvas: true } );
+	} );
 
-    test( 'should do something', async ( { editor, page } ) => {
-        // interact with the block editor
-    } );
+	test( 'should do something', async ( { editor, page } ) => {
+		// interact with the block editor
+	} );
 } );
 ```
 
@@ -289,6 +297,7 @@ test.describe( 'My Feature', () => {
 Returns merged governance rules for a given role. Requires `manage_options` capability.
 
 **Response shape:**
+
 ```json
 {
   "allowedBlocks": [...],
