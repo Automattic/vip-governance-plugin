@@ -24,7 +24,7 @@
 		"@wordpress/hooks": "^4.29.0",
 		"@wordpress/i18n": "^6.2.0",
 		"@wordpress/notices": "^5.29.0",
-		"@wordpress/scripts": "^30.22.0",
+		"@wordpress/scripts": "^31.6.0",
 		"babel-jest": "^30.1.2",
 		"eslint": "^8.57.0",
 		"lint-staged": "^16.1.0",
