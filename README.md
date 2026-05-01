@@ -30,6 +30,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 	- [`vip_governance__is_block_allowed_for_insertion`](#vip_governance__is_block_allowed_for_insertion)
 	- [`vip_governance__is_block_allowed_for_editing`](#vip_governance__is_block_allowed_for_editing)
 	- [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy)
+	- [`vip_governance__deny_message`](#vip_governance__deny_message)
 	- [`vip_governance__default_role_for_user_without_roles`](#vip_governance__default_role_for_user_without_roles)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
@@ -688,6 +689,42 @@ Select the mode that's used for determining if a block should be allowed or not,
     governanceRules
   );
 ```
+
+### `vip_governance__deny_message`
+
+Customise the snackbar message shown when a user attempts to insert a block that's restricted by the governance rules. By default, Gutenberg shows a generic `Block "X" can't be inserted.` message which gives editors no context about *why* the block is restricted. The plugin replaces that snackbar with a customisable one that this filter lets you override.
+
+```js
+/**
+ * Customise the deny message shown when a block insertion is denied by governance rules.
+ *
+ * @param {string}      message         Default deny message.
+ * @param {string|null} blockName       Namespaced block name (e.g. `core/audio`), when resolvable.
+ * @param {string|null} blockTitle      Human-readable block title (e.g. `Audio`), when resolvable.
+ * @param {Object}      governanceRules Resolved governance rules for the current user.
+ */
+applyFilters(
+    'vip_governance__deny_message',
+    message,
+    blockName,
+    blockTitle,
+    governanceRules
+);
+```
+
+For example, this filter can be used to point editors to the team that owns block restrictions:
+
+```js
+addFilter(
+    'vip_governance__deny_message',
+    'example/governance-deny-message',
+    ( message, blockName, blockTitle ) => {
+        return `The "${ blockTitle }" block is reserved for the editorial team. Reach out in #content if you need it.`;
+    }
+);
+```
+
+If the filter returns the unmodified `message`, the default copy is shown.
 
 ### `vip_governance__default_role_for_user_without_roles`
 

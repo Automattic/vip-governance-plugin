@@ -1,2 +1,810 @@
-(()=>{"use strict";var e={122:(e,o,t)=>{t.d(o,{G:()=>d});var n=t(715),r=t(427),i=t(491),c=t(143),s=t(619),l=t(418),a=t(790);function d(e){const o=(0,i.createHigherOrderComponent)((o=>t=>{const{name:i,clientId:d}=t,{getBlockParents:u,getBlockName:g}=(0,c.select)(n.store),v=u(d,!0),f=v.some((e=>function(e){return e in p}(e)));if(f)return(0,a.jsx)(o,{...t});const m=v.map((e=>g(e)));let w=(0,l.yw)(i,m,e);if(w=(0,s.applyFilters)("vip_governance__is_block_allowed_for_editing",w,i,m,e),w)return(0,a.jsx)(o,{...t});if(wp?.blockEditor?.useBlockEditingMode){const{useBlockEditingMode:e}=wp.blockEditor;e("disabled")}return function(e){p[e]=!0}(d),(0,a.jsx)(a.Fragment,{children:(0,a.jsx)(r.Disabled,{children:(0,a.jsx)("div",{style:{opacity:.6,backgroundColor:"#eee",border:"2px dashed #999"},children:(0,a.jsx)(o,{...t})})})})}),"withDisabledBlocks");(0,s.addFilter)("editor.BlockEdit","wpcomvip-governance/with-disabled-blocks",o)}const p={}},143:e=>{e.exports=window.wp.data},325:(e,o,t)=>{function n(e,o={},t=!1){const r=["allowedBlocks"];for(const[s,l]of Object.entries(e))if(!r.includes(s))if(s.includes("/")||"*"===s)Object.entries(e).forEach((([e,t])=>{r.includes(e)||n(t,o,e)}));else if(!1!==t){var i;const e=c(l,`${s}.`);o[t]={...null!==(i=o[t])&&void 0!==i?i:{},...e}}return o}function r(e,o,t,n={depth:0,value:void 0},c=1){const[s,...l]=e,a=t[s];if(0===l.length){const e=i(a,o);return void 0!==e&&c>=n.depth&&(n.depth=c,n.value=e),n}return void 0!==a&&(n=r(l,o,a,n,c+1)),r(l,o,t,n,c)}function i(e,o,t=void 0){const n=Array.isArray(o)?o:o.replace(/(\[(\d)\])/g,".$2").replace(/^\./,"").split(".");if(!n.length||void 0===n[0])return e;const r=n[0];return"object"==typeof e&&null!==e&&r in e&&void 0!==e[r]?i(e[r],n.slice(1),t):t}function c(e,o=""){const t={};return Object.entries(e).forEach((([e,n])=>{"object"==typeof n&&Boolean(n)&&!Array.isArray(n)?(t[`${o}${e}`]=!0,Object.assign(t,c(n,`${o}${e}.`))):t[`${o}${e}`]=!0})),t}t.d(o,{S:()=>n,W:()=>r})},418:(e,o,t)=>{t.d(o,{aV:()=>s,yw:()=>c});var n=t(619),r=t(325);const i={"core/list":["core/list-item"],"core/columns":["core/column"],"core/page-list":["core/page-list-item"],"core/navigation":["core/navigation-link","core/navigation-submenu"],"core/navigation-link":["core/navigation-link","core/navigation-submenu","core/page-list"],"core/quote":["core/paragraph"],"core/media-text":["core/paragraph"],"core/social-links":["core/social-link"],"core/comments-pagination":["core/comments-pagination-previous","core/comments-pagination-numbers","core/comments-pagination-next"]};function c(e,o,t){const c=(0,n.applyFilters)("vip_governance__is_block_allowed_in_hierarchy",!0,e,o,t)||0===o.length?[...t.allowedBlocks]:[];if(o.length>0){if(i[o[0]]&&i[o[0]].includes(e))return!0;if(t.blockSettings){const e=(0,r.W)(o.reverse(),"allowedBlocks",t.blockSettings);e&&e.value&&c.push(...e.value)}}return function(e,o){return o.some((o=>s(e,o)))}(e,c)}function s(e,o){return o.includes("*")?e.match(new RegExp(o.replace("*",".*"))):o===e}},427:e=>{e.exports=window.wp.components},491:e=>{e.exports=window.wp.compose},619:e=>{e.exports=window.wp.hooks},692:e=>{e.exports=window.wp.notices},715:e=>{e.exports=window.wp.blockEditor},723:e=>{e.exports=window.wp.i18n},790:e=>{e.exports=window.ReactJSXRuntime}},o={};function t(n){var r=o[n];if(void 0!==r)return r.exports;var i=o[n]={exports:{}};return e[n](i,i.exports,t),i.exports}t.n=e=>{var o=e&&e.__esModule?()=>e.default:()=>e;return t.d(o,{a:o}),o},t.d=(e,o)=>{for(var n in o)t.o(o,n)&&!t.o(e,n)&&Object.defineProperty(e,n,{enumerable:!0,get:o[n]})},t.o=(e,o)=>Object.prototype.hasOwnProperty.call(e,o);var n=t(715),r=t(143),i=t(619),c=t(723),s=t(692),l=t(122),a=t(418),d=t(325);!function(){if(VIP_GOVERNANCE.error)return void(0,r.dispatch)(s.store).createErrorNotice(VIP_GOVERNANCE.error,{id:"wpcomvip-governance-error",isDismissible:!0,actions:[{label:(0,c.__)("Open governance settings"),url:VIP_GOVERNANCE.urlSettingsPage}]});const e=VIP_GOVERNANCE.governanceRules;(0,i.addFilter)("blockEditor.__unstableCanInsertBlockType","wpcomvip-governance/block-insertion",((o,t,c,{getBlock:s})=>{if(!1===o)return o;let l=[];if(c){const{getBlockParents:e,getBlockName:o}=(0,r.select)(n.store),t=s(c),i=e(c,!0);l=[t.clientId,...i].map((e=>o(e)))}const d=(0,a.yw)(t.name,l,e);return(0,i.applyFilters)("vip_governance__is_block_allowed_for_insertion",d,t.name,l,e)}));const o=VIP_GOVERNANCE.nestedSettings,t=(0,d.S)(o),p={},u={};for(const e in t)-1===e.indexOf("*")?u[e]=t[e]:p[e]=t[e];(0,i.addFilter)("blockEditor.useSetting.before","wpcomvip-governance/nested-block-settings",((e,t,i,c)=>{if(!c)return e;if(void 0!==u[c]&&!0===u[c][t]){const c=[i,...(0,r.select)(n.store).getBlockParents(i,!0)].map((e=>(0,r.select)(n.store).getBlockName(e))).reverse();return({value:e}=(0,d.W)(c,t,o)),e&&e.theme?e.theme:e}if(0!==p.length)for(const s in p)if((0,a.aV)(c,s)&&!0===p[s][t]){const c=[i,...(0,r.select)(n.store).getBlockParents(i,!0)].map((e=>(0,r.select)(n.store).getBlockName(e))).reverse();return-1!==s.indexOf("*")&&(c[c.length-1]=s),({value:e}=(0,d.W)(c,t,o)),e&&e.theme?e.theme:e}return e})),e?.allowedBlocks&&(0,l.G)(e)}()})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/block-locking.jsx":
+/*!*******************************!*\
+  !*** ./src/block-locking.jsx ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   setupBlockLocking: () => (/* binding */ setupBlockLocking)
+/* harmony export */ });
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
+/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _block_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./block-utils */ "./src/block-utils.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__);
+/**
+ * WordPress dependencies
+ */
+
+
+
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+function setupBlockLocking(governanceRules) {
+  const withDisabledBlocks = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__.createHigherOrderComponent)(BlockEdit => {
+    return props => {
+      const {
+        name: blockName,
+        clientId
+      } = props;
+      const {
+        getBlockParents,
+        getBlockName
+      } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_3__.select)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.store);
+      const parentClientIds = getBlockParents(clientId, true);
+      const isParentLocked = parentClientIds.some(parentClientId => isBlockLocked(parentClientId));
+      if (isParentLocked) {
+        // To avoid layout issues, only disable the outermost locked block
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(BlockEdit, {
+          ...props
+        });
+      }
+      const parentBlockNames = parentClientIds.map(parentClientId => getBlockName(parentClientId));
+      let isAllowed = (0,_block_utils__WEBPACK_IMPORTED_MODULE_5__.isBlockAllowedInHierarchy)(blockName, parentBlockNames, governanceRules);
+
+      /**
+       * Change what blocks are allowed to be edited in the block editor.
+       *
+       * @param {bool}     isAllowed        Whether or not the block will be allowed.
+       * @param {string}   blockName        The name of the block to be edited.
+       * @param {string[]} parentBlockNames An array of zero or more parent block names,
+       *                                    starting with the most recent parent ancestor.
+       * @param {Object}   governanceRules  An object containing the full set of governance
+       *                                    rules for the current user.
+       */
+      isAllowed = (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_4__.applyFilters)('vip_governance__is_block_allowed_for_editing', isAllowed, blockName, parentBlockNames, governanceRules);
+      if (isAllowed) {
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(BlockEdit, {
+          ...props
+        });
+      } else {
+        // Only available on WP 6.4 and above, so this guards against that.
+        if (wp?.blockEditor?.useBlockEditingMode) {
+          const {
+            useBlockEditingMode
+          } = wp.blockEditor;
+          useBlockEditingMode('disabled');
+        }
+
+        // Mark block as locked so that children can detect they're within an existing locked block
+        setBlockLocked(clientId);
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.Fragment, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Disabled, {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+              style: {
+                opacity: 0.6,
+                backgroundColor: '#eee',
+                border: '2px dashed #999'
+              },
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(BlockEdit, {
+                ...props
+              })
+            })
+          })
+        });
+      }
+    };
+  }, 'withDisabledBlocks');
+  (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_4__.addFilter)('editor.BlockEdit', 'wpcomvip-governance/with-disabled-blocks', withDisabledBlocks);
+}
+
+/**
+ * In-memory map of block clientIds that have been marked as locked.
+ *
+ * This replaces using props.setAttributes() to set lock status, as this caused an
+ * "unsaved changes" warning to appear in the editor when block locking was in use.
+ */
+const lockedBlockMap = {};
+
+/**
+ * Marks a block as locked via the block's clientId.
+ *
+ * @param {string} clientId Block clientId in editor
+ * @returns {void}
+ */
+function setBlockLocked(clientId) {
+  lockedBlockMap[clientId] = true;
+}
+
+/**
+ * Returns true if a block has previously been marked as locked, false otherwise.
+ *
+ * @param {string} clientId Block clientId in editor
+ * @returns {boolean}
+ */
+function isBlockLocked(clientId) {
+  return clientId in lockedBlockMap;
+}
+
+/***/ }),
+
+/***/ "./src/block-utils.js":
+/*!****************************!*\
+  !*** ./src/block-utils.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   doesBlockNameMatchBlockWildcard: () => (/* binding */ doesBlockNameMatchBlockWildcard),
+/* harmony export */   isBlockAllowedByBlockWildcards: () => (/* binding */ isBlockAllowedByBlockWildcards),
+/* harmony export */   isBlockAllowedInHierarchy: () => (/* binding */ isBlockAllowedInHierarchy)
+/* harmony export */ });
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _nested_governance_loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./nested-governance-loader */ "./src/nested-governance-loader.js");
+
+
+
+// The list of default core blocks that should be allowed to be inserted, in order to make life easier.
+const DEFAULT_CORE_BLOCK_LIST = {
+  'core/list': ['core/list-item'],
+  'core/columns': ['core/column'],
+  'core/page-list': ['core/page-list-item'],
+  'core/navigation': ['core/navigation-link', 'core/navigation-submenu'],
+  'core/navigation-link': ['core/navigation-link', 'core/navigation-submenu', 'core/page-list'],
+  'core/quote': ['core/paragraph'],
+  'core/media-text': ['core/paragraph'],
+  'core/social-links': ['core/social-link'],
+  'core/comments-pagination': ['core/comments-pagination-previous', 'core/comments-pagination-numbers', 'core/comments-pagination-next']
+};
+
+/**
+ * Given a block name, a parent list and a set of governance rules, determine if
+ * the block can be inserted.
+ *
+ * By default, will return if the block is allowed to be inserted at the root level
+ * per the user's rules. If a parent block contains a rule for allowedBlocks,
+ * the function will return if the block is allowed as a child of that parent.
+ *
+ * Rules declared in allowedBlocks will override root level rules when the block
+ * is currently a child of the parent with allowedBlocks.
+ *
+ * @param {string}   blockName        The current block's name.
+ * @param {string[]} parentBlockNames A list of zero or more parent block names,
+ *                                    starting with the most recent parent ancestor.
+ * @param {Object}   governanceRules  An object containing the full set of governance
+ *                                    rules for the current user.
+ * @returns True if the block is allowed in set of parent blocks, or false otherwise.
+ */
+function isBlockAllowedInHierarchy(blockName, parentBlockNames, governanceRules) {
+  // Filter to decide if the mode should be cascading or restrictive, where true is cascading and false is restrictive.
+  const isInCascadingMode = (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_0__.applyFilters)('vip_governance__is_block_allowed_in_hierarchy', true, blockName, parentBlockNames, governanceRules);
+
+  // Build the blocks that are allowed using the root level blocks for cascading mode or if no parent has been past, or empty otherwise.
+  const blocksAllowedToBeInserted = isInCascadingMode || parentBlockNames.length === 0 ? [...governanceRules.allowedBlocks] : [];
+
+  // Only execute this if we are determining the block under a parent.
+  if (parentBlockNames.length > 0) {
+    // Shortcircuit the parent-child hierarchy for some core blocks
+    if (DEFAULT_CORE_BLOCK_LIST[parentBlockNames[0]] && DEFAULT_CORE_BLOCK_LIST[parentBlockNames[0]].includes(blockName)) {
+      return true;
+    }
+
+    // Only do a search if there are block settings to search through.
+    if (governanceRules.blockSettings) {
+      // Get the child block's parent block settings at whatever depth its located at.
+      const nestedSetting = (0,_nested_governance_loader__WEBPACK_IMPORTED_MODULE_1__.getNestedSetting)(parentBlockNames.reverse(), 'allowedBlocks', governanceRules.blockSettings);
+
+      // If we found the allowedBlocks for the parent block, add that to the array of blocks that can be inserted.
+      if (nestedSetting && nestedSetting.value) {
+        blocksAllowedToBeInserted.push(...nestedSetting.value);
+      }
+    }
+  }
+
+  // Check if the block is allowed using the array of blocks that can be inserted.
+  return isBlockAllowedByBlockWildcards(blockName, blocksAllowedToBeInserted);
+}
+
+/**
+ * Matches a block name to a list of block wildcard rules.
+ * For wildcard rules, see doesBlockNameMatchBlockWildcard().
+ *
+ * @param {string} blockName
+ * @param {string[]} rules
+ * @returns True if the block name matches any of the rules, false otherwise.
+ */
+function isBlockAllowedByBlockWildcards(blockName, rules) {
+  return rules.some(rule => doesBlockNameMatchBlockWildcard(blockName, rule));
+}
+
+/**
+ * Matches a rule to a block name, with the following cases being possible:
+ *
+ * 1. ['*'] - matches all blocks
+ * 2. '*' can be located somewhere else alongside a string, e.g. 'core/*' - matches all core blocks
+ * 3. ['core/paragraph'] - matches only the core/paragraph block
+ *
+ * @param {string} blockName
+ * @param {string} rule
+ * @returns True if the block name matches the rule, or false otherwise
+ */
+function doesBlockNameMatchBlockWildcard(blockName, rule) {
+  if (rule.includes('*')) {
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    return blockName.match(new RegExp(rule.replace('*', '.*')));
+  }
+  return rule === blockName;
+}
+
+/***/ }),
+
+/***/ "./src/deny-message.js":
+/*!*****************************!*\
+  !*** ./src/deny-message.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VIP_GOVERNANCE_DENY_NOTICE_ID: () => (/* binding */ VIP_GOVERNANCE_DENY_NOTICE_ID),
+/* harmony export */   WP_INSERTER_NOTICE_ID: () => (/* binding */ WP_INSERTER_NOTICE_ID),
+/* harmony export */   buildBlockDenyMessage: () => (/* binding */ buildBlockDenyMessage),
+/* harmony export */   buildWpInserterNoticeRegex: () => (/* binding */ buildWpInserterNoticeRegex)
+/* harmony export */ });
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
+/**
+ * The id used by Gutenberg's block inserter when a block selection is denied.
+ * See @wordpress/block-editor's use-block-types-state.js.
+ */
+const WP_INSERTER_NOTICE_ID = 'inserter-notice';
+
+/**
+ * The id used for the governance plugin's replacement deny snackbar.
+ */
+const VIP_GOVERNANCE_DENY_NOTICE_ID = 'wpcomvip-governance-deny';
+
+/**
+ * Build a regex that matches Gutenberg's localised inserter-deny message
+ * (`Block "%s" can't be inserted.`) and captures the block title in group 1.
+ *
+ * Pulling the template through `__()` keeps us aligned with the active locale.
+ */
+function buildWpInserterNoticeRegex() {
+  // Source string copied verbatim from @wordpress/block-editor's
+  // use-block-types-state.js so it resolves to the same translation.
+  const template = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Block "%s" can\'t be inserted.');
+  const escaped = template.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Support both unnumbered (`%s`) and numbered (`%1$s`) placeholders.
+  // In `escaped`, `%1$s` becomes `%1\$s` because `$` is escaped.
+  const pattern = escaped.replace(/%\d+\\\$s|%s/, '(.+)');
+  return new RegExp('^' + pattern + '$');
+}
+
+/**
+ * Resolve the deny message shown when a block is restricted by governance rules.
+ *
+ * Runs a default message through the `vip_governance__deny_message` filter so
+ * site integrators can customise it.
+ *
+ * @param {Object}      args
+ * @param {string|null} args.blockName       Namespaced block name (e.g. `core/audio`),
+ *                                           when known.
+ * @param {string|null} args.blockTitle      Human-readable block title (e.g. `Audio`).
+ * @param {Object}      args.governanceRules Resolved governance rules for the user.
+ * @return {string} Message to show in the snackbar.
+ */
+function buildBlockDenyMessage({
+  blockName,
+  blockTitle,
+  governanceRules
+}) {
+  const label = blockTitle || blockName || '';
+  const defaultMessage = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)(
+  // translators: %s is the block title or name, e.g. "Audio" or "core/audio".
+  (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("The '%s' block is restricted by your site's governance rules."), label);
+
+  /**
+   * Customise the message shown when a block insertion is denied by governance rules.
+   *
+   * @param {string}      message         Default deny message.
+   * @param {string|null} blockName       Namespaced block name, when resolvable.
+   * @param {string|null} blockTitle      Human-readable block title, when resolvable.
+   * @param {Object}      governanceRules Resolved governance rules for the current user.
+   */
+  return (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_0__.applyFilters)('vip_governance__deny_message', defaultMessage, blockName, blockTitle, governanceRules);
+}
+
+/***/ }),
+
+/***/ "./src/nested-governance-loader.js":
+/*!*****************************************!*\
+  !*** ./src/nested-governance-loader.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getNestedSetting: () => (/* binding */ getNestedSetting),
+/* harmony export */   getNestedSettingPaths: () => (/* binding */ getNestedSettingPaths)
+/* harmony export */ });
+/**
+ * Find the list of nestedPaths that can be found in the block settings, so that
+ * it's faster to find out if a deeper nested setting exists or not.
+ *
+ * @param {Object} nestedSettings the nestedSettings found from the governance rules.
+ * @param {Object} nestedMetadata the nestedMetadata object that's to be populated with the paths.
+ * @param {String} currentBlock the current nested block name being processed.
+ * @returns {Object} Map of the block name along with the nested paths that can be found inside.
+ */
+function getNestedSettingPaths(nestedSettings, nestedMetadata = {}, currentBlock = false) {
+  const SETTINGS_TO_SKIP = ['allowedBlocks'];
+  for (const [settingKey, settingValue] of Object.entries(nestedSettings)) {
+    if (SETTINGS_TO_SKIP.includes(settingKey)) {
+      continue;
+    }
+
+    // A nested block would be in the form of blockName/childBlockName or blockName/* or *
+    const isNestedBlock = settingKey.includes('/') || settingKey === '*';
+    if (isNestedBlock) {
+      // This setting contains another block, look at the child for metadata
+      Object.entries(nestedSettings).forEach(([blockName, blockNestedSettings]) => {
+        if (!SETTINGS_TO_SKIP.includes(blockName)) {
+          getNestedSettingPaths(blockNestedSettings, nestedMetadata, blockName);
+        }
+      });
+    } else if (currentBlock !== false) {
+      var _nestedMetadata$curre;
+      // This is a leaf block, add setting paths to nestedMetadata
+      const settingPaths = flattenSettingPaths(settingValue, `${settingKey}.`);
+
+      // eslint-disable-next-line security/detect-object-injection
+      nestedMetadata[currentBlock] = {
+        // eslint-disable-next-line security/detect-object-injection
+        ...((_nestedMetadata$curre = nestedMetadata[currentBlock]) !== null && _nestedMetadata$curre !== void 0 ? _nestedMetadata$curre : {}),
+        ...settingPaths
+      };
+    }
+  }
+  return nestedMetadata;
+}
+
+/**
+ * Find block settings nested in other block settings.
+ *
+ * Given an array of blocks names from the top level of the editor to the
+ * current block (`blockNamePath`), return the value for the deepest-nested
+ * settings value that applies to the current block.
+ *
+ * If two setting values share the same nesting depth, use the last one that
+ * occurs in settings (like CSS).
+ *
+ * @param {string[]} blockNamePath  Block names representing the path to the
+ *                                  current block from the top level of the
+ *                                  block editor.
+ * @param {string}   normalizedPath Path to the setting being retrieved.
+ * @param {Object}   settings       Object containing all block settings.
+ * @param {Object}   result         Optional. Object with keys `depth` and
+ *                                  `value` used to track current most-nested
+ *                                  setting.
+ * @param {number}   depth          Optional. The current recursion depth used
+ *                                  to calculate the most-nested setting.
+ * @return {Object}                 Object with keys `depth` and `value`.
+ *                                  Destructure the `value` key for the result.
+ */
+function getNestedSetting(blockNamePath, normalizedPath, settings, result = {
+  depth: 0,
+  value: undefined
+}, depth = 1) {
+  const [currentBlockName, ...remainingBlockNames] = blockNamePath;
+  // eslint-disable-next-line security/detect-object-injection
+  const blockSettings = settings[currentBlockName];
+  if (remainingBlockNames.length === 0) {
+    const settingValue = deepGet(blockSettings, normalizedPath);
+    if (settingValue !== undefined && depth >= result.depth) {
+      result.depth = depth;
+      result.value = settingValue;
+    }
+    return result;
+  } else if (blockSettings !== undefined) {
+    // Recurse into the parent block's settings
+    result = getNestedSetting(remainingBlockNames, normalizedPath, blockSettings, result, depth + 1);
+  }
+
+  // Continue down the array of blocks
+  return getNestedSetting(remainingBlockNames, normalizedPath, settings, result, depth);
+}
+
+/**
+ * Port of lodash's get function from https://gist.github.com/andrewchilds/30a7fb18981d413260c7a36428ed13da?permalink_comment_id=4433741#gistcomment-4433741
+ * @param {Object} value The value to query.
+ * @param {String} query The query to run.
+ * @param {Object} defaultVal The default value to return if the query doesn't exist.
+ * @returns
+ */
+function deepGet(value, query, defaultVal = undefined) {
+  const splitQuery = Array.isArray(query) ? query : query.replace(/(\[(\d)\])/g, '.$2').replace(/^\./, '').split('.');
+  if (!splitQuery.length || splitQuery[0] === undefined) return value;
+  const key = splitQuery[0];
+  if (typeof value !== 'object' || value === null || !(key in value) ||
+  // eslint-disable-next-line security/detect-object-injection
+  value[key] === undefined) {
+    return defaultVal;
+  }
+
+  // eslint-disable-next-line security/detect-object-injection
+  return deepGet(value[key], splitQuery.slice(1), defaultVal);
+}
+
+/**
+ * Flatten a nested object into a map of paths.
+ * @param {Object} settings The settings value that is to be flattened.
+ * @param {String} prefix The key for the settings value.
+ * @returns {Object} the flattened settings object.
+ */
+function flattenSettingPaths(settings, prefix = '') {
+  const result = {};
+  Object.entries(settings).forEach(([key, value]) => {
+    const isRegularObject = typeof value === 'object' && Boolean(value) && !Array.isArray(value);
+    if (isRegularObject) {
+      result[`${prefix}${key}`] = true;
+      Object.assign(result, flattenSettingPaths(value, `${prefix}${key}.`));
+    } else {
+      result[`${prefix}${key}`] = true;
+    }
+  });
+  return result;
+}
+
+/***/ }),
+
+/***/ "@wordpress/block-editor":
+/*!*************************************!*\
+  !*** external ["wp","blockEditor"] ***!
+  \*************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["blockEditor"];
+
+/***/ }),
+
+/***/ "@wordpress/blocks":
+/*!********************************!*\
+  !*** external ["wp","blocks"] ***!
+  \********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["blocks"];
+
+/***/ }),
+
+/***/ "@wordpress/components":
+/*!************************************!*\
+  !*** external ["wp","components"] ***!
+  \************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["components"];
+
+/***/ }),
+
+/***/ "@wordpress/compose":
+/*!*********************************!*\
+  !*** external ["wp","compose"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["compose"];
+
+/***/ }),
+
+/***/ "@wordpress/data":
+/*!******************************!*\
+  !*** external ["wp","data"] ***!
+  \******************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["data"];
+
+/***/ }),
+
+/***/ "@wordpress/hooks":
+/*!*******************************!*\
+  !*** external ["wp","hooks"] ***!
+  \*******************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["hooks"];
+
+/***/ }),
+
+/***/ "@wordpress/i18n":
+/*!******************************!*\
+  !*** external ["wp","i18n"] ***!
+  \******************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["i18n"];
+
+/***/ }),
+
+/***/ "@wordpress/notices":
+/*!*********************************!*\
+  !*** external ["wp","notices"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["notices"];
+
+/***/ }),
+
+/***/ "react/jsx-runtime":
+/*!**********************************!*\
+  !*** external "ReactJSXRuntime" ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = window["ReactJSXRuntime"];
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
+/*!**********************!*\
+  !*** ./src/index.js ***!
+  \**********************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
+/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_notices__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/notices */ "@wordpress/notices");
+/* harmony import */ var _wordpress_notices__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _block_locking__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./block-locking */ "./src/block-locking.jsx");
+/* harmony import */ var _block_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./block-utils */ "./src/block-utils.js");
+/* harmony import */ var _deny_message__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./deny-message */ "./src/deny-message.js");
+/* harmony import */ var _nested_governance_loader__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./nested-governance-loader */ "./src/nested-governance-loader.js");
+
+
+
+
+
+
+
+
+
+
+function setup() {
+  if (VIP_GOVERNANCE.error) {
+    (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.dispatch)(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__.store).createErrorNotice(VIP_GOVERNANCE.error, {
+      id: 'wpcomvip-governance-error',
+      isDismissible: true,
+      actions: [{
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Open governance settings'),
+        url: VIP_GOVERNANCE.urlSettingsPage
+      }]
+    });
+    return;
+  }
+  const governanceRules = VIP_GOVERNANCE.governanceRules;
+  (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_3__.addFilter)('blockEditor.__unstableCanInsertBlockType', `wpcomvip-governance/block-insertion`, (canInsert, blockType, rootClientId, {
+    getBlock
+  }) => {
+    if (canInsert === false) {
+      return canInsert;
+    }
+    let parentBlockNames = [];
+    if (rootClientId) {
+      // This block has parents. Build a list of parentBlockNames
+      const {
+        getBlockParents,
+        getBlockName
+      } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.store);
+      const parentBlock = getBlock(rootClientId);
+      const ancestorClientIds = getBlockParents(rootClientId, true);
+      parentBlockNames = [parentBlock.clientId, ...ancestorClientIds].map(parentClientId => getBlockName(parentClientId));
+    }
+    const isAllowed = (0,_block_utils__WEBPACK_IMPORTED_MODULE_7__.isBlockAllowedInHierarchy)(blockType.name, parentBlockNames, governanceRules);
+
+    /**
+     * Change what blocks are allowed to be inserted in the block editor.
+     *
+     * @param {bool}     isAllowed        Whether or not the block will be allowed.
+     * @param {string}   blockName        The name of the block to be inserted.
+     * @param {string[]} parentBlockNames An array of zero or more parent block names,
+     *                                    starting with the most recent parent ancestor.
+     * @param {Object}   governanceRules  An object containing the full set of governance
+     *                                    rules for the current user.
+     */
+    return (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_3__.applyFilters)('vip_governance__is_block_allowed_for_insertion', isAllowed, blockType.name, parentBlockNames, governanceRules);
+  });
+  const nestedSettings = VIP_GOVERNANCE.nestedSettings;
+  const nestedSettingPaths = (0,_nested_governance_loader__WEBPACK_IMPORTED_MODULE_9__.getNestedSettingPaths)(nestedSettings);
+  const nestedWildcardPaths = {};
+  const nestedNonWildcardPaths = {};
+  for (const blockName in nestedSettingPaths) {
+    if (blockName.indexOf('*') === -1) {
+      // eslint-disable-next-line security/detect-object-injection
+      nestedNonWildcardPaths[blockName] = nestedSettingPaths[blockName];
+    } else {
+      // eslint-disable-next-line security/detect-object-injection
+      nestedWildcardPaths[blockName] = nestedSettingPaths[blockName];
+    }
+  }
+  (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_3__.addFilter)('blockEditor.useSetting.before', `wpcomvip-governance/nested-block-settings`, (result, path, clientId, blockName) => {
+    if (!blockName) {
+      return result;
+    }
+
+    // Test if the blockName is in the nestedNonWildcardPaths.
+    if (
+    // eslint-disable-next-line security/detect-object-injection
+    nestedNonWildcardPaths[blockName] !== undefined &&
+    // eslint-disable-next-line security/detect-object-injection
+    nestedNonWildcardPaths[blockName][path] === true) {
+      const blockNamePath = [clientId, ...(0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.store).getBlockParents(clientId, /* ascending */true)].map(candidateId => (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.store).getBlockName(candidateId)).reverse();
+      ({
+        value: result
+      } = (0,_nested_governance_loader__WEBPACK_IMPORTED_MODULE_9__.getNestedSetting)(blockNamePath, path, nestedSettings));
+
+      // This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+      return result && result.theme ? result.theme : result;
+      // Test if the blockName is in the nestedWildcardPaths.
+    } else if (nestedWildcardPaths.length !== 0) {
+      for (const nestedBlockName in nestedWildcardPaths) {
+        if ((0,_block_utils__WEBPACK_IMPORTED_MODULE_7__.doesBlockNameMatchBlockWildcard)(blockName, nestedBlockName) &&
+        // eslint-disable-next-line security/detect-object-injection
+        nestedWildcardPaths[nestedBlockName][path] === true) {
+          const blockNamePath = [clientId, ...(0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.store).getBlockParents(clientId, /* ascending */true)].map(candidateId => (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.store).getBlockName(candidateId)).reverse();
+
+          // Replace the original block name with the matched wildcard block name, for easier lookup.
+          // This will be at the end of the blockNamePath array.
+          if (nestedBlockName.indexOf('*') !== -1) {
+            blockNamePath[blockNamePath.length - 1] = nestedBlockName;
+          }
+          ({
+            value: result
+          } = (0,_nested_governance_loader__WEBPACK_IMPORTED_MODULE_9__.getNestedSetting)(blockNamePath, path, nestedSettings));
+
+          // This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+          return result && result.theme ? result.theme : result;
+        }
+      }
+    }
+    return result;
+  });
+
+  // Block locking
+  if (governanceRules?.allowedBlocks) {
+    (0,_block_locking__WEBPACK_IMPORTED_MODULE_6__.setupBlockLocking)(governanceRules);
+  }
+
+  // Replace Gutenberg's default block-deny snackbar with a customisable one.
+  // The default ("Block 'X' can't be inserted.") gives editors no context;
+  // the `vip_governance__deny_message` filter lets integrators override it.
+  const wpInserterNoticeRegex = (0,_deny_message__WEBPACK_IMPORTED_MODULE_8__.buildWpInserterNoticeRegex)();
+  (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.subscribe)(() => {
+    const wpInserterNotice = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__.store).getNotices().find(({
+      id
+    }) => id === _deny_message__WEBPACK_IMPORTED_MODULE_8__.WP_INSERTER_NOTICE_ID);
+    if (!wpInserterNotice) {
+      return;
+    }
+    const titleMatch = wpInserterNoticeRegex.exec(wpInserterNotice.content);
+    if (!titleMatch) {
+      // Already replaced, or WP changed the message format / locale we don't recognise.
+      return;
+    }
+    const blockTitle = titleMatch[1];
+    const matchingBlockType = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.select)(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_1__.store).getBlockTypes().find(blockType => blockType.title === blockTitle);
+    const blockName = matchingBlockType ? matchingBlockType.name : null;
+    const message = (0,_deny_message__WEBPACK_IMPORTED_MODULE_8__.buildBlockDenyMessage)({
+      blockName,
+      blockTitle,
+      governanceRules
+    });
+    (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.dispatch)(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__.store).removeNotice(_deny_message__WEBPACK_IMPORTED_MODULE_8__.WP_INSERTER_NOTICE_ID);
+    (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.dispatch)(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__.store).createErrorNotice(message, {
+      id: _deny_message__WEBPACK_IMPORTED_MODULE_8__.VIP_GOVERNANCE_DENY_NOTICE_ID,
+      type: 'snackbar',
+      isDismissible: true
+    });
+  });
+}
+setup();
+})();
+
+/******/ })()
+;
 //# sourceMappingURL=index.js.map

@@ -111,6 +111,7 @@ Non-default rules merge with the default rule. Schema: `https://api.wpvip.com/sc
 | `vip_governance__is_block_allowed_for_insertion`      | JS       | Override block insertion decisions                                     |
 | `vip_governance__is_block_allowed_for_editing`        | JS       | Override block editing decisions                                       |
 | `vip_governance__is_block_allowed_in_hierarchy`       | JS       | Toggle cascading vs restrictive mode                                   |
+| `vip_governance__deny_message`                        | JS       | Customise the snackbar shown when a block is denied by governance      |
 | `vip_governance__default_role_for_user_without_roles` | PHP      | Provide fallback role for roleless users (e.g., multisite superadmins) |
 
 ## Development

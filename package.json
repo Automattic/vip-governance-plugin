@@ -17,6 +17,7 @@
 		"@automattic/eslint-plugin-wpvip": "^0.13.1",
 		"@playwright/test": "^1.56.1",
 		"@wordpress/block-editor": "^15.2.0",
+		"@wordpress/blocks": "^15.2.0",
 		"@wordpress/components": "^30.2.0",
 		"@wordpress/compose": "^7.29.0",
 		"@wordpress/data": "^10.29.0",

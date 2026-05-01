@@ -186,4 +186,62 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 		const nestedHeading = frame.locator( 'text="This is a heading inside a media-text"' );
 		await expect( nestedHeading ).toHaveCSS( 'color', 'rgb(255, 0, 0)' );
 	} );
+
+	test( "replaces Gutenberg's default deny-snackbar with a customisable governance message", async ( {
+		page,
+	} ) => {
+		// Simulate Gutenberg dispatching its default deny snackbar (the same payload
+		// Gutenberg's block inserter dispatches in @wordpress/block-editor's
+		// use-block-types-state.js when canInsertBlockType returns false).
+		await page.evaluate( () => {
+			window.wp.data.dispatch( 'core/notices' ).createErrorNotice(
+				// eslint-disable-next-line quotes
+				`Block "Audio" can't be inserted.`,
+				{ type: 'snackbar', id: 'inserter-notice' }
+			);
+		} );
+
+		// Our subscription should remove Gutenberg's snackbar and dispatch ours.
+		// Scope to the snackbar component to avoid matching the a11y live region.
+		await expect( page.getByTestId( 'snackbar' ) ).toHaveText(
+			"The 'Audio' block is restricted by your site's governance rules."
+		);
+
+		const wpInserterNoticeStillPresent = await page.evaluate( () => {
+			return window.wp.data
+				.select( 'core/notices' )
+				.getNotices()
+				.some( notice => notice.id === 'inserter-notice' );
+		} );
+		expect( wpInserterNoticeStillPresent ).toBe( false );
+	} );
+
+	test( 'lets integrators override the deny message via the vip_governance__deny_message filter', async ( {
+		page,
+	} ) => {
+		await page.evaluate( () => {
+			window.wp.hooks.addFilter(
+				'vip_governance__deny_message',
+				'vip-governance-plugin/test-override',
+				( _message, _blockName, blockTitle ) =>
+					`Reach out to #content before using "${ blockTitle }".`
+			);
+			window.wp.data.dispatch( 'core/notices' ).createErrorNotice(
+				// eslint-disable-next-line quotes
+				`Block "Video" can't be inserted.`,
+				{ type: 'snackbar', id: 'inserter-notice' }
+			);
+		} );
+
+		await expect( page.getByTestId( 'snackbar' ) ).toHaveText(
+			'Reach out to #content before using "Video".'
+		);
+
+		await page.evaluate( () => {
+			window.wp.hooks.removeFilter(
+				'vip_governance__deny_message',
+				'vip-governance-plugin/test-override'
+			);
+		} );
+	} );
 } );

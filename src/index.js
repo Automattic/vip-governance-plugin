@@ -1,11 +1,18 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { dispatch, select } from '@wordpress/data';
+import { store as blocksStore } from '@wordpress/blocks';
+import { dispatch, select, subscribe } from '@wordpress/data';
 import { addFilter, applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { store as noticeStore } from '@wordpress/notices';
 
 import { setupBlockLocking } from './block-locking';
 import { doesBlockNameMatchBlockWildcard, isBlockAllowedInHierarchy } from './block-utils';
+import {
+	buildBlockDenyMessage,
+	buildWpInserterNoticeRegex,
+	VIP_GOVERNANCE_DENY_NOTICE_ID,
+	WP_INSERTER_NOTICE_ID,
+} from './deny-message';
 import { getNestedSetting, getNestedSettingPaths } from './nested-governance-loader';
 
 function setup() {
@@ -151,6 +158,46 @@ function setup() {
 	if ( governanceRules?.allowedBlocks ) {
 		setupBlockLocking( governanceRules );
 	}
+
+	// Replace Gutenberg's default block-deny snackbar with a customisable one.
+	// The default ("Block 'X' can't be inserted.") gives editors no context;
+	// the `vip_governance__deny_message` filter lets integrators override it.
+	const wpInserterNoticeRegex = buildWpInserterNoticeRegex();
+
+	subscribe( () => {
+		const wpInserterNotice = select( noticeStore )
+			.getNotices()
+			.find( ( { id } ) => id === WP_INSERTER_NOTICE_ID );
+
+		if ( ! wpInserterNotice ) {
+			return;
+		}
+
+		const titleMatch = wpInserterNoticeRegex.exec( wpInserterNotice.content );
+		if ( ! titleMatch ) {
+			// Already replaced, or WP changed the message format / locale we don't recognise.
+			return;
+		}
+
+		const blockTitle = titleMatch[ 1 ];
+		const matchingBlockType = select( blocksStore )
+			.getBlockTypes()
+			.find( blockType => blockType.title === blockTitle );
+		const blockName = matchingBlockType ? matchingBlockType.name : null;
+
+		const message = buildBlockDenyMessage( {
+			blockName,
+			blockTitle,
+			governanceRules,
+		} );
+
+		dispatch( noticeStore ).removeNotice( WP_INSERTER_NOTICE_ID );
+		dispatch( noticeStore ).createErrorNotice( message, {
+			id: VIP_GOVERNANCE_DENY_NOTICE_ID,
+			type: 'snackbar',
+			isDismissible: true,
+		} );
+	} );
 }
 
 setup();
