@@ -10,11 +10,13 @@
 2. Run `npm ci`, `composer install`, `npm run build`, and the relevant checks. Commit any intentional changes to the tracked `build/` and production `vendor/` files; the release ZIP is made from tracked files and the release workflow does not rebuild the bundle.
 3. Push the release branch manually and submit the PR. When the plugin header version change reaches `trunk`, the release workflow verifies it against `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`, creates the version tag and ZIP, and publishes a GitHub release.
 
-Preview a release without changing files or invoking Git:
+Test the version updates without invoking Git:
 
 ```bash
 npm run release -- patch --dry-run
 ```
+
+This changes the version files so they can be inspected; restore them before running a real release.
 
 ## 2. Update integrations
 
