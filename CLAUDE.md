@@ -13,6 +13,7 @@ Read `AGENTS.md` in this repository for a comprehensive overview of the project 
 
 ## Commands
 
+- `npm ci && composer install` — Install JavaScript and PHP development dependencies
 - `npm run build` — Production build
 - `npm run dev` — Watch mode
 - `npm run lint` — All linting (Prettier + ESLint + PHPCS)
@@ -29,10 +30,10 @@ Read `AGENTS.md` in this repository for a comprehensive overview of the project 
 
 ## Debugging
 
-- Local dev at `http://localhost:8889` (admin/password)
+- Main local site at `http://localhost:8888`; tests site at `http://localhost:8889` (`admin`/`password`)
 - Inspect `VIP_GOVERNANCE` global in browser devtools for resolved rules
 - Admin settings page (`VIP Block Governance`) shows parsed rules and validation errors
-- REST API: `GET /wp-json/vip-governance/v1/<role>/rules`
+- REST API: `GET /wp-json/vip-governance/v1/rules?role=<role>&postType=<post-type>`
 - See AGENTS.md "Debugging" section for common debugging steps
 
 ## Conventions

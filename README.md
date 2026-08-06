@@ -1,11 +1,12 @@
 # WordPress VIP Block Governance plugin
 
-This WordPress plugin adds additional governance capabilities to the block editor. This is accomplished via two dimensions:
+This WordPress plugin adds additional governance capabilities to the block editor. This is accomplished via three dimensions:
 
 - Insertion: restricts what kind of blocks can be inserted into the block editor. Only what’s allowed can be inserted, and nothing else. This means that even if new core blocks are introduced they would not be permitted.
 - Interaction: This adds the ability to control the styling available for blocks at any level.
+- Features: controls access to the code editor and block locking.
 
-We have approached this plugin from an opt-in standpoint. In other words, enabling this plugin without any rules will severely limit the editing experience. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
+We have approached this plugin from an opt-in standpoint. An empty effective rule set severely limits the editing experience, although the plugin ships with a permissive fallback rule set. The goal is to create a stable editor with new blocks and features being enabled explicitly via rules, rather than implicitly via updates.
 
 This plugin is currently developed for use on WordPress sites hosted on the VIP Platform.
 
@@ -33,7 +34,7 @@ This plugin is currently developed for use on WordPress sites hosted on the VIP 
 	- [`vip_governance__default_role_for_user_without_roles`](#vip_governance__default_role_for_user_without_roles)
 - [Admin Settings](#admin-settings)
 - [Endpoints](#endpoints)
-	- [`vip-governance/v1/<role>/rules`](#vip-governancev1rolerules)
+	- [`vip-governance/v1/rules`](#vip-governancev1rules)
 		- [Example](#example)
 - [Analytics](#analytics)
 - [Development](#development)
@@ -59,17 +60,17 @@ The latest version of the plugin can be downloaded from the [repository's Releas
 
 ## Usage
 
-Your governance rules are saved in `governance-rules.json` in [your private folder][wpvip-private-dir]. Before diving into how it's used, a quick run down of the schema will shed light on how it works.
+On WordPress VIP, place your governance rules in `governance-rules.json` in [your private folder][wpvip-private-dir]. When that file does not exist, the plugin uses the permissive [`governance-rules.json` bundled with the plugin][repo-governance-file-location]. The source can also be changed with the filters described below.
 
 Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, or while using [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) locally.
 
 ### Schema Basics
 
-You can find the schema definition used for the rules [here][repo-schema-location]. You can use `https://api.wpvip.com/schemas/plugins/governance.json` as the schema entry in your rules, to take advantage of code completion in most editors.
+You can find the JSON Schema for authoring rules [here][repo-schema-location]. Use `https://api.wpvip.com/schemas/plugins/governance.json` as the `$schema` value to get code completion and validation in supported editors. At runtime, the plugin parses JSON and applies its own required rule-logic checks rather than evaluating this schema file directly.
 
 We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to troubleshoot these interactions.
 
-Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. Your rules should only have one entry of the `default` type, as described below, and it is the only type that is required in your rule set.
+Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. At most one `default` rule is allowed. Although the parser accepts an empty file or object as no rules, use a functional default rule for a usable editor configuration.
 
 Rules not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
@@ -78,18 +79,18 @@ Rules not of type `default` require an additional field. These are broken down b
 | `role`     | `roles`        | name/slug of any [default][wp-default-roles] or [custom][wp-custom-roles] roles                |
 | `postType` | `postTypes`    | name/slug of any [default][wp-default-post-types] or [custom][wp-custom-post-types] post types |
 
-Each rule can have any one of the following properties.
+Each rule can have any of the following properties.
 
-- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks`(ability to lock/unlock blocks that will restrict movement/deletion). If you do not want to enable these features, omit them from the array.
+- `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks` (ability to lock/unlock blocks that restrict movement/deletion). Use an empty array or omit the property when no optional features should be enabled by that rule.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block.
-- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. Additionally, you can use `allowedBlocks` in `blockSettings` rules to restrict what blocks can be nested under a parent.
+- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. You can also put `allowedBlocks` in an exact parent's `blockSettings`. In the default cascading mode this adds child candidates to the root list; use restrictive hierarchy mode when the parent list must be exclusive.
 
-Non-default rule types will be merged with the default rule. This is done intentionally to avoid needless repetition of your default properties. If multiple non-default rule types are provided, they will be applied in the following ascending priority:
+Non-default rule types are combined with the default rule to avoid needless repetition. Matching non-default rules have the following ascending priority:
 
 1. Post Type
 2. Role
 
-So if a matching `postType` and `role` rule is found, the `role` rule will be applied, and the `postType` rule will be ignored. The best analogy is the CSS cascade where more specific rules overwrite less specific rules. We are making a choice that Role-based rules should overwrite Post Type rules. We will introduce a filter in the near future to allow this priority to be customized.
+Only the first matching rule of each type in file order is used. A matching role rule replaces each field it defines from the matching post-type rule; fields omitted from the role rule retain the post-type value. The default rule is then additive: its `allowedBlocks` and `allowedFeatures` are appended, and its `blockSettings` are recursively merged. If a user has multiple roles, order role rules carefully because the first intersecting role rule wins.
 
 #### Wildcards
 
@@ -156,7 +157,7 @@ Instead, only apply block settings to wildcards, and specify `allowedBlocks` to 
 
 ### Quick Start
 
-By default, the plugin uses [this][repo-governance-file-location] `governance-rules.json`. To start using the plugin with your own rules, you'll need to create your own `governance-rules.json` in [your private folder][wpvip-private-dir]. We recommend duplicating one of the starter rule sets provided [below](#starter-rule-sets), and adapting it for your needs. In order to take advantage of the rules schema for in-editor support, use `https://api.wpvip.com/schemas/plugins/governance.json`.
+By default, the plugin uses [this][repo-governance-file-location] `governance-rules.json`. To start using the plugin with your own rules, create `governance-rules.json` in [your private folder][wpvip-private-dir]. We recommend duplicating one of the starter rule sets provided [below](#starter-rule-sets) and adapting it for your needs. For in-editor schema support, use `https://api.wpvip.com/schemas/plugins/governance.json`.
 
 With this default rule set, all blocks and all features are enabled. It is sensible to set your default rule to the settings you want for your least privileged user then add capabilities with role and/or post type-specific rules.
 
@@ -479,7 +480,7 @@ With this rule set, the following rules will apply:
 
 - Default: Rules that apply to everyone as a baseline:
     - All core blocks are allowed
-    - Within a quote block, only heading and paragraph is allowed
+    - In the default cascading mode, all core blocks remain eligible within a quote; heading and paragraph are also explicitly allowed there. Return `false` from [`vip_governance__is_block_allowed_in_hierarchy`](#vip_governance__is_block_allowed_in_hierarchy) to make the parent list restrictive.
     - For a heading at the root level, a custom yellow color will appear as a possible text color option.
     - For a heading or paragraph within the quote block, a custom green color will appear as a possible text color option.
     - Blocks can be locked/unlocked or moved.
@@ -764,22 +765,28 @@ add_filter( 'vip_governance__default_role_for_user_without_roles', function( $de
 There is an admin settings menu titled `VIP Block Governance` that's created with the use of this plugin. This page offers:
 
 - Turning on and off the plugin quickly, without re-deploying.
-- View all the rules at once, and also any errors if the schema is invalid.
+- View all the rules at once, including JSON or rule-logic parsing errors.
 - View combined rules as a specific user role and/or for a specific post type.
 
 ![Admin setting in action][settings-panel-example-gif]
 
 ## Endpoints
 
-### `vip-governance/v1/<role>/rules`
+### `vip-governance/v1/rules`
 
-This endpoint is used to return the combined rules for a given role. This API is utilized by the settings page to visualize merged default and role rules for a selected role. It's only available to users with the `manage_options` permission.
+This endpoint returns effective rules for an optional role and/or post type. The settings page uses it to preview merged rules. It is available only to users with the `manage_options` capability.
+
+Pass `role` and `postType` as query parameters. Each is optional, and supplied values must name a registered WordPress role or post type. If `role` is omitted, resolution uses the authenticated user's roles:
+
+```text
+GET /wp-json/vip-governance/v1/rules?role=editor&postType=post
+```
 
 It has only three root level keys: `allowedBlocks`, `blockSettings`, and `allowedFeatures`.
 
 #### Example
 
-This example involves making a call to `http://my.site/wp-json/vip-governance/v1/editor/rules` for an `editor` role, while using [this](#default-and-user-role-rule-set) rule file found in the starter rule sets:
+This example is the response to `http://my.site/wp-json/vip-governance/v1/rules?role=editor` while using [the role starter rule set](#default-and-user-role-rule-set):
 
 ```json
 {
@@ -808,48 +815,51 @@ This example involves making a call to `http://my.site/wp-json/vip-governance/v1
 
 The plugin records two data points for analytics, on VIP sites:
 
-1. A usage metric when the block editor is loaded with the WordPress VIP Block Governance plugin activated. This analytic data simply is a counter, and includes no information about the post's content or metadata. It will only include the customer site ID to associate the usage.
+1. A usage metric sampled on roughly 10% of governance configuration loads. It is a counter associated with the customer site ID and includes no post content or metadata.
 
 2. When an error occurs from within the plugin on the [WordPress VIP][wpvip] platform. This is used to identify issues with customers for private follow-up.
 
-Both of these data points are a counter that is incremented and do not contain any other telemetry or sensitive data. You can see what's being [collected in code here][repo-analytics].
+Both data points are counters and do not contain other telemetry or sensitive data. If usage and error events are queued in the same request, only the error is sent. You can see what's being [collected in code here][repo-analytics].
 
 ## Development
 
-In order to ensure no dev dependencies are installed, the following can be done while installing the packages:
+Install development dependencies with:
 
+```bash
+npm ci
+composer install
 ```
-composer install --no-dev
-```
+
+The npm `postinstall` script installs production Composer dependencies, and the explicit `composer install` adds PHPUnit and PHPCS. Production installations can omit those development tools with `composer install --no-dev`.
 
 ### Tests
 
-We currently have unit, and e2e tests to ensure thorough code coverage of the plugin. These tests can be run locally with [`wp-env`][wp-env] and Docker.
+The PHP, JavaScript, and end-to-end tests can be run locally with [`wp-env`][wp-env] and Docker.
 
 For the PHP unit tests:
 
 ```
-wp-env start
-composer install
+npx wp-env start
 composer run test
 ```
 
 For the JS unit tests:
 
 ```
-npm install
 npm run test:js
 ```
 
 For the e2e tests:
 
 ```
-wp-env start
-composer install
-npm install
+npx wp-env start
 npx playwright install chromium --with-deps
-npx playwright test
+npm run test:e2e
 ```
+
+Run multisite PHP coverage with `composer run test-multisite`. The main wp-env site is at `http://localhost:8888`; Playwright targets the tests site at `http://localhost:8889`, using `admin` / `password` by default.
+
+Run both PHP and JavaScript unit tests with `npm test` after wp-env is running.
 
 <!-- Links -->
 

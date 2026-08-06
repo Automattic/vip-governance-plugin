@@ -1,6 +1,6 @@
 {
 	"name": "vip-governance",
-	"version": "1.0.15",
+	"version": "1.0.16",
 	"description": "This is a plugin adding additional governance capabilities to the block editor.",
 	"private": true,
 	"author": "WPVIP",
@@ -48,9 +48,11 @@
 		"packages-update": "wp-scripts packages-update",
 		"prepare": "npx simple-git-hooks",
 		"postinstall": "composer install --no-dev",
+		"release": "./bin/release",
 		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
 		"test:e2e": "npx playwright test",
+		"test:php": "composer run test",
 		"test:js": "wp-scripts test-unit-js",
 		"wp-cli": "wp-env run cli -- wp"
 	},

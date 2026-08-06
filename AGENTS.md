@@ -33,9 +33,9 @@ governance/
   governance-utilities.php      # Core rule parsing and filtering logic
   init-governance.php           # Plugin initialization, asset loading
   nested-governance-processing.php  # Nested block settings and CSS generation
-  rules-parser.php              # JSON validation against schema
+  rules-parser.php              # JSON parsing and runtime rule-logic validation
   rest/
-    rest-api.php                # REST endpoint: vip-governance/v1/<role>/rules
+    rest-api.php                # REST endpoint: vip-governance/v1/rules
   settings/
     settings.php                # Admin settings page registration
     settings-view.php           # Settings page HTML template
@@ -46,6 +46,7 @@ src/
   block-utils.js                # Block name matching, hierarchy validation
   block-locking.jsx             # React UI for block locking
   nested-governance-loader.js   # Loads nested governance settings
+bin/release                     # Creates and commits major/minor/patch release branches
 build/                          # Compiled JS output (do not edit directly)
 tests/
   test-governance-utilities.php # PHPUnit tests for rule logic
@@ -96,7 +97,7 @@ The plugin exposes `VIP_GOVERNANCE` to the block editor with:
 1. Post Type rules
 2. Role rules (highest priority — overrides post type rules)
 
-Non-default rules merge with the default rule. Schema: `https://api.wpvip.com/schemas/plugins/governance.json`
+Only the first matching rule of each type is used. A role rule replaces fields it defines from a matching post-type rule; omitted fields retain the post-type value. The default rule is then added to the selected non-default values. Schema: `https://api.wpvip.com/schemas/plugins/governance.json`
 
 ### Wildcard Limitation
 
@@ -125,8 +126,9 @@ Non-default rules merge with the default rule. Schema: `https://api.wpvip.com/sc
 ### Setup
 
 ```bash
-npm install          # Installs both npm and composer dependencies
-wp-env start         # Starts local WordPress environment at localhost:8889
+npm ci               # Installs JavaScript and production Composer dependencies
+composer install     # Adds PHP development tools
+npx wp-env start     # Starts the local WordPress environments
 ```
 
 ### Building
@@ -187,7 +189,7 @@ npm run test         # Runs both PHP and JS unit tests
 - **PHP versions**: 8.1, 8.3
 - **WordPress versions**: 6.0, latest
 - **Checks on PR**: JS lint, JS unit tests, PHPCS, PHPUnit (3 matrix combos)
-- **Release on trunk push**: Auto-creates GitHub release with ZIP
+- **Release on trunk push**: Auto-creates a GitHub release and ZIP when the plugin header version changes
 
 ## Writing Tests
 
@@ -274,9 +276,9 @@ test.describe( 'My Feature', () => {
 
 1. **Admin settings page**: Navigate to `VIP Block Governance` in the WordPress admin. It shows:
    - Whether the plugin is active
-   - All parsed rules, with any schema validation errors highlighted
+   - All parsed rules, with JSON and rule-logic errors highlighted
    - Combined rules preview for a specific role and/or post type
-2. **REST API**: `GET /wp-json/vip-governance/v1/<role>/rules` — returns the merged rules for a given role (requires `manage_options` capability)
+2. **REST API**: `GET /wp-json/vip-governance/v1/rules?role=<role>&postType=<post-type>` — returns merged rules for an optional role and/or post type (requires `manage_options` capability)
 3. **Browser devtools**: Inspect the `VIP_GOVERNANCE` global in the console. It contains:
    - `governanceRules` — the resolved rules for the current user
    - `nestedSettings` — pre-computed nested block settings
@@ -289,12 +291,13 @@ test.describe( 'My Feature', () => {
 - **JS not updating?** Run `npm run build` or `npm run dev` (watch mode). Check that `build/index.js` was regenerated.
 - **PHP changes not reflecting?** Ensure `wp-env` is running. No build step needed for PHP.
 - **Test failures in CI?** Check the CI matrix — tests run against PHP 8.1/8.3 and WP 6.0/latest. Failures may be version-specific.
+- **Unexpected vendor changes?** Composer regenerates tracked metadata under `vendor/composer`. Only commit those changes when intentionally updating the production dependency bundle.
 
 ## REST API
 
-### `GET vip-governance/v1/<role>/rules`
+### `GET vip-governance/v1/rules?role=<role>&postType=<post-type>`
 
-Returns merged governance rules for a given role. Requires `manage_options` capability.
+Returns merged governance rules for an optional role and/or post type. Requires `manage_options` capability.
 
 **Response shape:**
 
@@ -308,8 +311,8 @@ Returns merged governance rules for a given role. Requires `manage_options` capa
 
 ## Important Notes
 
-- The plugin takes an **opt-in approach**: enabling it without rules severely limits the editor. Only explicitly allowed blocks/features are available.
+- The plugin takes an **opt-in approach**: an empty effective rule set severely limits the editor. The bundled fallback rule explicitly allows all blocks and supported features.
 - Always include `core/paragraph` in `allowedBlocks` for default rules — the editor uses it as an insertion primitive.
 - The plugin only works in the **post editor** (not site-editor, widgets, etc.).
 - Starting from WordPress 6.8, the block inserter sidebar shows all blocks regardless; disallowed blocks show a snackbar error on insertion attempt.
-- Analytics are VIP-only and contain no content/metadata — just counters with site ID.
+- Analytics are VIP-only and contain no content/metadata — just counters with site ID. Usage is sampled on roughly 10% of configuration loads.
