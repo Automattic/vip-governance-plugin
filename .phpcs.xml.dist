@@ -46,6 +46,10 @@
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
 	<!-- WordPress-Extra includes WordPress-Core -->
 	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<!-- PHPUnit 10 discovers test classes from files named *Test.php. -->
+		<exclude-pattern>/tests/*Test.php</exclude-pattern>
+	</rule>
 	<!-- For help in understanding these custom sniff properties:
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
 	<config name="minimum_supported_wp_version" value="6.0"/>

@@ -49,9 +49,9 @@ src/
 bin/release                     # Creates and commits major/minor/patch release branches
 build/                          # Compiled JS output (do not edit directly)
 tests/
-  test-governance-utilities.php # PHPUnit tests for rule logic
-  test-rules-parser.php         # PHPUnit tests for schema validation
-  test-nested-governance-processing.php  # PHPUnit tests for CSS generation
+  GovernanceUtilitiesTest.php  # PHPUnit tests for rule logic
+  RulesParserTest.php           # PHPUnit tests for schema validation
+  NestedGovernanceProcessingTest.php  # PHPUnit tests for CSS generation
   e2e/                          # Playwright end-to-end tests
   private/                      # Test governance rules files
 ```
@@ -119,7 +119,7 @@ Only the first matching rule of each type is used. A role rule replaces fields i
 ### Prerequisites
 
 - Docker (for `wp-env`)
-- Node.js (LTS)
+- Node.js 24
 - PHP 8.1+
 - Composer
 
@@ -181,7 +181,7 @@ npm run test         # Runs both PHP and JS unit tests
 ### Code Standards
 
 - **PHP**: WordPress-VIP-Go + WordPress-Extra via PHPCS
-- **JS**: `@automattic/eslint-plugin-wpvip/recommended`
+- **JS**: `@automattic/eslint-plugin-wpvip`
 - **Formatting**: Prettier with `@automattic/eslint-plugin-wpvip/prettierrc`
 
 ### CI Matrix (GitHub Actions)
@@ -195,7 +195,7 @@ npm run test         # Runs both PHP and JS unit tests
 
 ### PHP Unit Tests
 
-- **Location**: `tests/test-*.php`
+- **Location**: `tests/*Test.php`
 - **Namespace**: `WPCOMVIP\Governance\Tests`
 - **Base class**: `PHPUnit\Framework\TestCase`
 - **Naming**: Class `FooTest extends TestCase`, methods `test_descriptive_name()`

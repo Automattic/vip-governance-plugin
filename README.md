@@ -823,6 +823,8 @@ Both data points are counters and do not contain other telemetry or sensitive da
 
 ## Development
 
+Development uses Node.js 24 (see `.nvmrc`), npm, Composer, Docker, and `wp-env`.
+
 Install development dependencies with:
 
 ```bash

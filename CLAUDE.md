@@ -23,7 +23,7 @@ Read `AGENTS.md` in this repository for a comprehensive overview of the project 
 
 ## Writing Tests
 
-- **PHP**: Add `tests/test-<name>.php`, class in `WPCOMVIP\Governance\Tests` namespace extending `TestCase`
+- **PHP**: Add `tests/<Name>Test.php`, class in `WPCOMVIP\Governance\Tests` namespace extending `TestCase`
 - **JS**: Add `src/<name>.test.js` co-located with the source file
 - **E2E**: Add `tests/e2e/<name>.spec.js` using `@wordpress/e2e-test-utils-playwright`
 - See AGENTS.md "Writing Tests" section for full patterns and examples
