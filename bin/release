@@ -2,13 +2,12 @@
 
 set -eu
 
-if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-	echo "Usage: npm run release -- <major|minor|patch> [--dry-run]"
+if [ "$#" -ne 1 ]; then
+	echo "Usage: npm run release -- <major|minor|patch>"
 	exit 1
 fi
 
 release_type=$1
-mode=${2:-}
 php_file="vip-governance.php"
 package_file="package.json"
 package_lock_file="package-lock.json"
@@ -41,27 +40,12 @@ esac
 
 branch_name="release/$new_version"
 
-case $mode in
-	--dry-run)
-		use_git=false
-		;;
-	'')
-		use_git=true
-		;;
-	*)
-		echo "Unknown option: $mode"
-		exit 1
-		;;
-esac
-
-if [ "$use_git" = true ]; then
-	if [ -n "$(git status --porcelain)" ]; then
-		echo "The working tree must be clean before creating a release."
-		exit 1
-	fi
-
-	git checkout -b "$branch_name"
+if [ -n "$(git status --porcelain)" ]; then
+	echo "The working tree must be clean before creating a release."
+	exit 1
 fi
+
+git checkout -b "$branch_name"
 
 sed -i.bak "s/Version: $current_version/Version: $new_version/" "$php_file"
 sed -i.bak "s/WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '$current_version'/WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '$new_version'/" "$php_file"
@@ -72,11 +56,7 @@ sed -i.bak "s/\"version\": \"$current_package_version\"/\"version\": \"$new_vers
 rm "$package_file.bak"
 npm install --package-lock-only --ignore-scripts
 
-if [ "$use_git" = true ]; then
-	git add "$php_file" "$package_file" "$package_lock_file"
-	git commit -m "$new_version"
+git add "$php_file" "$package_file" "$package_lock_file"
+git commit -m "$new_version"
 
-	echo "Created $branch_name. Push it manually when ready."
-else
-	echo "Updated files to $new_version without running Git commands."
-fi
+echo "Created $branch_name. Push it manually when ready."

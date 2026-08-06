@@ -136,7 +136,6 @@ npx wp-env start     # Starts the local WordPress environments
 ```bash
 npm run build        # Production build (webpack)
 npm run dev          # Watch mode for development
-npm run release -- patch --dry-run # Test a patch release without Git commands
 ```
 
 ### Linting
