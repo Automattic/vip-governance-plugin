@@ -823,6 +823,8 @@ Both data points are counters and do not contain other telemetry or sensitive da
 
 ## Development
 
+Development uses Node.js 24 (see `.nvmrc`), npm, Composer, Docker, and `wp-env`.
+
 Install development dependencies with:
 
 ```bash
@@ -836,10 +838,12 @@ The npm `postinstall` script installs production Composer dependencies, and the 
 
 The PHP, JavaScript, and end-to-end tests can be run locally with [`wp-env`][wp-env] and Docker.
 
+The default configuration starts a development site at `http://localhost:8888`. Automated tests use an isolated configuration at `http://localhost:8889`, which mounts the governance fixture from `tests/private` without affecting the development site.
+
 For the PHP unit tests:
 
 ```
-npx wp-env start
+npx wp-env start --config=.wp-env.test.json
 composer run test
 ```
 
@@ -852,14 +856,14 @@ npm run test:js
 For the e2e tests:
 
 ```
-npx wp-env start
+npx wp-env start --config=.wp-env.test.json
 npx playwright install chromium --with-deps
 npm run test:e2e
 ```
 
-Run multisite PHP coverage with `composer run test-multisite`. The main wp-env site is at `http://localhost:8888`; Playwright targets the tests site at `http://localhost:8889`, using `admin` / `password` by default.
+Run multisite PHP coverage with `composer run test-multisite`. Playwright uses the isolated test site at `http://localhost:8889`, with `admin` / `password` as the default credentials.
 
-Run both PHP and JavaScript unit tests with `npm test` after wp-env is running.
+Run both PHP and JavaScript unit tests with `npm test` after the isolated test environment is running.
 
 <!-- Links -->
 

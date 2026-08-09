@@ -21,6 +21,7 @@ async function globalSetup( config ) {
 
 	// Authenticate and save the storageState to disk.
 	await requestUtils.setupRest();
+	await requestUtils.activatePlugin( 'wordpress-vip-block-governance' );
 
 	// Reset the test environment before running the tests.
 	await Promise.all( [

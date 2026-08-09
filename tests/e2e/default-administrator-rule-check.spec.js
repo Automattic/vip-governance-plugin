@@ -12,18 +12,30 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 		// Verify that only the allowedBlocks can be inserted at the root level.
 		const rootBlockInserter = page
 			.getByRole( 'toolbar', { name: 'Document tools' } )
-			.getByRole( 'button', { name: 'Toggle block inserter' } );
+			.getByRole( 'button', { name: 'Block Inserter' } );
 		const rootBlockLibrary = page.getByRole( 'region', {
 			name: 'Block Library',
 		} );
 		await rootBlockInserter.click();
 		await expect( rootBlockLibrary ).toBeVisible();
-		await expect( rootBlockLibrary.getByRole( 'option' ) ).toHaveText( [
-			'Paragraph',
-			'Heading',
-			'Image',
-			'Media & Text',
-		] );
+		await Promise.all(
+			[ 'Paragraph', 'Heading', 'Image', 'Media & Text' ].map( blockName =>
+				expect(
+					rootBlockLibrary.getByRole( 'option', {
+						name: blockName,
+						exact: true,
+					} )
+				).toBeVisible()
+			)
+		);
+
+		// WordPress 6.8+ displays disallowed blocks, but rejects their insertion.
+		await editor.insertBlock( { name: 'core/list' } );
+		await expect
+			.poll( async () => ( await editor.getBlocks() ).map( ( { name } ) => name ) )
+			.not.toContain( 'core/list' );
+		await rootBlockInserter.click();
+
 		await editor.insertBlock( {
 			name: 'core/media-text',
 			innerBlocks: [
@@ -46,24 +58,40 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 		// Verify that only the allowedBlocks can be inserted within the media-text.
 		const nestedBlockInserter = page
 			.getByRole( 'toolbar', { name: 'Document tools' } )
-			.getByRole( 'button', { name: 'Toggle block inserter' } );
+			.getByRole( 'button', { name: 'Block Inserter' } );
 		const nestedBlockLibrary = page.getByRole( 'region', {
 			name: 'Block Library',
 		} );
 		await nestedBlockInserter.click();
 		await expect( nestedBlockLibrary ).toBeVisible();
-		await expect( nestedBlockLibrary.getByRole( 'option' ) ).toHaveText( [
-			'Paragraph',
-			'Heading',
-			'Image',
-			'Media & Text',
-		] );
+		await Promise.all(
+			[ 'Paragraph', 'Heading', 'Image', 'Media & Text' ].map( blockName =>
+				expect(
+					nestedBlockLibrary.getByRole( 'option', {
+						name: blockName,
+						exact: true,
+					} )
+				).toBeVisible()
+			)
+		);
+
+		const [ mediaText ] = ( await editor.getBlocks( { full: true } ) ).filter(
+			( { name } ) => name === 'core/media-text'
+		);
+		await editor.insertBlock( { name: 'core/list' }, { clientId: mediaText.clientId } );
+		await expect
+			.poll( async () => {
+				const [ currentMediaText ] = ( await editor.getBlocks() ).filter(
+					( { name } ) => name === 'core/media-text'
+				);
+				return currentMediaText.innerBlocks.map( ( { name } ) => name );
+			} )
+			.not.toContain( 'core/list' );
 	} );
 
 	test( 'should confirm that only the administrator and default block settings are picked, and applied correctly', async ( {
 		editor,
 		page,
-		pageUtils,
 	} ) => {
 		// Insert a heading block first, as that should be allowed.
 		await editor.insertBlock( {
@@ -82,8 +110,7 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 			} )
 			.getByRole( 'button', { name: 'Text' } );
 		await rootTextColor.click();
-		await pageUtils.pressKeys( 'Tab' );
-		await pageUtils.pressKeys( 'Enter' );
+		await page.locator( 'button[aria-label="Custom yellow"]' ).click();
 
 		// Lock the heading.
 		await editor.clickBlockOptionsMenuItem( 'Lock' );
@@ -99,18 +126,31 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 		} );
 
 		// Insert a media-text, and a heading under it as that should be allowed as well.
-		await editor.insertBlock( {
-			name: 'core/media-text',
-		} );
-		await page.keyboard.press( 'ArrowUp' );
-		const blockAppender = editor.canvas.getByRole( 'button', {
-			name: 'Add block',
-		} );
-		await expect( blockAppender ).toBeVisible();
-		await blockAppender.click();
-		await page.keyboard.press( 'ArrowRight' );
-		await page.keyboard.press( 'Enter' );
-		await page.keyboard.type( 'This is a heading inside a media-text' );
+		await editor.insertBlock( { name: 'core/media-text' } );
+		const [ mediaText ] = ( await editor.getBlocks( { full: true } ) ).filter(
+			( { name } ) => name === 'core/media-text'
+		);
+		await editor.insertBlock(
+			{
+				name: 'core/heading',
+				attributes: {
+					content: 'This is a heading inside a media-text',
+					level: 2,
+				},
+			},
+			{ clientId: mediaText.clientId }
+		);
+		await expect
+			.poll( async () =>
+				( await editor.getBlocks( { clientId: mediaText.clientId } ) ).map( ( { name } ) => name )
+			)
+			.toContain( 'core/heading' );
+		const [ nestedHeadingBlock ] = (
+			await editor.getBlocks( { clientId: mediaText.clientId, full: true } )
+		).filter( ( { name } ) => name === 'core/heading' );
+		await page.evaluate( clientId => {
+			globalThis.wp.data.dispatch( 'core/block-editor' ).selectBlock( clientId );
+		}, nestedHeadingBlock.clientId );
 
 		// Pick the custom red colour for the heading.
 		await editor.openDocumentSettingsSidebar();
@@ -120,8 +160,7 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 			} )
 			.getByRole( 'button', { name: 'Text' } );
 		await nestedTextColor.click();
-		await pageUtils.pressKeys( 'Tab' );
-		await pageUtils.pressKeys( 'Enter' );
+		await page.locator( 'button[aria-label="Custom red"]' ).click();
 
 		// Verify all the settings are exactly like what we expect.
 		await expect.poll( editor.getBlocks ).toMatchObject( [

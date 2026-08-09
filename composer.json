@@ -7,18 +7,18 @@
     "lint": "phpcs",
     "phpcs": "phpcs",
     "phpcs-fix": "phpcbf",
-    "test": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c phpunit.xml.dist",
-    "test-multisite": "wp-env run tests-cli --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
+    "test": "npx wp-env run cli --config=.wp-env.test.json --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c phpunit.xml.dist",
+    "test-multisite": "npx wp-env run cli --config=.wp-env.test.json --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
   },
   "require": {
     "php": ">=8.1",
-    "seld/jsonlint": "^1.11"
+    "seld/jsonlint": "^1.12"
   },
   "require-dev": {
-    "automattic/vipwpcs": "^3.0",
-    "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "phpunit/phpunit": "^9",
-    "yoast/phpunit-polyfills": "^2.0"
+    "automattic/vipwpcs": "^3.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.1.8",
+    "phpunit/phpunit": "^10.5",
+    "yoast/phpunit-polyfills": "^2.0.5"
   },
   "config": {
     "allow-plugins": {
