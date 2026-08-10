@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         php-versions:
-          - 8.1
+          - 8.2
 
     steps:
       - name: Checkout code
@@ -108,8 +108,14 @@ jobs:
           - php: '8.2'
             wp: 'master'
             allowed_failure: false
-          # Check latest WP with the highest supported PHP.
+          # Check latest WP across every supported PHP version.
           - php: '8.3'
+            wp: 'master'
+            allowed_failure: false
+          - php: '8.4'
+            wp: 'master'
+            allowed_failure: false
+          - php: '8.5'
             wp: 'master'
             allowed_failure: false
 
