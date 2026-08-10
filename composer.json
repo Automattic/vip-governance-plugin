@@ -11,18 +11,21 @@
     "test-multisite": "npx wp-env run cli --config=.wp-env.test.json --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
   },
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.2",
     "seld/jsonlint": "^1.12"
   },
   "require-dev": {
     "automattic/vipwpcs": "^3.1",
     "phpcompatibility/phpcompatibility-wp": "^2.1.8",
-    "phpunit/phpunit": "^10.5",
+    "phpunit/phpunit": "^9.6",
     "yoast/phpunit-polyfills": "^2.0.5"
   },
   "config": {
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": {
+      "php": "8.2.0"
     },
     "sort-packages": true
   }

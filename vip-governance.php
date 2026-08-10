@@ -6,9 +6,9 @@
  * Author: WordPress VIP
  * Text Domain: vip-governance
  * Version: 1.0.16
- * Requires at least: 6.0
+ * Requires at least: 6.5
  * Tested up to: 6.9
- * Requires PHP: 8.1
+ * Requires PHP: 8.2
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -20,15 +20,18 @@ namespace WPCOMVIP\Governance;
 if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 	define( 'VIP_GOVERNANCE_LOADED', true );
 
-	// ToDo: When 6.4 is our min version, switch to wp_admin_notice.
 	global $wp_version;
-	if ( version_compare( phpversion(), '8.1', '<' ) || version_compare( $wp_version, '6.0', '<' ) ) {
+	if ( version_compare( PHP_VERSION, '8.2', '<' ) || version_compare( $wp_version, '6.5', '<' ) ) {
 		add_action( 'admin_notices', function () {
-			?>
-			<div class="notice notice-error">
-					<p><?php esc_html_e( 'WordPress VIP Block Governance requires PHP 8.1+ and WordPress 6.0+.', 'vip-governance' ); ?></p>
-				</div>
-			<?php
+			$message = __( 'WordPress VIP Block Governance requires PHP 8.2+ and WordPress 6.5+.', 'vip-governance' );
+
+			if ( function_exists( 'wp_admin_notice' ) ) {
+				wp_admin_notice( $message, [ 'type' => 'error' ] );
+				return;
+			}
+
+			// WordPress versions below 6.4 do not provide wp_admin_notice().
+			printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html( $message ) );
 		}, 10, 0 );
 		return;
 	}

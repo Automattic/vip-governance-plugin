@@ -14,9 +14,9 @@ The plugin uses a JSON-based rules system (`governance-rules.json`) with support
 
 ### Tech Stack
 
-- **PHP 8.1+** — Backend logic, rule parsing, REST API, settings panel
+- **PHP 8.2+** — Backend logic, rule parsing, REST API, settings panel
 - **JavaScript/JSX** — Block editor integration via WordPress filters
-- **WordPress 6.0+** — Target platform
+- **WordPress 6.5+** — Target platform
 - **Webpack** — Build system (via `@wordpress/scripts`)
 - **Composer** — PHP dependency management
 - **npm** — JS dependency management
@@ -120,7 +120,7 @@ Only the first matching rule of each type is used. A role rule replaces fields i
 
 - Docker (for `wp-env`)
 - Node.js 24
-- PHP 8.1+
+- PHP 8.2+
 - Composer
 
 ### Setup
@@ -290,7 +290,7 @@ test.describe( 'My Feature', () => {
 - **Block still visible?** Starting from WordPress 6.8, the block inserter shows all blocks — disallowed ones trigger a snackbar on insert attempt.
 - **JS not updating?** Run `npm run build` or `npm run dev` (watch mode). Check that `build/index.js` was regenerated.
 - **PHP changes not reflecting?** Ensure `wp-env` is running. No build step needed for PHP.
-- **Test failures in CI?** Check the CI matrix — tests run against PHP 8.1/8.3 and WP 6.0/latest. Failures may be version-specific.
+- **Test failures in CI?** Check the CI matrix — tests run against PHP 8.2/8.3 and WP 6.5/latest. Failures may be version-specific.
 - **Unexpected vendor changes?** Composer regenerates tracked metadata under `vendor/composer`. Only commit those changes when intentionally updating the production dependency bundle.
 
 ## REST API

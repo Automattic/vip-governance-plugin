@@ -9,10 +9,35 @@ use PHPUnit\Framework\TestCase;
  * @covers GovernanceUtilities
  */
 class GovernanceUtilitiesTest extends TestCase {
+	protected function tearDown(): void {
+		remove_all_filters( 'vip_governance__governance_file_path' );
+		remove_all_filters( 'vip_governance__governance_rules_json' );
+		remove_all_filters( 'vip_governance__default_role_for_user_without_roles' );
+		parent::tearDown();
+	}
+
 	public function test_get_parsed_governance_rules__from_private_dir() {
 		$result = GovernanceUtilities::get_parsed_governance_rules();
 
 		$this->assertEquals( $this->get_parsed_governance_rules(), $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_governance_rules_json__with_invalid_filtered_path__returns_error() {
+		add_filter( 'vip_governance__governance_file_path', '__return_empty_array' );
+
+		$result = GovernanceUtilities::get_governance_rules_json();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'governance-file-path-invalid', $result->get_error_code() );
+	}
+
+	public function test_get_governance_rules_json__with_invalid_filtered_content__returns_error() {
+		add_filter( 'vip_governance__governance_rules_json', '__return_empty_array' );
+
+		$result = GovernanceUtilities::get_governance_rules_json();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'governance-rules-invalid', $result->get_error_code() );
 	}
 
 	public function test_get_governance_rules_for_user__administrator() {
@@ -213,6 +238,105 @@ class GovernanceUtilitiesTest extends TestCase {
 		$result = GovernanceUtilities::get_rules_by_type( $this->get_parsed_governance_rules(), array( 'administrator' ), 'post' );
 
 		$this->assertEquals( $expected_rules, $result, sprintf( 'Unexpected output: %s', wp_json_encode( $result ) ) );
+	}
+
+	public function test_get_rules_by_type__default_block_settings_do_not_override_role_values(): void {
+		$rules = [
+			[
+				'type'          => 'role',
+				'roles'         => [ 'administrator' ],
+				'blockSettings' => [
+					'core/heading' => [
+						'color' => [
+							'text'    => false,
+							'palette' => [ [ 'slug' => 'role-color' ] ],
+						],
+					],
+				],
+			],
+			[
+				'type'          => 'default',
+				'blockSettings' => [
+					'core/heading' => [
+						'color' => [
+							'text'       => true,
+							'background' => true,
+							'palette'    => [ [ 'slug' => 'default-color' ] ],
+						],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $rules, [ 'administrator' ], 'post' );
+
+		$this->assertSame(
+			[
+				'text'       => false,
+				'palette'    => [
+					[ 'slug' => 'role-color' ],
+					[ 'slug' => 'default-color' ],
+				],
+				'background' => true,
+			],
+			$result['blockSettings']['core/heading']['color']
+		);
+	}
+
+	public function test_get_rules_by_type__default_block_settings_preserve_value_shapes(): void {
+		$rules = [
+			[
+				'type'          => 'role',
+				'roles'         => [ 'administrator' ],
+				'blockSettings' => [
+					'core/heading'   => [
+						'color'      => false,
+						'typography' => [
+							'fontSizes' => [ 'custom' => true ],
+						],
+						'spacing'    => [
+							'units' => [],
+						],
+					],
+					'core/paragraph' => [],
+				],
+			],
+			[
+				'type'          => 'default',
+				'blockSettings' => [
+					'core/heading'   => [
+						'color'      => [ 'text' => true ],
+						'typography' => [
+							'fontSizes' => [ [ 'slug' => 'default-size' ] ],
+							'dropCap'   => true,
+						],
+						'spacing'    => [
+							'units' => [ 'px', 'rem' ],
+						],
+					],
+					'core/paragraph' => [
+						'color' => [ 'text' => true ],
+					],
+				],
+			],
+		];
+
+		$result = GovernanceUtilities::get_rules_by_type( $rules, [ 'administrator' ], 'post' );
+
+		$this->assertSame(
+			[
+				'color'      => false,
+				'typography' => [
+					'fontSizes' => [ 'custom' => true ],
+					'dropCap'   => true,
+				],
+				'spacing'    => [
+					'units' => [ 'px', 'rem' ],
+				],
+			],
+			$result['blockSettings']['core/heading']
+		);
+		$this->assertSame( [ 'color' => [ 'text' => true ] ], $result['blockSettings']['core/paragraph'] );
 	}
 
 	public function test_get_governance_rules_for_post_type_and_role_type__author_page() {
