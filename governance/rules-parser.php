@@ -20,8 +20,7 @@ defined( 'ABSPATH' ) || die();
  */
 class RulesParser {
 	private const ALLOWED_FEATURES = [ 'codeEditor', 'lockBlocks' ];
-	private const BLOCK_NAME_REGEX = '/^[a-z][a-z0-9-]*\/(?:[a-z][a-z0-9-]*|\*)$/';
-	private const ROOT_KEYS        = [ '$schema', 'version', 'rules' ];
+	private const BLOCK_NAME_REGEX = '/^(?:\*|[a-z][a-z0-9-]*\/(?:[a-z][a-z0-9-]*|\*))$/';
 
 	// Update this when the rules schema changes.
 	public const TYPE_TO_RULES_MAP = [
@@ -30,20 +29,36 @@ class RulesParser {
 	];
 
 	// Keep this order this way, as it's used for determining the priority of rules in governance-utilities.
-	public const RULE_TYPES         = [ 'postType', 'role', 'default' ];
-	private const RULE_KEYS_GENERAL = [ 'allowedFeatures', 'allowedBlocks', 'blockSettings' ];
+	public const RULE_TYPES = [ 'postType', 'role', 'default' ];
 
 	/**
-	 * Parses and validates governance rules.
+	 * Parses and validates governance rules without returning non-fatal warnings.
 	 *
 	 * @param string $rules_content Contents of rules file.
 	 *
 	 * @return array|WP_Error
+	 *
+	 * @deprecated 1.0.17 Use RulesParser::parse_with_warnings() instead.
 	 */
 	public static function parse( string $rules_content ): array|WP_Error {
+		_deprecated_function( __METHOD__, '1.0.17', __CLASS__ . '::parse_with_warnings()' );
+
+		$result = self::parse_with_warnings( $rules_content );
+
+		return is_wp_error( $result ) ? $result : $result['rules'];
+	}
+
+	/**
+	 * Parse and normalize governance rules, including non-fatal warnings.
+	 *
+	 * @param string $rules_content Contents of rules file.
+	 *
+	 * @return array{rules: array, warnings: array}|WP_Error
+	 */
+	public static function parse_with_warnings( string $rules_content ): array|WP_Error {
 		if ( '' === trim( $rules_content ) ) {
 			// An empty file is an explicitly supported form of no rules.
-			return [];
+			return self::create_parse_result();
 		}
 
 		$rules_parsed = self::parse_rules_from_json( $rules_content );
@@ -51,21 +66,16 @@ class RulesParser {
 			return $rules_parsed;
 		}
 
+		if ( empty( $rules_parsed ) || ( $rules_parsed instanceof stdClass && [] === get_object_vars( $rules_parsed ) ) ) {
+			// Retain the historical behavior for empty JSON values such as {}, [], false, and null.
+			return self::create_parse_result();
+		}
+
 		if ( ! $rules_parsed instanceof stdClass ) {
 			return new WP_Error( 'logic-invalid-root', __( 'Governance JSON should contain a root-level object.', 'vip-governance' ) );
 		}
 
-		if ( [] === get_object_vars( $rules_parsed ) ) {
-			// An empty object is retained as a backwards-compatible form of no rules.
-			return [];
-		}
-
-		$rule_validation_result = self::validate_rule_logic( $rules_parsed );
-		if ( is_wp_error( $rule_validation_result ) ) {
-			return $rule_validation_result;
-		}
-
-		return self::convert_objects_to_arrays( $rules_parsed->rules );
+		return self::normalize_rules( $rules_parsed );
 	}
 
 	/**
@@ -96,13 +106,13 @@ class RulesParser {
 	}
 
 	/**
-	 * Evaluate parsed rules for schema and business-logic errors.
+	 * Normalize rules while retaining errors for unrecoverable root-level problems.
 	 *
 	 * @param stdClass $rules_parsed Parsed contents of a governance rules file.
 	 *
-	 * @return true|WP_Error
+	 * @return array|WP_Error
 	 */
-	private static function validate_rule_logic( stdClass $rules_parsed ): bool|WP_Error {
+	private static function normalize_rules( stdClass $rules_parsed ): array|WP_Error {
 		if ( ! property_exists( $rules_parsed, 'version' ) || WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION !== $rules_parsed->version ) {
 			/* translators: %s: Latest schema version, e.g. 1.0.0. */
 			$error_message = sprintf( __( 'Governance JSON should have a root-level "version" key set to "%s".', 'vip-governance' ), WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION );
@@ -117,286 +127,307 @@ class RulesParser {
 			return new WP_Error( 'logic-non-array-rules', __( 'Governance JSON "rules" key should be an array.', 'vip-governance' ) );
 		}
 
-		if ( property_exists( $rules_parsed, '$schema' ) && ! is_string( $rules_parsed->{'$schema'} ) ) {
-			return new WP_Error( 'logic-invalid-schema-uri', __( 'Governance JSON "$schema" key should be a string.', 'vip-governance' ) );
-		}
-
-		$unknown_root_keys = array_diff( array_keys( get_object_vars( $rules_parsed ) ), self::ROOT_KEYS );
-		if ( ! empty( $unknown_root_keys ) ) {
-			/* translators: %s: Comma-separated list of unsupported root keys. */
-			$error_message = sprintf( __( 'Governance JSON contains unsupported root-level keys: %s.', 'vip-governance' ), self::format_array_to_keys( $unknown_root_keys ) );
-			return new WP_Error( 'logic-unsupported-root-keys', $error_message );
-		}
-
+		$warnings           = [];
+		$root_properties    = get_object_vars( $rules_parsed );
+		$unknown_root_keys  = array_diff( array_keys( $root_properties ), [ '$schema', 'version', 'rules' ] );
+		$normalized_rules   = [];
 		$default_rule_index = null;
 
-		foreach ( $rules_parsed->rules as $rule_index => $rule ) {
-			if ( ! $rule instanceof stdClass ) {
-				/* translators: %s: Ordinal number of rule, e.g. 1st. */
-				$error_message = sprintf( __( '%s rule should be an object.', 'vip-governance' ), self::format_number_with_ordinal( $rule_index + 1 ) );
-				return new WP_Error( 'logic-rule-not-object', $error_message );
-			}
+		if ( array_key_exists( '$schema', $root_properties ) && ! is_string( $root_properties['$schema'] ) ) {
+			$warnings[] = __( 'Removed invalid root-level "$schema" metadata.', 'vip-governance' );
+		}
 
-			$rule_type    = $rule->type ?? null;
+		foreach ( $unknown_root_keys as $unknown_root_key ) {
+			/* translators: %s: Unsupported root-level property name. */
+			$warnings[] = sprintf( __( 'Removed unsupported root-level property "%s".', 'vip-governance' ), $unknown_root_key );
+		}
+
+		foreach ( $rules_parsed->rules as $rule_index => $rule ) {
 			$rule_ordinal = self::format_number_with_ordinal( $rule_index + 1 );
 
+			if ( ! $rule instanceof stdClass ) {
+				/* translators: %s: Ordinal number of a rule, e.g. 3rd. */
+				$warnings[] = sprintf( __( '%s rule: dropped because it is not an object.', 'vip-governance' ), $rule_ordinal );
+				continue;
+			}
+
+			$rule_type = $rule->type ?? null;
 			if ( ! is_string( $rule_type ) || ! in_array( $rule_type, self::RULE_TYPES, true ) ) {
-				$rule_types = self::format_array_to_keys( self::RULE_TYPES );
-				/* translators: 1: Ordinal number of rule, e.g. 1st. 2: Comma-separated list of rule types. */
-				$error_message = sprintf( __( '%1$s rule should have a "type" key set to one of these values: %2$s.', 'vip-governance' ), $rule_ordinal, $rule_types );
-				return new WP_Error( 'logic-incorrect-rule-type', $error_message );
+				/* translators: %s: Ordinal number of a rule, e.g. 3rd. */
+				$warnings[] = sprintf( __( '%s rule: dropped because it has no valid type.', 'vip-governance' ), $rule_ordinal );
+				continue;
 			}
 
 			if ( 'default' === $rule_type ) {
 				if ( null !== $default_rule_index ) {
-					/* translators: %s: Ordinal number of rule, e.g. 1st. */
+					/* translators: %s: Ordinal number of the first default rule, e.g. 1st. */
 					$error_message = sprintf( __( 'Only one default rule is allowed, but the %s rule already contains a default rule.', 'vip-governance' ), self::format_number_with_ordinal( $default_rule_index + 1 ) );
 					return new WP_Error( 'logic-rule-default-multiple', $error_message );
 				}
 
-				$verify_rule_result = self::verify_default_rule( $rule );
 				$default_rule_index = $rule_index;
-			} else {
-				$verify_rule_result = self::verify_type_rule( $rule );
 			}
 
-			if ( is_wp_error( $verify_rule_result ) ) {
-				/* translators: 1: Ordinal number of rule, e.g. 1st. 2: Error message for failed rule. */
-				$error_message = sprintf( __( 'Error parsing %1$s rule: %2$s', 'vip-governance' ), $rule_ordinal, $verify_rule_result->get_error_message() );
-				return new WP_Error( $verify_rule_result->get_error_code(), $error_message );
+			$normalized_rule = self::normalize_rule( $rule, $rule_type, $rule_ordinal, $warnings );
+			if ( null === $normalized_rule ) {
+				continue;
 			}
+
+			$normalized_rules[] = $normalized_rule;
 		}
 
-		return true;
+		return self::create_parse_result( $normalized_rules, $warnings );
 	}
 
 	/**
-	 * Returns true if the given default rule is valid, or a WP_Error otherwise.
+	 * Normalize one rule, or drop it when it cannot have any effect.
 	 *
 	 * @param stdClass $rule Parsed rule.
+	 * @param string   $rule_type Valid rule type.
+	 * @param string   $rule_ordinal Ordinal position of the rule.
+	 * @param array    $warnings Non-fatal warnings collected while parsing.
 	 *
-	 * @return true|WP_Error
+	 * @return array|null
 	 */
-	private static function verify_default_rule( stdClass $rule ): bool|WP_Error {
-		foreach ( self::TYPE_TO_RULES_MAP as $type => $types ) {
-			if ( property_exists( $rule, $types ) ) {
-				/* translators: 1: Rule applicability key. 2: Rule type. */
-				$error_message = sprintf( __( '"default"-type rule should not contain "%1$s" key. Default rules apply to all %2$s.', 'vip-governance' ), $types, $type );
-				return new WP_Error( 'logic-rule-default-type', $error_message );
-			}
-		}
-
-		$general_properties_result = self::verify_general_rule_properties( $rule );
-		if ( is_wp_error( $general_properties_result ) ) {
-			return $general_properties_result;
-		}
-
-		$allowed_keys_result = self::verify_allowed_rule_keys( $rule, [ 'type', ...self::RULE_KEYS_GENERAL ] );
-		if ( is_wp_error( $allowed_keys_result ) ) {
-			return $allowed_keys_result;
-		}
-
-		if ( 1 === count( get_object_vars( $rule ) ) ) {
-			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
-			/* translators: %s: Comma-separated list of valid rule keys. */
-			$error_message = sprintf( __( 'This default rule is empty. Add additional keys (%s) to make it functional.', 'vip-governance' ), $rule_keys );
-			return new WP_Error( 'logic-rule-empty', $error_message );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Returns true if the given role or post-type rule is valid, or a WP_Error otherwise.
-	 *
-	 * @param stdClass $rule Parsed rule.
-	 *
-	 * @return true|WP_Error
-	 */
-	private static function verify_type_rule( stdClass $rule ): bool|WP_Error {
-		$type_to_be_checked = self::TYPE_TO_RULES_MAP[ $rule->type ];
-		$type_values        = $rule->{$type_to_be_checked} ?? null;
-
-		if ( ! is_array( $type_values ) || empty( $type_values ) ) {
-			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
-			/* translators: 1: Rule type. 2: Applicability key. 3: Applicability key. */
-			$error_message = sprintf( __( '"%1$s"-type rules require a "%2$s" key containing an array of applicable "%3$s".', 'vip-governance' ), $rule->type, $type_to_be_checked, $type_to_be_checked );
-			return new WP_Error( 'logic-rule-type-missing-valid-types', $error_message );
-		}
-
-		if ( ! self::contains_only_strings( $type_values ) ) {
-			/* translators: %s: Rule applicability key, either roles or postTypes. */
-			$error_message = sprintf( __( 'The "%s" key should contain only strings.', 'vip-governance' ), $type_to_be_checked );
-			return new WP_Error( 'logic-rule-type-invalid-types', $error_message );
-		}
-
-		$general_properties_result = self::verify_general_rule_properties( $rule );
-		if ( is_wp_error( $general_properties_result ) ) {
-			return $general_properties_result;
-		}
-
-		$allowed_keys        = [ 'type', $type_to_be_checked, ...self::RULE_KEYS_GENERAL ];
-		$allowed_keys_result = self::verify_allowed_rule_keys( $rule, $allowed_keys );
-		if ( is_wp_error( $allowed_keys_result ) ) {
-			return $allowed_keys_result;
-		}
-
-		if ( 2 === count( get_object_vars( $rule ) ) ) {
-			$rule_keys = self::format_array_to_keys( self::RULE_KEYS_GENERAL );
-			/* translators: %s: Comma-separated list of valid rule keys. */
-			$error_message = sprintf( __( 'This rule doesn\'t apply any settings to the given type. Add additional keys (%s) to make it functional.', 'vip-governance' ), $rule_keys );
-			return new WP_Error( 'logic-rule-empty', $error_message );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Validate the common properties supported by every rule type.
-	 *
-	 * @param stdClass $rule Parsed rule.
-	 *
-	 * @return true|WP_Error
-	 */
-	private static function verify_general_rule_properties( stdClass $rule ): bool|WP_Error {
+	private static function normalize_rule( stdClass $rule, string $rule_type, string $rule_ordinal, array &$warnings ): ?array {
 		$rule_properties = get_object_vars( $rule );
+		$normalized      = [ 'type' => $rule_type ];
+		$allowed_keys    = [ 'type', 'allowedBlocks', 'allowedFeatures', 'blockSettings' ];
 
-		if ( array_key_exists( 'allowedBlocks', $rule_properties ) && ( ! is_array( $rule_properties['allowedBlocks'] ) || ! self::contains_only_strings( $rule_properties['allowedBlocks'] ) ) ) {
-			return new WP_Error( 'logic-rule-invalid-allowed-blocks', __( 'Rule "allowedBlocks" should be an array of strings.', 'vip-governance' ) );
+		if ( 'default' !== $rule_type ) {
+			$applicability_key    = self::TYPE_TO_RULES_MAP[ $rule_type ];
+			$applicability_values = null;
+			$allowed_keys[]       = $applicability_key;
+			if ( array_key_exists( $applicability_key, $rule_properties ) ) {
+				$list_changes         = [];
+				$applicability_values = self::normalize_string_list( $rule_properties[ $applicability_key ], null, $list_changes );
+				self::add_string_list_warnings( $rule_ordinal, $applicability_key, $list_changes, $warnings );
+			}
+			if ( empty( $applicability_values ) ) {
+				/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Rule applicability property, either roles or postTypes. */
+				$warnings[] = sprintf( __( '%1$s rule: dropped because it has no valid %2$s.', 'vip-governance' ), $rule_ordinal, $applicability_key );
+				return null;
+			}
+			$normalized[ $applicability_key ] = $applicability_values;
+		} else {
+			foreach ( self::TYPE_TO_RULES_MAP as $applicability_key ) {
+				if ( array_key_exists( $applicability_key, $rule_properties ) ) {
+					/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Inapplicable property name. */
+					$warnings[] = sprintf( __( '%1$s rule: removed "%2$s" because default rules apply to everyone.', 'vip-governance' ), $rule_ordinal, $applicability_key );
+				}
+				$allowed_keys[] = $applicability_key;
+			}
+		}
+
+		foreach ( array_diff( array_keys( $rule_properties ), $allowed_keys ) as $unknown_key ) {
+			/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Unsupported property name. */
+			$warnings[] = sprintf( __( '%1$s rule: removed unsupported property "%2$s".', 'vip-governance' ), $rule_ordinal, $unknown_key );
+		}
+
+		if ( array_key_exists( 'allowedBlocks', $rule_properties ) ) {
+			$list_changes   = [];
+			$allowed_blocks = self::normalize_string_list( $rule_properties['allowedBlocks'], null, $list_changes );
+			self::add_string_list_warnings( $rule_ordinal, 'allowedBlocks', $list_changes, $warnings );
+			if ( null !== $allowed_blocks ) {
+				$normalized['allowedBlocks'] = $allowed_blocks;
+			}
 		}
 
 		if ( array_key_exists( 'allowedFeatures', $rule_properties ) ) {
-			$allowed_features = $rule_properties['allowedFeatures'];
-			if ( ! is_array( $allowed_features ) || ! self::contains_only_strings( $allowed_features ) ) {
-				return new WP_Error( 'logic-rule-invalid-allowed-features', __( 'Rule "allowedFeatures" should be an array of strings.', 'vip-governance' ) );
-			}
-
-			if ( count( $allowed_features ) !== count( array_unique( $allowed_features, SORT_STRING ) ) ) {
-				return new WP_Error( 'logic-rule-duplicate-allowed-feature', __( 'Rule "allowedFeatures" should not contain duplicate values.', 'vip-governance' ) );
-			}
-
-			$invalid_features = array_diff( $allowed_features, self::ALLOWED_FEATURES );
-			if ( ! empty( $invalid_features ) ) {
-				return new WP_Error( 'logic-rule-unsupported-allowed-feature', __( 'Rule "allowedFeatures" contains an unsupported feature.', 'vip-governance' ) );
+			$list_changes     = [];
+			$allowed_features = self::normalize_string_list( $rule_properties['allowedFeatures'], self::ALLOWED_FEATURES, $list_changes );
+			self::add_string_list_warnings( $rule_ordinal, 'allowedFeatures', $list_changes, $warnings );
+			if ( null !== $allowed_features ) {
+				$normalized['allowedFeatures'] = $allowed_features;
 			}
 		}
 
 		if ( array_key_exists( 'blockSettings', $rule_properties ) ) {
-			$block_settings = $rule_properties['blockSettings'];
-			if ( ! $block_settings instanceof stdClass ) {
-				return new WP_Error( 'logic-rule-invalid-block-settings', __( 'Rule "blockSettings" should be an object.', 'vip-governance' ) );
-			}
-
-			$block_settings_result = self::verify_rule_block_settings( $block_settings );
-			if ( is_wp_error( $block_settings_result ) ) {
-				return $block_settings_result;
+			if ( $rule_properties['blockSettings'] instanceof stdClass ) {
+				$block_settings = self::normalize_block_settings( $rule_properties['blockSettings'], true, $rule_ordinal, $warnings );
+				if ( [] !== get_object_vars( $block_settings ) ) {
+					$normalized['blockSettings'] = self::convert_objects_to_arrays( $block_settings );
+				}
+			} else {
+				/* translators: %s: Ordinal number of a rule, e.g. 3rd. */
+				$warnings[] = sprintf( __( '%s rule: removed invalid blockSettings.', 'vip-governance' ), $rule_ordinal );
 			}
 		}
 
-		return true;
+		$required_key_count = 'default' === $rule_type ? 1 : 2;
+		if ( count( $normalized ) <= $required_key_count ) {
+			/* translators: %s: Ordinal number of a rule, e.g. 3rd. */
+			$warnings[] = sprintf( __( '%s rule: dropped because it has no usable governance settings.', 'vip-governance' ), $rule_ordinal );
+			return null;
+		}
+
+		return $normalized;
 	}
 
 	/**
-	 * Validate the top-level blockSettings object.
+	 * Normalize block settings and remove unusable governance-specific values.
 	 *
 	 * @param stdClass $block_settings Block settings object.
+	 * @param bool     $top_level Whether these settings are keyed only by block name.
+	 * @param string   $rule_ordinal Ordinal position of the rule.
+	 * @param array    $warnings Non-fatal warnings collected while parsing.
+	 * @param string   $path Dot-separated block settings path.
 	 *
-	 * @return true|WP_Error
+	 * @return stdClass
 	 */
-	private static function verify_rule_block_settings( stdClass $block_settings ): bool|WP_Error {
-		foreach ( get_object_vars( $block_settings ) as $block_name => $settings ) {
-			if ( 1 !== preg_match( self::BLOCK_NAME_REGEX, $block_name ) ) {
-				/* translators: %s: Invalid block name. */
-				$error_message = sprintf( __( 'Rule "blockSettings" contains an invalid block name: "%s".', 'vip-governance' ), $block_name );
-				return new WP_Error( 'logic-rule-invalid-block-name', $error_message );
-			}
+	private static function normalize_block_settings( stdClass $block_settings, bool $top_level, string $rule_ordinal, array &$warnings, string $path = 'blockSettings' ): stdClass {
+		$normalized = new stdClass();
 
-			if ( ! $settings instanceof stdClass ) {
-				/* translators: %s: Block name. */
-				$error_message = sprintf( __( 'Settings for block "%s" should be an object.', 'vip-governance' ), $block_name );
-				return new WP_Error( 'logic-rule-invalid-block-settings', $error_message );
-			}
+		foreach ( get_object_vars( $block_settings ) as $property => $value ) {
+			$is_block_name = 1 === preg_match( self::BLOCK_NAME_REGEX, $property );
 
-			$nested_result = self::verify_nested_block_settings( $settings );
-			if ( is_wp_error( $nested_result ) ) {
-				return $nested_result;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Validate schema-defined properties within nested block settings.
-	 *
-	 * Other properties are theme.json settings and are intentionally unrestricted by
-	 * the governance schema.
-	 *
-	 * @param stdClass $settings Nested block settings object.
-	 *
-	 * @return true|WP_Error
-	 */
-	private static function verify_nested_block_settings( stdClass $settings ): bool|WP_Error {
-		foreach ( get_object_vars( $settings ) as $property => $value ) {
-			if ( 'allowedBlocks' === $property ) {
-				if ( ! is_array( $value ) || ! self::contains_only_strings( $value ) ) {
-					return new WP_Error( 'logic-rule-invalid-nested-allowed-blocks', __( 'Nested "allowedBlocks" should be an array of strings.', 'vip-governance' ) );
-				}
-
+			if ( $top_level && ! $is_block_name ) {
+				/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Invalid block settings path. */
+				$warnings[] = sprintf( __( '%1$s rule: removed invalid blockSettings entry "%2$s".', 'vip-governance' ), $rule_ordinal, $path . '.' . $property );
 				continue;
 			}
 
-			if ( 1 === preg_match( self::BLOCK_NAME_REGEX, $property ) ) {
+			if ( 'allowedBlocks' === $property ) {
+				$list_changes   = [];
+				$allowed_blocks = self::normalize_string_list( $value, null, $list_changes );
+				self::add_string_list_warnings( $rule_ordinal, $path . '.allowedBlocks', $list_changes, $warnings );
+				if ( null !== $allowed_blocks ) {
+					$normalized->{$property} = $allowed_blocks;
+				}
+				continue;
+			}
+
+			if ( $is_block_name ) {
 				if ( ! $value instanceof stdClass ) {
-					/* translators: %s: Block name. */
-					$error_message = sprintf( __( 'Nested settings for block "%s" should be an object.', 'vip-governance' ), $property );
-					return new WP_Error( 'logic-rule-invalid-block-settings', $error_message );
+					/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Invalid block settings path. */
+					$warnings[] = sprintf( __( '%1$s rule: removed invalid blockSettings entry "%2$s".', 'vip-governance' ), $rule_ordinal, $path . '.' . $property );
+					continue;
 				}
 
-				$nested_result = self::verify_nested_block_settings( $value );
-				if ( is_wp_error( $nested_result ) ) {
-					return $nested_result;
+				$nested_settings = self::normalize_block_settings( $value, false, $rule_ordinal, $warnings, $path . '.' . $property );
+				if ( [] !== get_object_vars( $nested_settings ) ) {
+					$normalized->{$property} = $nested_settings;
 				}
+				continue;
 			}
+
+			// Other nested properties are theme.json settings and intentionally unrestricted.
+			$normalized->{$property} = $value;
 		}
 
-		return true;
+		return $normalized;
 	}
 
 	/**
-	 * Verify that a rule contains no keys outside those permitted by its schema.
+	 * Normalize a scalar or array into a unique list of allowed strings.
 	 *
-	 * @param stdClass $rule         Parsed rule.
-	 * @param array    $allowed_keys Allowed keys.
+	 * @param mixed      $value Values to normalize.
+	 * @param array|null $allowed_values Optional allowlist.
+	 * @param array      $changes Details of corrections made while normalizing.
 	 *
-	 * @return true|WP_Error
+	 * @return array|null Null when the input has no safely inferable list form.
 	 */
-	private static function verify_allowed_rule_keys( stdClass $rule, array $allowed_keys ): bool|WP_Error {
-		$unknown_keys = array_diff( array_keys( get_object_vars( $rule ) ), $allowed_keys );
-		if ( empty( $unknown_keys ) ) {
-			return true;
+	private static function normalize_string_list( mixed $value, ?array $allowed_values = null, array &$changes = [] ): ?array {
+		$changes = [
+			'converted'   => false,
+			'invalidType' => false,
+			'invalid'     => 0,
+			'unsupported' => 0,
+			'duplicates'  => 0,
+		];
+
+		if ( is_string( $value ) ) {
+			$value                = [ $value ];
+			$changes['converted'] = true;
+		} elseif ( ! is_array( $value ) ) {
+			$changes['invalidType'] = true;
+			return null;
 		}
 
-		/* translators: %s: Comma-separated list of unsupported rule keys. */
-		$error_message = sprintf( __( 'Rule contains unsupported keys: %s.', 'vip-governance' ), self::format_array_to_keys( $unknown_keys ) );
-		return new WP_Error( 'logic-rule-unsupported-keys', $error_message );
+		$was_empty          = [] === $value;
+		$original_count     = count( $value );
+		$value              = array_filter( $value, 'is_string' );
+		$changes['invalid'] = $original_count - count( $value );
+		if ( null !== $allowed_values ) {
+			$string_count           = count( $value );
+			$value                  = array_filter( $value, static fn ( string $item ): bool => in_array( $item, $allowed_values, true ) );
+			$changes['unsupported'] = $string_count - count( $value );
+		}
+		if ( empty( $value ) && ! $was_empty ) {
+			return null;
+		}
+
+		$unique_values         = array_unique( $value, SORT_STRING );
+		$changes['duplicates'] = count( $value ) - count( $unique_values );
+
+		return array_values( $unique_values );
 	}
 
 	/**
-	 * Determine whether every array value is a string.
+	 * Add warnings for corrections made to a string-list property.
 	 *
-	 * @param array $values Values to inspect.
+	 * @param string $rule_ordinal Ordinal position of the rule.
+	 * @param string $property Property path being normalized.
+	 * @param array  $changes Details of corrections made while normalizing.
+	 * @param array  $warnings Non-fatal warnings collected while parsing.
 	 *
-	 * @return bool
+	 * @return void
 	 */
-	private static function contains_only_strings( array $values ): bool {
-		foreach ( $values as $value ) {
-			if ( ! is_string( $value ) ) {
-				return false;
-			}
+	private static function add_string_list_warnings( string $rule_ordinal, string $property, array $changes, array &$warnings ): void {
+		if ( $changes['converted'] ) {
+			/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Property path. */
+			$warnings[] = sprintf( __( '%1$s rule: converted %2$s to an array.', 'vip-governance' ), $rule_ordinal, $property );
 		}
 
-		return true;
+		if ( $changes['invalidType'] ) {
+			/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Property path. */
+			$warnings[] = sprintf( __( '%1$s rule: removed invalid %2$s.', 'vip-governance' ), $rule_ordinal, $property );
+		}
+
+		if ( $changes['invalid'] > 0 ) {
+			$warnings[] = sprintf(
+				/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Number of values removed. 3: Property path. */
+				_n( '%1$s rule: removed %2$d invalid %3$s value.', '%1$s rule: removed %2$d invalid %3$s values.', $changes['invalid'], 'vip-governance' ),
+				$rule_ordinal,
+				$changes['invalid'],
+				$property
+			);
+		}
+
+		if ( $changes['unsupported'] > 0 ) {
+			$warnings[] = sprintf(
+				/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Number of values removed. 3: Property path. */
+				_n( '%1$s rule: removed %2$d unsupported %3$s value.', '%1$s rule: removed %2$d unsupported %3$s values.', $changes['unsupported'], 'vip-governance' ),
+				$rule_ordinal,
+				$changes['unsupported'],
+				$property
+			);
+		}
+
+		if ( $changes['duplicates'] > 0 ) {
+			$warnings[] = sprintf(
+				/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Number of values removed. 3: Property path. */
+				_n( '%1$s rule: removed %2$d duplicate %3$s value.', '%1$s rule: removed %2$d duplicate %3$s values.', $changes['duplicates'], 'vip-governance' ),
+				$rule_ordinal,
+				$changes['duplicates'],
+				$property
+			);
+		}
+	}
+
+	/**
+	 * Create a successful parser result.
+	 *
+	 * @param array $rules Normalized governance rules.
+	 * @param array $warnings Non-fatal parser warnings.
+	 *
+	 * @return array{rules: array, warnings: array}
+	 */
+	private static function create_parse_result( array $rules = [], array $warnings = [] ): array {
+		return [
+			'rules'    => $rules,
+			'warnings' => $warnings,
+		];
 	}
 
 	/**
@@ -419,7 +450,7 @@ class RulesParser {
 	}
 
 	/**
-	 * Format the number with ordinal suffix, without the PHP number formatter.
+	 * Format a number with its ordinal suffix.
 	 *
 	 * @param int $number Number to format.
 	 *
@@ -432,24 +463,5 @@ class RulesParser {
 		}
 
 		return $number . $ends[ $number % 10 ];
-	}
-
-	/**
-	 * Format an array into a quoted, comma-separated list of keys for display.
-	 *
-	 * @param array $input_array Keys to format.
-	 *
-	 * @return string
-	 */
-	private static function format_array_to_keys( array $input_array ): string {
-		return implode(
-			', ',
-			array_map(
-				static function ( $item ): string {
-					return sprintf( '"%s"', $item );
-				},
-				$input_array
-			)
-		);
 	}
 }

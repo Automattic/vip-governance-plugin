@@ -29,7 +29,9 @@ class GovernanceUtilities {
 			return $governance_rules_json;
 		}
 
-		return RulesParser::parse( $governance_rules_json );
+		$parse_result = RulesParser::parse_with_warnings( $governance_rules_json );
+
+		return is_wp_error( $parse_result ) ? $parse_result : $parse_result['rules'];
 	}
 
 	/**

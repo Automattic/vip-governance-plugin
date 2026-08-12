@@ -29,6 +29,9 @@
 				}
 			},
 			"patternProperties": {
+				"^[*]$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				},
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
 				},
@@ -41,6 +44,9 @@
 			"description": "Theme.json block settings for this rule. Allows block nesting and allowedBlocks array.",
 			"type": "object",
 			"patternProperties": {
+				"^[*]$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				},
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
 				},

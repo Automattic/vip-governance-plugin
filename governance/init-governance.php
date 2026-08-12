@@ -98,7 +98,7 @@ class InitGovernance {
 	 * @access private
 	 */
 	public static function load_css(): void {
-		if ( ! is_admin() || ! Settings::is_enabled() || ! self::should_load_for_current_page() ) {
+		if ( ! Settings::is_enabled() ) {
 			return;
 		} elseif ( empty( self::$governance_configuration ) ) {
 			self::$governance_configuration = self::load_governance_configuration();
@@ -140,7 +140,9 @@ class InitGovernance {
 			if ( is_wp_error( $parsed_governance_rules ) ) {
 				$governance_error = __( 'Governance rules could not be loaded.', 'vip-governance' );
 			} else {
-				$governance_rules_for_user = GovernanceUtilities::get_rules_by_type( $parsed_governance_rules );
+				$governance_rules_for_user = empty( $parsed_governance_rules )
+					? self::get_permissive_governance_rules()
+					: GovernanceUtilities::get_rules_by_type( $parsed_governance_rules );
 				$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 				$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 				BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
@@ -164,6 +166,23 @@ class InitGovernance {
 			'error'                => $governance_error,
 			'governanceRules'      => $governance_rules_for_user,
 			'nestedSettingsAndCss' => $nested_settings_and_css,
+		];
+	}
+
+	/**
+	 * Return a no-op ruleset when no usable rules remain.
+	 *
+	 * Trunk effectively skips governance when parsing produces no rules. Keeping all blocks and
+	 * supported features available preserves that customer-facing behavior without surfacing an
+	 * editor error from attempting to process an unshaped empty rules array.
+	 *
+	 * @return array Permissive effective governance rules.
+	 */
+	private static function get_permissive_governance_rules(): array {
+		return [
+			'allowedBlocks'   => [ '*' ],
+			'blockSettings'   => [],
+			'allowedFeatures' => [ 'codeEditor', 'lockBlocks' ],
 		];
 	}
 }

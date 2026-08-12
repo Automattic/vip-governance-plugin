@@ -113,15 +113,17 @@ class Settings {
 		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
 		$governance_error      = false;
+		$governance_warnings   = [];
 		if ( is_wp_error( $governance_rules_json ) ) {
 			$governance_error      = $governance_rules_json->get_error_message();
 			$governance_rules_json = false;
 		} else {
-			$governance_rules = GovernanceUtilities::get_parsed_governance_rules();
-	
-			if ( is_wp_error( $governance_rules ) ) {
-				$governance_error = $governance_rules->get_error_message();
-				$governance_rules = [];
+			$parse_result = RulesParser::parse_with_warnings( $governance_rules_json );
+
+			if ( is_wp_error( $parse_result ) ) {
+				$governance_error = $parse_result->get_error_message();
+			} else {
+				$governance_warnings = $parse_result['warnings'];
 			}
 		}
 

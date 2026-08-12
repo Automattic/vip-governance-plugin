@@ -19,6 +19,51 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || exit();
 
+if ( ! function_exists( __NAMESPACE__ . '\\vip_governance_pre_init' ) ) {
+	/**
+	 * Verify that the VIP Block Governance plugin can initialize.
+	 *
+	 * @global string $wp_version The WordPress version string.
+	 *
+	 * @return bool True if the plugin can load, false otherwise.
+	 */
+	function vip_governance_pre_init(): bool {
+		$php_version = phpversion();
+		if ( is_string( $php_version ) && version_compare( $php_version, '8.2', '<' ) ) {
+			add_action( 'admin_notices', static function (): void {
+				wp_admin_notice(
+					__(
+						'The WordPress VIP Block Governance plugin requires PHP 8.2+. The WordPress VIP Block Governance plugin has been disabled.',
+						'vip-governance'
+					),
+					[ 'type' => 'error' ]
+				);
+			}, 10, 0 );
+			return false;
+		}
+
+		global $wp_version;
+
+		// Account for plugins overriding the $wp_version global. See gutenberg.php for reference.
+		include ABSPATH . WPINC . '/version.php';
+
+		if ( version_compare( $wp_version, '6.8', '<' ) ) {
+			add_action( 'admin_notices', static function (): void {
+				wp_admin_notice(
+					__(
+						'The WordPress VIP Block Governance plugin requires WordPress 6.8+. The WordPress VIP Block Governance plugin has been disabled.',
+						'vip-governance'
+					),
+					[ 'type' => 'error' ]
+				);
+			}, 10, 0 );
+			return false;
+		}
+
+		return true;
+	}
+}
+
 // Check if the plugin is already loaded, if so, return early to prevent duplicate plugin instances.
 if ( defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 	return;
@@ -71,46 +116,3 @@ require_once __DIR__ . '/governance/settings/settings.php';
 
 // /wp-json/ API.
 require_once __DIR__ . '/governance/rest/rest-api.php';
-
-/**
- * Verify that the VIP Block Governance plugin can initialize.
- *
- * @global string $wp_version The WordPress version string.
- *
- * @return bool True if the plugin can load, false otherwise.
- */
-function vip_governance_pre_init(): bool {
-	$php_version = phpversion();
-	if ( is_string( $php_version ) && version_compare( $php_version, '8.2', '<' ) ) {
-		add_action( 'admin_notices', static function (): void {
-			wp_admin_notice(
-				__(
-					'The WordPress VIP Block Governance plugin requires PHP 8.2+. The WordPress VIP Block Governance plugin has been disabled.',
-					'vip-governance'
-				),
-				[ 'type' => 'error' ]
-			);
-		}, 10, 0 );
-		return false;
-	}
-
-	global $wp_version;
-
-	// Account for plugins overriding the $wp_version global. See gutenberg.php for reference.
-	include ABSPATH . WPINC . '/version.php';
-
-	if ( version_compare( $wp_version, '6.8', '<' ) ) {
-		add_action( 'admin_notices', static function (): void {
-			wp_admin_notice(
-				__(
-					'The WordPress VIP Block Governance plugin requires WordPress 6.8+. The WordPress VIP Block Governance plugin has been disabled.',
-					'vip-governance'
-				),
-				[ 'type' => 'error' ]
-			);
-		}, 10, 0 );
-		return false;
-	}
-
-	return true;
-}

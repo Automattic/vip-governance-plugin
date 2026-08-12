@@ -47,7 +47,7 @@ class RestApi {
 						return in_array( (string) $param, array_keys( wp_roles()->roles ), true );
 					},
 					'sanitize_callback' => function ( $param ) {
-						return sanitize_key( (string) $param );
+						return strval( $param );
 					},
 				],
 				'postType' => [
@@ -56,7 +56,7 @@ class RestApi {
 						return in_array( (string) $param, get_post_types(), true );
 					},
 					'sanitize_callback' => function ( $param ) {
-						return sanitize_key( (string) $param );
+						return strval( $param );
 					},
 				],
 			],

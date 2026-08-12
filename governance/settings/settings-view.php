@@ -10,6 +10,7 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 $is_governance_error        = false !== $governance_error;
+$has_governance_warnings    = ! empty( $governance_warnings );
 $governance_rules_formatted = $governance_rules_json ? implode(
 	"\n",
 	array_map(
@@ -35,14 +36,21 @@ $governance_rules_formatted = $governance_rules_json ? implode(
 
 	<hr />
 
-	<?php /* translators: %s: A ✅ or ❌ emoji */ ?>
-	<h2><?php printf( esc_html__( '%s Governance Rules Validation', 'vip-governance' ), $is_governance_error ? '❌' : '✅' ); ?></h2>
+	<?php /* translators: %s: A ✅, ⚠️, or ❌ emoji */ ?>
+	<h2><?php printf( esc_html__( '%s Governance Rules Validation', 'vip-governance' ), $is_governance_error ? '❌' : ( $has_governance_warnings ? '⚠️' : '✅' ) ); ?></h2>
 
-	<div class="governance-rules <?php echo esc_attr( $is_governance_error ? 'with-errors' : '' ); ?>">
+	<div class="governance-rules <?php echo esc_attr( $is_governance_error ? 'with-errors' : ( $has_governance_warnings ? 'with-warnings' : '' ) ); ?>">
 		<div class="governance-rules-validation">
 			<?php if ( $is_governance_error ) { ?>
 			<p class="validation-errors"><?php esc_html_e( 'Failed to load:', 'vip-governance' ); ?></p>
 			<pre><?php echo esc_html( $governance_error ); ?></pre>
+			<?php } elseif ( $has_governance_warnings ) { ?>
+			<p class="validation-warnings"><?php esc_html_e( 'Rules loaded with warnings:', 'vip-governance' ); ?></p>
+			<ul>
+				<?php foreach ( $governance_warnings as $governance_warning ) { ?>
+				<li><?php echo esc_html( $governance_warning ); ?></li>
+				<?php } ?>
+			</ul>
 			<?php } else { ?>
 			<p><?php esc_html_e( 'Rules loaded successfully.', 'vip-governance' ); ?></p>
 			<?php } ?>
