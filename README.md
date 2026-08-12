@@ -66,11 +66,11 @@ Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, or
 
 ### Schema Basics
 
-You can find the JSON Schema for authoring rules [here][repo-schema-location]. Use `https://api.wpvip.com/schemas/plugins/governance.json` as the `$schema` value to get code completion and validation in supported editors. At runtime, the plugin parses JSON and applies its own required rule-logic checks rather than evaluating this schema file directly.
+You can find the JSON Schema for authoring rules [here][repo-schema-location]. Use `https://api.wpvip.com/schemas/plugins/governance.json` as the `$schema` value to get code completion and validation in supported editors. At runtime, the plugin parses JSON, rejects unrecoverable configuration errors, and corrects recoverable rule problems rather than evaluating this schema file directly.
 
 We have allowed significant space for customization. This means it is also possible to create unintended rule interactions. We recommend making rule changes one or two at a time to troubleshoot these interactions.
 
-Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. At most one `default` rule is allowed. Although the parser accepts an empty file or object as no rules, use a functional default rule for a usable editor configuration.
+Each rule is an object in an array. The one required property is `type`, which can be `default`, `role`, or `postType`. At most one `default` rule is allowed. Although the parser accepts an empty file or object as no rules, use a functional default rule to define the intended editor configuration explicitly. When no usable rules remain, the editor uses an equivalent permissive fallback so an invalid configuration does not unexpectedly restrict customers.
 
 Rules not of type `default` require an additional field. These are broken down below, along with examples of their possible values:
 
@@ -84,6 +84,17 @@ Each rule can have any of the following properties.
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks` (ability to lock/unlock blocks that restrict movement/deletion). Use an empty array or omit the property when no optional features should be enabled by that rule.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block.
 - `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. You can also put `allowedBlocks` in an exact parent's `blockSettings`. In the default cascading mode this adds child candidates to the root list; use restrictive hierarchy mode when the parent list must be exclusive.
+
+#### Runtime Parsing
+
+The runtime parser distinguishes fatal configuration failures from problems that can be safely corrected:
+
+- Malformed JSON, a missing or unusable root `version` or `rules` value, and multiple `default` rules reject the entire configuration.
+- Individual rules with an invalid type or no usable settings are dropped without preventing other valid rules from loading.
+- Safe corrections include converting string list values to arrays, removing invalid or duplicate list entries, removing unsupported features and properties, and retaining valid portions of `blockSettings`.
+- Repairs and dropped rules are reported as ordinal warnings on the settings page, such as `3rd rule: removed 1 invalid allowedBlocks value.` These warnings are not passed to the block editor as errors.
+
+Valid configurations are preserved and applied normally. If a mixture of valid and invalid rules is supplied, the valid rules continue to apply after the invalid portions are repaired or dropped. If nothing usable remains, the editor receives a permissive fallback that allows all blocks, the code editor, and block locking. The REST v1 combined-rules endpoint continues to return an empty array for that case.
 
 Non-default rule types are combined with the default rule to avoid needless repetition. Matching non-default rules have the following ascending priority:
 
@@ -765,8 +776,16 @@ add_filter( 'vip_governance__default_role_for_user_without_roles', function( $de
 There is an admin settings menu titled `VIP Block Governance` that's created with the use of this plugin. This page offers:
 
 - Turning on and off the plugin quickly, without re-deploying.
-- View all the rules at once, including JSON or rule-logic parsing errors.
+- View all the rules at once, including fatal JSON or rule-logic parsing errors and non-fatal parser warnings.
 - View combined rules as a specific user role and/or for a specific post type.
+
+Governance validation has three states:
+
+- `❌ Failed to load`: The configuration contains a fatal error and no rules are applied.
+- `⚠️ Rules loaded with warnings`: Usable rules continue to apply. Rule-level warnings identify the rule ordinal and, where relevant, the nested property path.
+- `✅ Rules loaded successfully`: The configuration loaded without any corrections.
+
+Warnings are escaped and displayed only on this server-rendered validation page. They do not change the editor-side `VIP_GOVERNANCE` payload. The combined-rules preview remains available when warnings exist.
 
 ![Admin setting in action][settings-panel-example-gif]
 
@@ -774,7 +793,7 @@ There is an admin settings menu titled `VIP Block Governance` that's created wit
 
 ### `vip-governance/v1/rules`
 
-This endpoint returns effective rules for an optional role and/or post type. The settings page uses it to preview merged rules. It is available only to users with the `manage_options` capability.
+This endpoint returns effective rules for an optional role and/or post type. The settings page uses it only for the combined-rules preview; settings validation and parser warnings are rendered separately on the server. It is available only to users with the `manage_options` capability.
 
 Pass `role` and `postType` as query parameters. Each is optional, and supplied values must name a registered WordPress role or post type. If `role` is omitted, resolution uses the authenticated user's roles:
 
@@ -782,7 +801,7 @@ Pass `role` and `postType` as query parameters. Each is optional, and supplied v
 GET /wp-json/vip-governance/v1/rules?role=editor&postType=post
 ```
 
-It has only three root level keys: `allowedBlocks`, `blockSettings`, and `allowedFeatures`.
+It has only three root-level keys: `allowedBlocks`, `blockSettings`, and `allowedFeatures`. Parser warnings are not included, so the v1 response shape remains unchanged when rules are repaired or dropped.
 
 #### Example
 
