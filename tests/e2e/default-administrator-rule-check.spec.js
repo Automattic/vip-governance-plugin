@@ -1,5 +1,17 @@
 import { expect, test } from '@wordpress/e2e-test-utils-playwright';
 
+async function openTextColorPicker( page ) {
+	// WordPress 6.8 labels this control "Text". Current WordPress versions label
+	// the typography control "Color" and also expose a later background control.
+	const legacyTextControl = page.getByText( 'Text', { exact: true } );
+	const modernColorControl = page
+		.getByRole( 'region', { name: 'Editor settings' } )
+		.getByRole( 'button', { name: 'Color', exact: true } )
+		.first();
+
+	await legacyTextControl.or( modernColorControl ).first().click();
+}
+
 test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', () => {
 	test.beforeEach( async ( { admin } ) => {
 		await admin.createNewPost( { legacyCanvas: true } );
@@ -104,12 +116,7 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 
 		// Change the colour of the heading to be the custom yellow that we have defined.
 		await editor.openDocumentSettingsSidebar();
-		const rootTextColor = page
-			.getByRole( 'region', {
-				name: 'Editor settings',
-			} )
-			.getByRole( 'button', { name: 'Text' } );
-		await rootTextColor.click();
+		await openTextColorPicker( page );
 		await page.locator( 'button[aria-label="Custom yellow"]' ).click();
 
 		// Lock the heading.
@@ -154,12 +161,7 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 
 		// Pick the custom red colour for the heading.
 		await editor.openDocumentSettingsSidebar();
-		const nestedTextColor = page
-			.getByRole( 'region', {
-				name: 'Editor settings',
-			} )
-			.getByRole( 'button', { name: 'Text' } );
-		await nestedTextColor.click();
+		await openTextColorPicker( page );
 		await page.locator( 'button[aria-label="Custom red"]' ).click();
 
 		// Verify all the settings are exactly like what we expect.
