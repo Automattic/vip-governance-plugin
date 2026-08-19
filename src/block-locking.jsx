@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockEditingMode } from '@wordpress/block-editor';
 import { Disabled } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select } from '@wordpress/data';
@@ -12,9 +12,15 @@ import { addFilter, applyFilters } from '@wordpress/hooks';
  */
 import { isBlockAllowedInHierarchy } from './block-utils';
 
+const LOCKED_BLOCK_STYLES = {
+	opacity: 0.6,
+	backgroundColor: '#eee',
+	border: '2px dashed #999',
+};
+
 export function setupBlockLocking( governanceRules ) {
 	const withDisabledBlocks = createHigherOrderComponent( BlockEdit => {
-		return props => {
+		return function GovernedBlockEdit( props ) {
 			const { name: blockName, clientId } = props;
 
 			const { getBlockParents, getBlockName } = select( blockEditorStore );
@@ -24,16 +30,9 @@ export function setupBlockLocking( governanceRules ) {
 				isBlockLocked( parentClientId )
 			);
 
-			if ( isParentLocked ) {
-				// To avoid layout issues, only disable the outermost locked block
-				return <BlockEdit { ...props } />;
-			}
-
 			const parentBlockNames = parentClientIds.map( parentClientId =>
 				getBlockName( parentClientId )
 			);
-
-			let isAllowed = isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules );
 
 			/**
 			 * Change what blocks are allowed to be edited in the block editor.
@@ -45,36 +44,27 @@ export function setupBlockLocking( governanceRules ) {
 			 * @param {Object}   governanceRules  An object containing the full set of governance
 			 *                                    rules for the current user.
 			 */
-			isAllowed = applyFilters(
-				'vip_governance__is_block_allowed_for_editing',
-				isAllowed,
+			const isAllowed = isBlockAllowedForEditing(
 				blockName,
 				parentBlockNames,
-				governanceRules
+				governanceRules,
+				isParentLocked
 			);
+
+			useBlockEditingMode( isAllowed ? undefined : 'disabled' );
+			setBlockLocked( clientId, ! isAllowed );
 
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
-			} else {
-				// Only available on WP 6.4 and above, so this guards against that.
-				if ( wp?.blockEditor?.useBlockEditingMode ) {
-					const { useBlockEditingMode } = wp.blockEditor;
-					useBlockEditingMode( 'disabled' );
-				}
-
-				// Mark block as locked so that children can detect they're within an existing locked block
-				setBlockLocked( clientId );
-
-				return (
-					<>
-						<Disabled>
-							<div style={ { opacity: 0.6, backgroundColor: '#eee', border: '2px dashed #999' } }>
-								<BlockEdit { ...props } />
-							</div>
-						</Disabled>
-					</>
-				);
 			}
+
+			return (
+				<Disabled>
+					<div style={ LOCKED_BLOCK_STYLES }>
+						<BlockEdit { ...props } />
+					</div>
+				</Disabled>
+			);
 		};
 	}, 'withDisabledBlocks' );
 
@@ -82,21 +72,59 @@ export function setupBlockLocking( governanceRules ) {
 }
 
 /**
- * In-memory map of block clientIds that have been marked as locked.
+ * Determine whether a block should remain editable.
+ *
+ * Children inherit a locked parent's editing mode, so they do not need another
+ * disabled wrapper or another invocation of the public editing filter.
+ *
+ * @param {string}   blockName        Current block name.
+ * @param {string[]} parentBlockNames Parent names, nearest parent first.
+ * @param {Object}   governanceRules  Effective governance rules.
+ * @param {boolean}  isParentLocked   Whether an ancestor is already locked.
+ * @return {boolean} Whether the block should remain editable.
+ */
+export function isBlockAllowedForEditing(
+	blockName,
+	parentBlockNames,
+	governanceRules,
+	isParentLocked
+) {
+	if ( isParentLocked ) {
+		return true;
+	}
+
+	const isAllowed = isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules );
+
+	return applyFilters(
+		'vip_governance__is_block_allowed_for_editing',
+		isAllowed,
+		blockName,
+		parentBlockNames,
+		governanceRules
+	);
+}
+
+/**
+ * In-memory set of block clientIds that have been marked as locked.
  *
  * This replaces using props.setAttributes() to set lock status, as this caused an
  * "unsaved changes" warning to appear in the editor when block locking was in use.
  */
-const lockedBlockMap = {};
+const lockedBlockIds = new Set();
 
 /**
- * Marks a block as locked via the block's clientId.
+ * Updates whether a block is locked via the block's clientId.
  *
  * @param {string} clientId Block clientId in editor
+ * @param {boolean} isLocked Whether the block is locked.
  * @returns {void}
  */
-function setBlockLocked( clientId ) {
-	lockedBlockMap[ clientId ] = true;
+function setBlockLocked( clientId, isLocked ) {
+	if ( isLocked ) {
+		lockedBlockIds.add( clientId );
+	} else {
+		lockedBlockIds.delete( clientId );
+	}
 }
 
 /**
@@ -106,5 +134,5 @@ function setBlockLocked( clientId ) {
  * @returns {boolean}
  */
 function isBlockLocked( clientId ) {
-	return clientId in lockedBlockMap;
+	return lockedBlockIds.has( clientId );
 }

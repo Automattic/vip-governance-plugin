@@ -49,6 +49,7 @@ describe( 'blockUtils', () => {
 				const result = isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules );
 
 				expect( result ).toBe( true );
+				expect( parentBlockNames ).toEqual( [ 'core/media-text' ] );
 			} );
 
 			it( 'should return false if the child block is not allowed in the hierarchy', () => {
@@ -284,6 +285,17 @@ describe( 'blockUtils', () => {
 			const result = doesBlockNameMatchBlockWildcard( blockName, rules );
 
 			expect( result ).toBeFalsy();
+		} );
+
+		it( 'should only match namespace wildcards at the start of the block name', () => {
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/*' ) ).toBe( true );
+			expect( doesBlockNameMatchBlockWildcard( 'custom/core/heading', 'core/*' ) ).toBe( false );
+		} );
+
+		it( 'should support wildcards in other positions without treating text as a regex', () => {
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/head*' ) ).toBe( true );
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', '*heading' ) ).toBe( true );
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/.+' ) ).toBe( false );
 		} );
 
 		it( 'should return true if the block name matches any of the rules', () => {

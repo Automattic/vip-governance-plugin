@@ -65,7 +65,7 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 		if ( governanceRules.blockSettings ) {
 			// Get the child block's parent block settings at whatever depth its located at.
 			const nestedSetting = getNestedSetting(
-				parentBlockNames.reverse(),
+				[ ...parentBlockNames ].reverse(),
 				'allowedBlocks',
 				governanceRules.blockSettings
 			);
@@ -106,8 +106,10 @@ export function isBlockAllowedByBlockWildcards( blockName, rules ) {
  */
 export function doesBlockNameMatchBlockWildcard( blockName, rule ) {
 	if ( rule.includes( '*' ) ) {
+		const escapedRule = rule.replace( /[.+?^${}()|[\]\\]/g, '\\$&' ).replaceAll( '*', '.*' );
+		// The rule is escaped above before it is compiled into an anchored expression.
 		// eslint-disable-next-line security/detect-non-literal-regexp
-		return blockName.match( new RegExp( rule.replace( '*', '.*' ) ) );
+		return new RegExp( `^${ escapedRule }$` ).test( blockName );
 	}
 
 	return rule === blockName;

@@ -12,6 +12,8 @@ module.exports = [
 	{
 		languageOptions: {
 			globals: {
+				document: 'readonly',
+				URLSearchParams: 'readonly',
 				VIP_GOVERNANCE: 'readonly',
 			},
 		},

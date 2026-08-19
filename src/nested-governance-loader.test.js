@@ -15,6 +15,56 @@ describe( 'getNestedSettingPaths', () => {
 				},
 			} );
 		} );
+
+		it( 'should collect wildcard setting paths', () => {
+			const result = getNestedSettingPaths( {
+				'core/*': {
+					color: { text: false },
+				},
+				'*': {
+					typography: { customFontSize: false },
+				},
+			} );
+
+			expect( result ).toEqual( {
+				'core/*': { 'color.text': true },
+				'*': { 'typography.customFontSize': true },
+			} );
+		} );
+
+		it( 'should merge paths for the same block nested under different parents', () => {
+			const result = getNestedSettingPaths( {
+				'core/group': {
+					'core/paragraph': { color: { text: false } },
+				},
+				'core/quote': {
+					'core/paragraph': { typography: { dropCap: false } },
+				},
+			} );
+
+			expect( result ).toEqual( {
+				'core/paragraph': {
+					'color.text': true,
+					'typography.dropCap': true,
+				},
+			} );
+		} );
+
+		it( 'should include top-level primitive and array setting paths', () => {
+			const result = getNestedSettingPaths( {
+				'core/group': {
+					useRootPaddingAwareAlignments: true,
+					spacingUnits: [ 'px', 'rem' ],
+				},
+			} );
+
+			expect( result ).toEqual( {
+				'core/group': {
+					useRootPaddingAwareAlignments: true,
+					spacingUnits: true,
+				},
+			} );
+		} );
 	} );
 
 	describe( 'getNestedSetting', () => {
@@ -51,6 +101,13 @@ describe( 'getNestedSettingPaths', () => {
 						slug: 'tertiary',
 					},
 				],
+			} );
+		} );
+
+		it( 'should return an empty result for an empty block path', () => {
+			expect( getNestedSetting( [], 'color.text', getTestNestedSettings() ) ).toEqual( {
+				depth: 0,
+				value: undefined,
 			} );
 		} );
 	} );

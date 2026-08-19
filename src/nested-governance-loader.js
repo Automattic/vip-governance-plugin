@@ -18,15 +18,16 @@ export function getNestedSettingPaths( nestedSettings, nestedMetadata = {}, curr
 		const isNestedBlock = settingKey.includes( '/' ) || settingKey === '*';
 
 		if ( isNestedBlock ) {
-			// This setting contains another block, look at the child for metadata
-			Object.entries( nestedSettings ).forEach( ( [ blockName, blockNestedSettings ] ) => {
-				if ( ! SETTINGS_TO_SKIP.includes( blockName ) ) {
-					getNestedSettingPaths( blockNestedSettings, nestedMetadata, blockName );
-				}
-			} );
+			getNestedSettingPaths( settingValue, nestedMetadata, settingKey );
 		} else if ( currentBlock !== false ) {
 			// This is a leaf block, add setting paths to nestedMetadata
-			const settingPaths = flattenSettingPaths( settingValue, `${ settingKey }.` );
+			const isObjectSetting =
+				typeof settingValue === 'object' &&
+				settingValue !== null &&
+				! Array.isArray( settingValue );
+			const settingPaths = isObjectSetting
+				? flattenSettingPaths( settingValue, `${ settingKey }.` )
+				: { [ settingKey ]: true };
 
 			// eslint-disable-next-line security/detect-object-injection
 			nestedMetadata[ currentBlock ] = {
@@ -70,6 +71,10 @@ export function getNestedSetting(
 	result = { depth: 0, value: undefined },
 	depth = 1
 ) {
+	if ( blockNamePath.length === 0 ) {
+		return result;
+	}
+
 	const [ currentBlockName, ...remainingBlockNames ] = blockNamePath;
 	// eslint-disable-next-line security/detect-object-injection
 	const blockSettings = settings[ currentBlockName ];
