@@ -5,6 +5,7 @@ import { store as blockEditorStore, useBlockEditingMode } from '@wordpress/block
 import { Disabled } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select } from '@wordpress/data';
+import { createContext, useContext } from '@wordpress/element';
 import { addFilter, applyFilters } from '@wordpress/hooks';
 
 /**
@@ -18,21 +19,15 @@ const LOCKED_BLOCK_STYLES = {
 	border: '2px dashed #999',
 };
 
+const GovernanceLockContext = createContext( false );
+
 export function setupBlockLocking( governanceRules ) {
 	const withDisabledBlocks = createHigherOrderComponent( BlockEdit => {
 		return function GovernedBlockEdit( props ) {
 			const { name: blockName, clientId } = props;
-
+			const isParentLocked = useContext( GovernanceLockContext );
 			const { getBlockParents, getBlockName } = select( blockEditorStore );
-			const parentClientIds = getBlockParents( clientId, true );
-
-			const isParentLocked = parentClientIds.some( parentClientId =>
-				isBlockLocked( parentClientId )
-			);
-
-			const parentBlockNames = parentClientIds.map( parentClientId =>
-				getBlockName( parentClientId )
-			);
+			const parentBlockNames = getBlockParents( clientId, true ).map( getBlockName );
 
 			/**
 			 * Change what blocks are allowed to be edited in the block editor.
@@ -52,18 +47,23 @@ export function setupBlockLocking( governanceRules ) {
 			);
 
 			useBlockEditingMode( isAllowed ? undefined : 'disabled' );
-			setBlockLocked( clientId, ! isAllowed );
 
 			if ( isAllowed ) {
-				return <BlockEdit { ...props } />;
+				return (
+					<GovernanceLockContext.Provider value={ isParentLocked }>
+						<BlockEdit { ...props } />
+					</GovernanceLockContext.Provider>
+				);
 			}
 
 			return (
-				<Disabled>
-					<div style={ LOCKED_BLOCK_STYLES }>
-						<BlockEdit { ...props } />
-					</div>
-				</Disabled>
+				<GovernanceLockContext.Provider value>
+					<Disabled>
+						<div style={ LOCKED_BLOCK_STYLES }>
+							<BlockEdit { ...props } />
+						</div>
+					</Disabled>
+				</GovernanceLockContext.Provider>
 			);
 		};
 	}, 'withDisabledBlocks' );
@@ -80,7 +80,7 @@ export function setupBlockLocking( governanceRules ) {
  * @param {string}   blockName        Current block name.
  * @param {string[]} parentBlockNames Parent names, nearest parent first.
  * @param {Object}   governanceRules  Effective governance rules.
- * @param {boolean}  isParentLocked   Whether an ancestor is already locked.
+ * @param {boolean}  isParentLocked   Whether governance locked an ancestor.
  * @return {boolean} Whether the block should remain editable.
  */
 export function isBlockAllowedForEditing(
@@ -102,37 +102,4 @@ export function isBlockAllowedForEditing(
 		parentBlockNames,
 		governanceRules
 	);
-}
-
-/**
- * In-memory set of block clientIds that have been marked as locked.
- *
- * This replaces using props.setAttributes() to set lock status, as this caused an
- * "unsaved changes" warning to appear in the editor when block locking was in use.
- */
-const lockedBlockIds = new Set();
-
-/**
- * Updates whether a block is locked via the block's clientId.
- *
- * @param {string} clientId Block clientId in editor
- * @param {boolean} isLocked Whether the block is locked.
- * @returns {void}
- */
-function setBlockLocked( clientId, isLocked ) {
-	if ( isLocked ) {
-		lockedBlockIds.add( clientId );
-	} else {
-		lockedBlockIds.delete( clientId );
-	}
-}
-
-/**
- * Returns true if a block has previously been marked as locked, false otherwise.
- *
- * @param {string} clientId Block clientId in editor
- * @returns {boolean}
- */
-function isBlockLocked( clientId ) {
-	return lockedBlockIds.has( clientId );
 }

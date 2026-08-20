@@ -97,5 +97,8 @@ export function initializeRulesViewer( { root = document, request } ) {
 	postTypeSelector.addEventListener( 'change', updateControls );
 	viewButton.addEventListener( 'click', handleRequest );
 
+	// Preserve the original settings-page behavior on reload and browser restore.
+	roleSelector.value = '';
+	postTypeSelector.value = '';
 	updateControls();
 }

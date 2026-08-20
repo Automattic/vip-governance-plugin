@@ -16,8 +16,9 @@ jest.mock( '@wordpress/compose', () => ( {
 	createHigherOrderComponent: jest.fn(),
 } ) );
 
-jest.mock( '@wordpress/data', () => ( {
-	select: jest.fn(),
+jest.mock( '@wordpress/element', () => ( {
+	createContext: jest.fn( () => ( { Provider: jest.fn() } ) ),
+	useContext: jest.fn(),
 } ) );
 
 jest.mock( '@wordpress/hooks', () => ( {

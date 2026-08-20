@@ -33,6 +33,19 @@ describe( 'initializeRulesViewer', () => {
 		expect( viewButton.hidden ).toBe( false );
 	} );
 
+	it( 'resets browser-restored selections during initialization', () => {
+		const roleSelector = document.getElementById( 'user-role-selector' );
+		const postTypeSelector = document.getElementById( 'post-type-selector' );
+		roleSelector.value = 'editor';
+		postTypeSelector.value = 'page';
+
+		initializeRulesViewer( { request: jest.fn() } );
+
+		expect( roleSelector.value ).toBe( '' );
+		expect( postTypeSelector.value ).toBe( '' );
+		expect( document.getElementById( 'view-rules-button' ).hidden ).toBe( true );
+	} );
+
 	it( 'requests and displays rules for both selected filters', async () => {
 		const request = jest.fn().mockResolvedValue( { allowedBlocks: [ 'core/paragraph' ] } );
 		initializeRulesViewer( { request } );

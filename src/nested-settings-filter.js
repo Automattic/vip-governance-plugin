@@ -1,22 +1,61 @@
 import { doesBlockNameMatchBlockWildcard } from './block-utils';
-import { getNestedSetting, getNestedSettingPaths } from './nested-governance-loader';
+
+const ALLOWED_BLOCKS_KEY = 'allowedBlocks';
 
 /**
- * Build lookup maps for exact and wildcard block setting paths.
+ * Compile nested governance settings into candidates keyed by setting path.
+ *
+ * Each candidate retains its complete block hierarchy so wildcard ancestors
+ * can be matched alongside exact block names at runtime.
  *
  * @param {Object} nestedSettings Nested governance settings.
- * @return {{ exactPaths: Map, wildcardPaths: Map }} Setting path lookup maps.
+ * @return {Map<string, Array>} Setting candidates keyed by normalized path.
  */
-export function createNestedSettingPathMaps( nestedSettings ) {
-	const exactPaths = new Map();
-	const wildcardPaths = new Map();
+export function createNestedSettingRules( nestedSettings ) {
+	const rulesByPath = new Map();
+	let declarationOrder = 0;
 
-	for ( const [ blockName, paths ] of Object.entries( getNestedSettingPaths( nestedSettings ) ) ) {
-		const destination = blockName.includes( '*' ) ? wildcardPaths : exactPaths;
-		destination.set( blockName, paths );
-	}
+	const addSetting = ( path, value, blockPatterns ) => {
+		const candidates = rulesByPath.get( path ) ?? [];
+		candidates.push( {
+			blockPatterns,
+			value,
+			depth: blockPatterns.length,
+			exactMatches: blockPatterns.filter( pattern => ! pattern.includes( '*' ) ).length,
+			order: declarationOrder++,
+		} );
+		rulesByPath.set( path, candidates );
+	};
 
-	return { exactPaths, wildcardPaths };
+	const visitSetting = ( value, path, blockPatterns ) => {
+		addSetting( path, value, blockPatterns );
+
+		if ( typeof value !== 'object' || value === null || Array.isArray( value ) ) {
+			return;
+		}
+
+		for ( const [ key, childValue ] of Object.entries( value ) ) {
+			visitSetting( childValue, `${ path }.${ key }`, blockPatterns );
+		}
+	};
+
+	const visitBlocks = ( settings, blockPatterns = [] ) => {
+		for ( const [ key, value ] of Object.entries( settings ) ) {
+			if ( key === ALLOWED_BLOCKS_KEY ) {
+				continue;
+			}
+
+			const isBlockPattern = key.includes( '/' ) || key === '*';
+			if ( isBlockPattern ) {
+				visitBlocks( value, [ ...blockPatterns, key ] );
+			} else if ( blockPatterns.length > 0 ) {
+				visitSetting( value, key, blockPatterns );
+			}
+		}
+	};
+
+	visitBlocks( nestedSettings );
+	return rulesByPath;
 }
 
 /**
@@ -33,16 +72,62 @@ export function getBlockNamePath( clientId, getBlockParents, getBlockName ) {
 }
 
 /**
- * Resolve a governed setting for a block, preserving exact-rule precedence.
+ * Determine whether a rule hierarchy matches a block hierarchy.
+ *
+ * The final rule must match the current block. Earlier rule segments can match
+ * any ancestor in order, preserving the existing descendant matching behavior.
+ *
+ * @param {string[]} blockPatterns Rule block hierarchy.
+ * @param {string[]} blockNames    Actual block hierarchy.
+ * @return {boolean} Whether the rule applies to the current block.
+ */
+export function doesBlockHierarchyMatch( blockPatterns, blockNames ) {
+	if ( blockPatterns.length === 0 || blockNames.length === 0 ) {
+		return false;
+	}
+
+	let patternIndex = blockPatterns.length - 1;
+	let blockIndex = blockNames.length - 1;
+
+	if (
+		! doesBlockNameMatchBlockWildcard( blockNames[ blockIndex ], blockPatterns[ patternIndex ] )
+	) {
+		return false;
+	}
+
+	patternIndex--;
+	blockIndex--;
+
+	while ( patternIndex >= 0 ) {
+		while (
+			blockIndex >= 0 &&
+			! doesBlockNameMatchBlockWildcard( blockNames[ blockIndex ], blockPatterns[ patternIndex ] )
+		) {
+			blockIndex--;
+		}
+
+		if ( blockIndex < 0 ) {
+			return false;
+		}
+
+		patternIndex--;
+		blockIndex--;
+	}
+
+	return true;
+}
+
+/**
+ * Resolve the most specific governed setting for a block.
+ *
+ * Deeper hierarchies win. At equal depth, exact block names win over
+ * wildcards. Equal-specificity rules retain declaration-order precedence.
  *
  * @param {Object}   options                       Resolution options.
  * @param {*}        options.defaultValue          Original WordPress setting value.
  * @param {string}   options.path                  Setting path being requested.
  * @param {string}   options.clientId              Current block client ID.
- * @param {string}   options.blockName             Current block name.
- * @param {Object}   options.nestedSettings        Nested governance settings.
- * @param {Map}      options.exactPaths            Exact block path lookup.
- * @param {Map}      options.wildcardPaths         Wildcard block path lookup.
+ * @param {Map}      options.rulesByPath           Compiled setting candidates.
  * @param {Function} options.getBlockParents       Block editor parent selector.
  * @param {Function} options.getBlockName          Block editor name selector.
  * @return {*} Governed setting value or the original value when no rule applies.
@@ -51,31 +136,30 @@ export function resolveNestedSetting( {
 	defaultValue,
 	path,
 	clientId,
-	blockName,
-	nestedSettings,
-	exactPaths,
-	wildcardPaths,
+	rulesByPath,
 	getBlockParents,
 	getBlockName,
 } ) {
-	let matchedBlockName;
+	const blockNames = getBlockNamePath( clientId, getBlockParents, getBlockName );
+	const candidates = ( rulesByPath.get( path ) ?? [] ).filter( candidate =>
+		doesBlockHierarchyMatch( candidate.blockPatterns, blockNames )
+	);
 
-	if ( exactPaths.get( blockName )?.[ path ] === true ) {
-		matchedBlockName = blockName;
-	} else {
-		matchedBlockName = [ ...wildcardPaths.entries() ].find(
-			( [ candidate, paths ] ) =>
-				doesBlockNameMatchBlockWildcard( blockName, candidate ) && paths[ path ] === true
-		)?.[ 0 ];
-	}
-
-	if ( ! matchedBlockName ) {
+	if ( candidates.length === 0 ) {
 		return defaultValue;
 	}
 
-	const blockNamePath = getBlockNamePath( clientId, getBlockParents, getBlockName );
-	blockNamePath[ blockNamePath.length - 1 ] = matchedBlockName;
+	const winner = candidates.reduce( ( currentWinner, candidate ) => {
+		if ( candidate.depth !== currentWinner.depth ) {
+			return candidate.depth > currentWinner.depth ? candidate : currentWinner;
+		}
 
-	const { value } = getNestedSetting( blockNamePath, path, nestedSettings );
-	return value?.theme ?? value;
+		if ( candidate.exactMatches !== currentWinner.exactMatches ) {
+			return candidate.exactMatches > currentWinner.exactMatches ? candidate : currentWinner;
+		}
+
+		return candidate.order > currentWinner.order ? candidate : currentWinner;
+	} );
+
+	return winner.value?.theme ?? winner.value;
 }

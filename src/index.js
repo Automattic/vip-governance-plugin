@@ -6,7 +6,7 @@ import { store as noticeStore } from '@wordpress/notices';
 
 import { setupBlockLocking } from './block-locking';
 import { isBlockAllowedInHierarchy } from './block-utils';
-import { createNestedSettingPathMaps, resolveNestedSetting } from './nested-settings-filter';
+import { createNestedSettingRules, resolveNestedSetting } from './nested-settings-filter';
 
 function setup() {
 	if ( VIP_GOVERNANCE.error ) {
@@ -75,7 +75,7 @@ function setup() {
 	);
 
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
-	const { exactPaths, wildcardPaths } = createNestedSettingPathMaps( nestedSettings );
+	const rulesByPath = createNestedSettingRules( nestedSettings );
 
 	addFilter(
 		'blockEditor.useSetting.before',
@@ -89,10 +89,7 @@ function setup() {
 				defaultValue,
 				path,
 				clientId,
-				blockName,
-				nestedSettings,
-				exactPaths,
-				wildcardPaths,
+				rulesByPath,
 				getBlockParents,
 				getBlockName,
 			} );
