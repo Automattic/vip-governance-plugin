@@ -7,7 +7,7 @@ test.describe( 'Governance settings page', () => {
 		const roleSelector = page.getByLabel( 'User role' );
 		const postTypeSelector = page.getByLabel( 'Post type' );
 		const viewButton = page.getByRole( 'button', { name: 'View Rules' } );
-		const output = page.locator( '#combined-governance-rules-json' );
+		const output = page.locator( '#json' );
 
 		await expect( viewButton ).toBeHidden();
 		await roleSelector.selectOption( 'administrator' );

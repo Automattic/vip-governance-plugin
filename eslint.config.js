@@ -8,6 +8,7 @@ module.exports = [
 	...wpvip.configs.formatting,
 	...wpvip.configs.testing,
 	...wpvip.configs.react,
+	...wpvip.configs.typescript,
 	...wpvip.configs.prettier,
 	{
 		languageOptions: {

@@ -14,7 +14,7 @@ describe( 'blockUtils', () => {
 	describe( 'isBlockAllowedInHierarchy', () => {
 		describe( 'cascading mode', () => {
 			beforeEach( () => {
-				applyFilters.mockImplementation( () => true );
+				jest.mocked( applyFilters ).mockImplementation( () => true );
 			} );
 
 			it( 'should return true if the child block is a special core block', () => {
@@ -88,6 +88,40 @@ describe( 'blockUtils', () => {
 				expect( result ).toBe( false );
 			} );
 
+			it( 'keeps the documented nearest-parent-first order after a nested lookup', () => {
+				const parentBlockNames = [ 'core/quote', 'core/group' ];
+
+				isBlockAllowedInHierarchy( 'core/heading', parentBlockNames, {
+					allowedBlocks: [ 'core/paragraph' ],
+					blockSettings: {
+						'core/group': {
+							'core/quote': {
+								allowedBlocks: [ 'core/heading' ],
+							},
+						},
+					},
+				} );
+
+				expect( parentBlockNames ).toEqual( [ 'core/quote', 'core/group' ] );
+			} );
+
+			it( 'resolves nested allowedBlocks through repeated parent names', () => {
+				expect(
+					isBlockAllowedInHierarchy( 'core/heading', [ 'core/quote', 'core/group', 'core/group' ], {
+						allowedBlocks: [ 'core/paragraph' ],
+						blockSettings: {
+							'core/group': {
+								'core/group': {
+									'core/quote': {
+										allowedBlocks: [ 'core/heading' ],
+									},
+								},
+							},
+						},
+					} )
+				).toBe( true );
+			} );
+
 			it( 'should return true if the child block is allowed in the hierarchy with no blockSettings', () => {
 				const blockName = 'core/heading';
 				const parentBlockNames = [ 'core/media-text' ];
@@ -114,7 +148,7 @@ describe( 'blockUtils', () => {
 
 			it( 'should return true if the root block is allowed in the hierarchy', () => {
 				const blockName = 'core/heading';
-				const parentBlockNames = [];
+				const parentBlockNames: string[] = [];
 				const governanceRules = {
 					allowedBlocks: [ 'core/heading', 'core/paragraph' ],
 				};
@@ -126,7 +160,7 @@ describe( 'blockUtils', () => {
 
 			it( 'should return false if the root block is not allowed in the hierarchy', () => {
 				const blockName = 'core/heading';
-				const parentBlockNames = [];
+				const parentBlockNames: string[] = [];
 				const governanceRules = {
 					allowedBlocks: [ 'core/paragraph' ],
 				};
@@ -135,11 +169,24 @@ describe( 'blockUtils', () => {
 
 				expect( result ).toBe( false );
 			} );
+
+			it( 'does not apply allowedBlocks declared under a wildcard parent', () => {
+				const result = isBlockAllowedInHierarchy( 'core/heading', [ 'core/group' ], {
+					allowedBlocks: [ 'core/group' ],
+					blockSettings: {
+						'core/*': {
+							allowedBlocks: [ 'core/heading' ],
+						},
+					},
+				} );
+
+				expect( result ).toBe( false );
+			} );
 		} );
 
 		describe( 'restrictive mode', () => {
 			beforeEach( () => {
-				applyFilters.mockImplementation( () => false );
+				jest.mocked( applyFilters ).mockImplementation( () => false );
 			} );
 
 			it( 'should return true if the child block is a special core block', () => {
@@ -219,7 +266,7 @@ describe( 'blockUtils', () => {
 
 			it( 'should return true if the root block is allowed in the hierarchy', () => {
 				const blockName = 'core/heading';
-				const parentBlockNames = [];
+				const parentBlockNames: string[] = [];
 				const governanceRules = {
 					allowedBlocks: [ 'core/heading', 'core/paragraph' ],
 				};
@@ -231,7 +278,7 @@ describe( 'blockUtils', () => {
 
 			it( 'should return false if the root block is not allowed in the hierarchy', () => {
 				const blockName = 'core/heading';
-				const parentBlockNames = [];
+				const parentBlockNames: string[] = [];
 				const governanceRules = {
 					allowedBlocks: [ 'core/paragraph' ],
 				};
@@ -287,15 +334,21 @@ describe( 'blockUtils', () => {
 			expect( result ).toBeFalsy();
 		} );
 
-		it( 'should only match namespace wildcards at the start of the block name', () => {
-			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/*' ) ).toBe( true );
-			expect( doesBlockNameMatchBlockWildcard( 'custom/core/heading', 'core/*' ) ).toBe( false );
+		it( 'preserves unanchored wildcard matching from existing rules', () => {
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/*' ) ).toBeTruthy();
+			expect( doesBlockNameMatchBlockWildcard( 'custom/core/heading', 'core/*' ) ).toBeTruthy();
 		} );
 
-		it( 'should support wildcards in other positions without treating text as a regex', () => {
-			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/head*' ) ).toBe( true );
-			expect( doesBlockNameMatchBlockWildcard( 'core/heading', '*heading' ) ).toBe( true );
-			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/.+' ) ).toBe( false );
+		it( 'preserves regular-expression syntax in wildcard rules', () => {
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/head*' ) ).toBeTruthy();
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', '*heading' ) ).toBeTruthy();
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/.+*' ) ).toBeTruthy();
+		} );
+
+		it( 'only expands the first wildcard for compatibility', () => {
+			expect( () => doesBlockNameMatchBlockWildcard( 'core/heading', 'core/**' ) ).toThrow(
+				SyntaxError
+			);
 		} );
 
 		it( 'should return true if the block name matches any of the rules', () => {

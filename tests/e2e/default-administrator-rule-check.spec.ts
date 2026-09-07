@@ -1,6 +1,13 @@
 import { expect, test } from '@wordpress/e2e-test-utils-playwright';
 
-async function openTextColorPicker( page ) {
+import type { Page } from '@playwright/test';
+
+interface BlockWithClientId {
+	clientId: string;
+	name: string;
+}
+
+async function openTextColorPicker( page: Page ) {
 	// WordPress 6.8 labels this control "Text". Current WordPress versions label
 	// the typography control "Color" and also expose a later background control.
 	const legacyTextControl = page.getByText( 'Text', { exact: true } );
@@ -14,7 +21,7 @@ async function openTextColorPicker( page ) {
 
 test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', () => {
 	test.beforeEach( async ( { admin } ) => {
-		await admin.createNewPost( { legacyCanvas: true } );
+		await admin.createNewPost( { legacyCanvas: true } as never );
 	} );
 
 	test( 'should confirm that only the administrator and default allowedBlocks are allowed to be inserted', async ( {
@@ -41,7 +48,7 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 			)
 		);
 
-		// WordPress 6.8+ displays disallowed blocks, but rejects their insertion.
+		// WordPress 6.8 and 6.9 display disallowed blocks, but reject their insertion.
 		await editor.insertBlock( { name: 'core/list' } );
 		await expect
 			.poll( async () => ( await editor.getBlocks() ).map( ( { name } ) => name ) )
@@ -87,9 +94,9 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 			)
 		);
 
-		const [ mediaText ] = ( await editor.getBlocks( { full: true } ) ).filter(
-			( { name } ) => name === 'core/media-text'
-		);
+		const [ mediaText ] = (
+			( await editor.getBlocks( { full: true } ) ) as unknown as BlockWithClientId[]
+		 ).filter( ( { name } ) => name === 'core/media-text' );
 		await editor.insertBlock( { name: 'core/list' }, { clientId: mediaText.clientId } );
 		await expect
 			.poll( async () => {
@@ -134,9 +141,9 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 
 		// Insert a media-text, and a heading under it as that should be allowed as well.
 		await editor.insertBlock( { name: 'core/media-text' } );
-		const [ mediaText ] = ( await editor.getBlocks( { full: true } ) ).filter(
-			( { name } ) => name === 'core/media-text'
-		);
+		const [ mediaText ] = (
+			( await editor.getBlocks( { full: true } ) ) as unknown as BlockWithClientId[]
+		 ).filter( ( { name } ) => name === 'core/media-text' );
 		await editor.insertBlock(
 			{
 				name: 'core/heading',
@@ -153,10 +160,20 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 			)
 			.toContain( 'core/heading' );
 		const [ nestedHeadingBlock ] = (
-			await editor.getBlocks( { clientId: mediaText.clientId, full: true } )
-		).filter( ( { name } ) => name === 'core/heading' );
+			( await editor.getBlocks( {
+				clientId: mediaText.clientId,
+				full: true,
+			} ) ) as unknown as BlockWithClientId[]
+		 ).filter( ( { name } ) => name === 'core/heading' );
 		await page.evaluate( clientId => {
-			globalThis.wp.data.dispatch( 'core/block-editor' ).selectBlock( clientId );
+			const { wp } = globalThis as unknown as {
+				wp: {
+					data: {
+						dispatch: ( storeName: string ) => { selectBlock: ( id: string ) => void };
+					};
+				};
+			};
+			wp.data.dispatch( 'core/block-editor' ).selectBlock( clientId );
 		}, nestedHeadingBlock.clientId );
 
 		// Pick the custom red colour for the heading.
@@ -220,11 +237,25 @@ test.describe( 'Role/Post Type - Default, Administrator and Post Rules Flow', ()
 		] );
 
 		// Verify if the CSS was actually applied.
-		const frame = page.frame( 'editor-canvas' );
+		const frame = page.frameLocator( '[name="editor-canvas"]' );
 		const rootHeading = frame.locator( 'text="This is a heading"' );
 		await expect( rootHeading ).toHaveCSS( 'color', 'rgb(255, 255, 0)' );
 
 		const nestedHeading = frame.locator( 'text="This is a heading inside a media-text"' );
 		await expect( nestedHeading ).toHaveCSS( 'color', 'rgb(255, 0, 0)' );
+	} );
+
+	test( 'disables a governed parent without wrapping its children again', async ( { editor } ) => {
+		await editor.setContent( `
+			<!-- wp:group -->
+			<div class="wp-block-group">
+				<!-- wp:paragraph --><p>Nested governed content</p><!-- /wp:paragraph -->
+			</div>
+			<!-- /wp:group -->
+		` );
+
+		const governedWrappers = editor.canvas.locator( 'div[style*="opacity: 0.6"]' );
+		await expect( governedWrappers ).toHaveCount( 1 );
+		await expect( governedWrappers ).toContainText( 'Nested governed content' );
 	} );
 } );

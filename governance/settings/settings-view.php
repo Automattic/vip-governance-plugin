@@ -83,7 +83,7 @@ $governance_rules_formatted = $governance_rules_json ? implode(
 				<label for="user-role-selector">
 					<span><?php esc_html_e( 'User role', 'vip-governance' ); ?></span>
 					<select name="user-role-selector" id="user-role-selector">
-						<option value=""><?php esc_html_e( 'Any role', 'vip-governance' ); ?></option>
+						<option value=""><?php esc_html_e( 'All Roles', 'vip-governance' ); ?></option>
 						<?php foreach ( $user_roles_available as $user_role_available ) { ?>
 							<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
 						<?php } ?>
@@ -93,20 +93,20 @@ $governance_rules_formatted = $governance_rules_json ? implode(
 				<label for="post-type-selector">
 					<span><?php esc_html_e( 'Post type', 'vip-governance' ); ?></span>
 					<select name="post-type-selector" id="post-type-selector">
-						<option value=""><?php esc_html_e( 'Any post type', 'vip-governance' ); ?></option>
+						<option value=""><?php esc_html_e( 'All Post Types', 'vip-governance' ); ?></option>
 						<?php foreach ( $post_types_available as $post_type_available ) { ?>
 							<option value="<?php echo esc_attr( $post_type_available ); ?>"><?php echo esc_html( $post_type_available ); ?></option>
 						<?php } ?>
 					</select>
 				</label>
 
-				<button type="button" class="button button-primary" id="view-rules-button" aria-controls="combined-governance-rules-json" hidden><?php esc_html_e( 'View Rules', 'vip-governance' ); ?></button>
+				<button type="button" class="button button-primary" id="view-rules-button" aria-controls="json" hidden><?php esc_html_e( 'View Rules', 'vip-governance' ); ?></button>
 
 				<span class="spinner vip-governance-query-spinner" role="status" hidden>
 					<span class="screen-reader-text"><?php esc_html_e( 'Loading governance rules…', 'vip-governance' ); ?></span>
 				</span>
 			</div>
-			<pre class="combined-governance-rules-json" id="combined-governance-rules-json" data-error-message="<?php esc_attr_e( 'Unable to load governance rules.', 'vip-governance' ); ?>" aria-live="polite" tabindex="0" hidden></pre>
+			<pre class="combined-governance-rules-json" id="json" data-error-message="<?php esc_attr_e( 'Unable to load governance rules.', 'vip-governance' ); ?>" aria-live="polite" tabindex="0" hidden></pre>
 		</div>
 	<?php } ?>
 
