@@ -52,6 +52,7 @@
 		"prepare": "npx simple-git-hooks",
 		"postinstall": "composer install --no-dev",
 		"release": "./bin/release",
+		"release:zip": "npm run build && git diff --exit-code HEAD -- build && wp-scripts plugin-zip --root-folder=vip-governance",
 		"test": "npm run test:unit",
 		"test:unit": "npm run test:php && npm run test:js",
 		"test:e2e": "npx playwright test",
