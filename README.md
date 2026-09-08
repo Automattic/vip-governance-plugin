@@ -508,7 +508,7 @@ With this rule set, the following rules will apply:
 
 - Support for `color.duotone` has not been implemented.
 - Currently, the plugin is restricted to the post editor only and won't work on other pages like site-editor, widgets, etc.
-- Starting from WordPress 6.8, the block inserter sidebar will show all the blocks regardless of the ability to insert them or not. Upon attempting to insert a block that isn't allowed, a snackbar will show up in the lower left corner to highlight that this isn't possible. The regular `/blockname` approach will work just fine, and would be the recommended way of inserting blocks when using this plugin.
+- In WordPress 6.8 and 6.9, the main block inserter can show blocks that governance will not allow. Attempting to insert one is still rejected and displays a snackbar notice. WordPress 7.0 and later filter those unavailable blocks from the inserter again, following the [Gutenberg 22.4 inserter fix][gutenberg-22-4].
 
 ## Code Filters
 
@@ -855,7 +855,7 @@ The npm `postinstall` script installs production Composer dependencies, and the 
 
 ### Tests
 
-The PHP, JavaScript, and end-to-end tests can be run locally with [`wp-env`][wp-env] and Docker.
+The PHP, TypeScript, and end-to-end tests can be run locally with [`wp-env`][wp-env] and Docker.
 
 The default configuration starts a development site at `http://localhost:8888`. Automated tests use an isolated configuration at `http://localhost:8889`, which mounts the governance fixture from `tests/private` without affecting the development site.
 
@@ -866,7 +866,7 @@ npx wp-env start --config=.wp-env.test.json
 composer run test
 ```
 
-For the JS unit tests:
+For the frontend unit tests:
 
 ```
 npm run test:js
@@ -882,7 +882,7 @@ npm run test:e2e
 
 Run multisite PHP coverage with `composer run test-multisite`. Playwright uses the isolated test site at `http://localhost:8889`, with `admin` / `password` as the default credentials.
 
-Run both PHP and JavaScript unit tests with `npm test` after the isolated test environment is running.
+Run both PHP and TypeScript unit tests with `npm test` after the isolated test environment is running.
 
 <!-- Links -->
 
@@ -892,6 +892,7 @@ Run both PHP and JavaScript unit tests with `npm test` after the isolated test e
 [repo-governance-file-location]: governance-rules.json
 [repo-schema-location]: governance-schema.json
 [gutenberg-block-settings]: https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-json/#settings
+[gutenberg-22-4]: https://make.wordpress.org/core/2026/01/22/whats-new-in-gutenberg-22-4-20-january/
 [repo-analytics]: governance/analytics.php
 [repo-releases]: https://github.com/automattic/vip-governance-plugin/releases
 [vip-go-mu-plugins]: https://github.com/Automattic/vip-go-mu-plugins/
