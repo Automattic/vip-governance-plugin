@@ -56,7 +56,8 @@ jobs:
         if: steps.version_check.outputs.new_version
         run: |
           VERSION="${{ steps.version_check.outputs.new_version }}"
-          git archive --prefix "vip-governance/" HEAD -o "vip-governance-${VERSION}.zip"
+          npm run release:zip
+          mv vip-governance.zip "vip-governance-${VERSION}.zip"
 
       - name: Create Release
         if: steps.version_check.outputs.new_version

@@ -15,7 +15,7 @@ const config = defineConfig( {
 	timeout: parseInt( process.env.TIMEOUT || '', 10 ) || 100_000, // Defaults to 100 seconds.
 	// Don't report slow test "files", as we will be running our tests in serial.
 	reportSlowTests: null,
-	globalSetup: require.resolve( './tests/e2e/globalSetup.js' ),
+	globalSetup: require.resolve( './tests/e2e/globalSetup.ts' ),
 	testDir: 'tests/e2e',
 	outputDir: path.join( process.cwd(), 'artifacts/test-results' ),
 	snapshotPathTemplate: '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}',
