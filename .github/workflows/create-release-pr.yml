@@ -1,0 +1,99 @@
+name: Create release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: Version bump to release
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release-pr:
+    name: Create release PR
+    if: github.ref == 'refs/heads/trunk'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump versions
+        id: release
+        env:
+          RELEASE_TYPE: ${{ inputs.release_type }}
+        run: |
+          PLUGIN_VERSION=$(sed -n 's/.*Version: *//p' vip-governance.php | head -n1 | tr -d '[:space:]')
+          DEFINED_VERSION=$(sed -n "s/.*define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '\([^']*\)'.*/\1/p" vip-governance.php)
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if [ -z "$PLUGIN_VERSION" ] || [ "$PLUGIN_VERSION" != "$DEFINED_VERSION" ] || [ "$PLUGIN_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Plugin header, constant, and package versions must match"
+            exit 1
+          fi
+
+          npm version "$RELEASE_TYPE" --no-git-tag-version --ignore-scripts
+          VERSION=$(node -p "require('./package.json').version")
+
+          perl -pi -e "s/Version: \\Q$PLUGIN_VERSION\\E/Version: $VERSION/" vip-governance.php
+          perl -pi -e "s/WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '\\Q$PLUGIN_VERSION\\E'/WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '$VERSION'/" vip-governance.php
+
+          if ! grep -q "Version: $VERSION" vip-governance.php || \
+            ! grep -q "WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '$VERSION'" vip-governance.php; then
+            echo "Failed to update all plugin versions"
+            exit 1
+          fi
+
+          BRANCH="release/v${VERSION}"
+          git checkout -b "$BRANCH"
+          git add vip-governance.php package.json package-lock.json
+          git commit -m "v${VERSION}"
+
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Push release branch
+        run: git push --set-upstream origin "${{ steps.release.outputs.branch }}"
+
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > release-pr-body.md <<'BODY'
+          ## Description
+
+          Prepares v${{ steps.release.outputs.version }} for review. Merging this PR into trunk starts the release workflow.
+
+          ## Steps to Test
+
+          - `npm run build`
+          - `git diff --exit-code -- build`
+          BODY
+
+          gh pr create \
+            --base trunk \
+            --head "${{ steps.release.outputs.branch }}" \
+            --title "v${{ steps.release.outputs.version }}" \
+            --body-file release-pr-body.md

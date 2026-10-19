@@ -1,6 +1,0 @@
-
-{
-  "{,!(vendor|node_modules)/**/}*.{js,jsx,ts,tsx}": [ "npm run lint:js" ],
-  "{,!(vendor|node_modules)/**/}*.php": [ "npm run lint:php" ],
-  "{,!(vendor|node_modules)/**/}*.{js,json,jsx,md,ts,tsx,yml,yaml}": [ "npm run format:check" ]
-}
