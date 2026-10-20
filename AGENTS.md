@@ -47,7 +47,9 @@ src/
   block-locking.tsx             # React UI for block locking
   nested-settings-filter.ts     # Resolves nested governance settings
   settings/                     # Settings page frontend logic
-bin/release                     # Creates and commits major/minor/patch release branches
+bin/install-hook                # Installs the tracked pre-commit hook during npm install
+bin/pre-commit                  # Runs checks relevant to staged files
+.github/workflows/create-release-pr.yml  # Creates release PRs from workflow_dispatch
 build/                          # Compiled JS output (do not edit directly)
 tests/
   GovernanceUtilitiesTest.php  # PHPUnit tests for rule logic
