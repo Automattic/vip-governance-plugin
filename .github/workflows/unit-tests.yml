@@ -3,6 +3,9 @@ name: Unit Tests
 # Only run the workflow for pull requests
 on: pull_request
 
+permissions:
+  contents: read
+
 # Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
   # The concurrency group contains the workflow name and the branch name for pull requests
