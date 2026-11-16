@@ -5,9 +5,7 @@ namespace WPCOMVIP\Governance\Tests;
 use PHPUnit\Framework\TestCase;
 use WPCOMVIP\Governance\Settings;
 
-/**
- * @covers Settings
- */
+#[\PHPUnit\Framework\Attributes\CoversClass( Settings::class )]
 class SettingsTest extends TestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'vip_governance__governance_rules_json' );

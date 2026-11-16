@@ -134,6 +134,12 @@ composer install     # Adds PHP development tools
 npx wp-env start     # Starts the local WordPress environments
 ```
 
+### Dependency updates
+
+TypeScript stays on 6.x because the ESLint TypeScript parser does not support 7.x. Babel stays on 7.x because the WordPress Babel preset still requires it. The existing Jest suite uses the `test-unit-jest` adapter and explicitly installed Jest dependencies.
+
+The npm overrides select patched transitive dependencies where upstream packages still require vulnerable versions. Recheck these overrides when updating their parent packages, and run `npm audit` and `composer audit --locked` after dependency updates.
+
 ### Building
 
 ```bash

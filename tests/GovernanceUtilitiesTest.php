@@ -5,9 +5,7 @@ namespace WPCOMVIP\Governance\Tests;
 use WPCOMVIP\Governance\GovernanceUtilities;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers GovernanceUtilities
- */
+#[\PHPUnit\Framework\Attributes\CoversClass( GovernanceUtilities::class )]
 class GovernanceUtilitiesTest extends TestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'vip_governance__governance_file_path' );

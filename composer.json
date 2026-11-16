@@ -12,13 +12,13 @@
   },
   "require": {
     "php": ">=8.2",
-    "seld/jsonlint": "^1.12"
+    "seld/jsonlint": "^1.12.2"
   },
   "require-dev": {
-    "automattic/vipwpcs": "^3.1",
+    "automattic/vipwpcs": "^3.1.0",
     "phpcompatibility/phpcompatibility-wp": "^2.1.8",
-    "phpunit/phpunit": "^9.6",
-    "yoast/phpunit-polyfills": "^2.0.5"
+    "phpunit/phpunit": "^11.5.58",
+    "yoast/phpunit-polyfills": "^4.0"
   },
   "config": {
     "allow-plugins": {

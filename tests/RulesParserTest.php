@@ -5,9 +5,7 @@ namespace WPCOMVIP\Governance\Tests;
 use WPCOMVIP\Governance\RulesParser;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers RulesParser
- */
+#[\PHPUnit\Framework\Attributes\CoversClass( RulesParser::class )]
 class RulesParserTest extends TestCase {
 	#region Empty rules tests
 
@@ -76,6 +74,48 @@ class RulesParserTest extends TestCase {
 		$rules_content = "{\"version\":\"1.0.0\",\"rules\":[],\"invalid\":\"\xB1\x31\"}";
 
 		$this->assertWPErrorCode( 'parsing-error-from-json', $this->parse_rules( $rules_content ) );
+	}
+
+	public function test_validate_schema__with_malformed_strings__preserves_diagnostics(): void {
+		$cases = [
+			'unterminated value' => [ '{"version":"1.0.0","rules":[],"label":"unfinished', 'forgot to terminate a string' ],
+			'unterminated key'   => [ '{"version":"1.0.0","rules":[],"unfinished', 'forgot to terminate a string' ],
+			'multiline value'    => [ "{\"version\":\"1.0.0\",\"rules\":[],\"label\":\"first\nsecond\"}", 'multiline string' ],
+			'escaped quote'      => [ '{"version":"1.0.0","rules":[],"label":"escaped \\" quote', 'forgot to terminate a string' ],
+			'invalid escape'     => [ '{"version":"1.0.0","rules":[],"label":"bad \\q escape"}', 'unescaped backslash' ],
+			'single quotes'      => [ "{\"version\":\"1.0.0\",\"rules\":[],\"label\":'value'}", 'single quotes instead of double quotes' ],
+		];
+
+		foreach ( $cases as $name => [ $input, $diagnostic ] ) {
+			$result = $this->parse_rules( $input );
+			$this->assertWPErrorCode( 'parsing-error-from-json', $result );
+			$this->assertStringContainsString( $diagnostic, $result->get_error_message(), $name );
+		}
+	}
+
+	public function test_validate_schema__with_long_unterminated_string__returns_diagnostic(): void {
+		$input  = '{"version":"1.0.0","rules":[],"label":"' . str_repeat( 'x', 65536 );
+		$result = $this->parse_rules( $input );
+
+		$this->assertWPErrorCode( 'parsing-error-from-json', $result );
+		$this->assertStringContainsString( 'forgot to terminate a string', $result->get_error_message() );
+	}
+
+	public function test_validate_schema__with_valid_escaped_strings__preserves_values(): void {
+		foreach ( [ 'Quoted "text"', 'C:\\path\\file', "First line\nSecond line\t\u{1F600}" ] as $label ) {
+			$rules = [
+				[
+					'type'          => 'default',
+					'blockSettings' => [ 'core/paragraph' => [ 'custom' => [ 'label' => $label ] ] ],
+				],
+			];
+			$input = wp_json_encode( [
+				'version' => '1.0.0',
+				'rules'   => $rules,
+			] );
+
+			$this->assertEqualsRules( $rules, $this->parse_rules( $input ) );
+		}
 	}
 
 	#region JSON errors

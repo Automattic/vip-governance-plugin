@@ -5,9 +5,7 @@ namespace WPCOMVIP\Governance\Tests;
 use WPCOMVIP\Governance\NestedGovernanceProcessing;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers NestedGovernanceProcessing
- */
+#[\PHPUnit\Framework\Attributes\CoversClass( NestedGovernanceProcessing::class )]
 class NestedGovernanceProcessingTest extends TestCase {
 	public function test_scope_selector_scopes_every_selector_without_splitting_nested_commas() {
 		$method = new \ReflectionMethod( NestedGovernanceProcessing::class, 'scope_selector' );
