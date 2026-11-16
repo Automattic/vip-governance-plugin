@@ -187,6 +187,13 @@ npx playwright test
 npm run test         # Runs both PHP and JS unit tests
 ```
 
+### Backward compatibility
+
+- Preserve existing governance behavior when fixing bugs, security alerts, or code scanning warnings. Existing rules must not unexpectedly allow or deny blocks or change editor settings.
+- Before changing rule parsing or matching, compare the old and new behavior on realistic existing configurations and check every caller. Treat intentionally supported legacy behavior as a compatibility contract, even when a scanner flags it.
+- Do not replace compatibility tests with expectations for new behavior just to make a fix pass. Keep those tests and add regression coverage for the reported issue.
+- If resolving an alert requires a behavior change, explain the concrete compatibility impact and obtain explicit authorization for that change before implementing it. Otherwise, preserve behavior and report the unresolved alert or use a justified, narrowly scoped suppression.
+
 ### Code Standards
 
 - **PHP**: WordPress-VIP-Go + WordPress-Extra via PHPCS
