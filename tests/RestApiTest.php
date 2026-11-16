@@ -7,9 +7,7 @@ use RuntimeException;
 use WPCOMVIP\Governance\RestApi;
 use WP_REST_Request;
 
-/**
- * @covers RestApi
- */
+#[\PHPUnit\Framework\Attributes\CoversClass( RestApi::class )]
 class RestApiTest extends TestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'vip_governance__governance_rules_json' );

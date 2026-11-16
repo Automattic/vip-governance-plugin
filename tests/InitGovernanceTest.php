@@ -7,9 +7,7 @@ use WPCOMVIP\Governance\InitGovernance;
 use WPCOMVIP\Governance\NestedGovernanceProcessing;
 use function WPCOMVIP\Governance\vip_governance_pre_init;
 
-/**
- * @covers InitGovernance
- */
+#[\PHPUnit\Framework\Attributes\CoversClass( InitGovernance::class )]
 class InitGovernanceTest extends TestCase {
 	protected function tearDown(): void {
 		wp_dequeue_style( 'wpcomvip-governance' );
