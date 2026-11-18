@@ -102,32 +102,27 @@ jobs:
 
   unit-php:
     # Alias 'master' to 'latest'
-    name: WP ${{ matrix.wp }} and PHP ${{ matrix.php }}
+    name: WP ${{ matrix.wp }} and PHP ${{ matrix.php }}${{ matrix.gutenberg && ' with Gutenberg' || '' }}
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.allowed_failure }}
 
     strategy:
       fail-fast: false
       matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+        wp: ['master']
+        gutenberg: [false]
         include:
           # Check lowest supported WP version, with the lowest supported PHP.
           - php: '8.2'
             wp: '6.8'
-            allowed_failure: false
-          # Check latest WP with the lowest supported PHP.
+            gutenberg: false
+          # Exercise Gutenberg's preset metadata on both supported PHP boundaries.
           - php: '8.2'
             wp: 'master'
-            allowed_failure: false
-          # Check latest WP across every supported PHP version.
-          - php: '8.3'
-            wp: 'master'
-            allowed_failure: false
-          - php: '8.4'
-            wp: 'master'
-            allowed_failure: false
+            gutenberg: true
           - php: '8.5'
             wp: 'master'
-            allowed_failure: false
+            gutenberg: true
 
     steps:
       - name: Checkout code
@@ -154,13 +149,13 @@ jobs:
           composer-options: --prefer-dist --no-progress
 
       - name: Setup wp-env test environment
-        run: npx wp-env start --config=.wp-env.test.json
+        run: npx wp-env start --config=${{ matrix.gutenberg && '.wp-env.gutenberg.json' || '.wp-env.test.json' }}
         env:
           WP_ENV_CORE: WordPress/WordPress#${{ matrix.wp }}
           WP_ENV_PHP_VERSION: ${{ matrix.php }}
 
       - name: PHPUnit
-        run: composer test --no-interaction
+        run: composer test${{ matrix.gutenberg && '-gutenberg' || '' }} --no-interaction
 
       - name: PHPUnit multisite
-        run: composer run-script test-multisite --no-interaction
+        run: composer run-script test-multisite${{ matrix.gutenberg && '-gutenberg' || '' }} --no-interaction

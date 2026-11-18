@@ -1,0 +1,516 @@
+{
+  "empty": {
+    "settings": [],
+    "css": ""
+  },
+  "all presets": {
+    "settings": {
+      "compat/child": {
+        "color": {
+          "text": false,
+          "palette": {
+            "theme": [
+              {
+                "name": "Brand Red",
+                "slug": "brandRed",
+                "color": "#F00"
+              },
+              {
+                "name": "Blue",
+                "slug": "blue",
+                "color": "rgb(0, 0, 255)"
+              }
+            ]
+          },
+          "gradients": {
+            "theme": [
+              {
+                "name": "Sunset",
+                "slug": "sunSet",
+                "gradient": "linear-gradient(90deg, #f00, #00f)"
+              }
+            ]
+          },
+          "duotone": {
+            "theme": [
+              {
+                "name": "Ink",
+                "slug": "ink",
+                "colors": [ "#000", "#fff" ]
+              }
+            ]
+          }
+        },
+        "typography": {
+          "fluid": false,
+          "fontSizes": {
+            "theme": [
+              {
+                "name": "Small",
+                "slug": "smallText",
+                "size": "16px"
+              }
+            ]
+          },
+          "fontFamilies": {
+            "theme": [
+              {
+                "name": "Serif",
+                "slug": "bodyFont",
+                "fontFamily": "Georgia, serif"
+              }
+            ]
+          }
+        },
+        "spacing": {
+          "units": [ "px", "rem" ],
+          "spacingSizes": {
+            "theme": [
+              {
+                "name": "Gap",
+                "slug": "smallGap",
+                "size": "1rem"
+              }
+            ]
+          }
+        },
+        "shadow": {
+          "presets": {
+            "theme": [
+              {
+                "name": "Soft",
+                "slug": "softShadow",
+                "shadow": "0 2px 4px #0003"
+              }
+            ]
+          }
+        },
+        "dimensions": {
+          "aspectRatios": {
+            "theme": [
+              {
+                "name": "Wide",
+                "slug": "wideScreen",
+                "ratio": "16/9"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ".compat-child{--wp--preset--aspect-ratio--wide-screen: 16/9;}.compat-child{--wp--preset--color--brand-red: #F00;--wp--preset--color--blue: rgb(0, 0, 255);}.compat-child.has-brand-red-color{color: var(--wp--preset--color--brand-red) !important;}.compat-child.has-blue-color{color: var(--wp--preset--color--blue) !important;}.compat-child.has-brand-red-background-color{background-color: var(--wp--preset--color--brand-red) !important;}.compat-child.has-blue-background-color{background-color: var(--wp--preset--color--blue) !important;}.compat-child.has-brand-red-border-color{border-color: var(--wp--preset--color--brand-red) !important;}.compat-child.has-blue-border-color{border-color: var(--wp--preset--color--blue) !important;}.compat-child{--wp--preset--gradient--sun-set: linear-gradient(90deg, #f00, #00f);}.compat-child.has-sun-set-gradient-background{background: var(--wp--preset--gradient--sun-set) !important;}.compat-child{--wp--preset--font-size--small-text: 16px;}.compat-child.has-small-text-font-size{font-size: var(--wp--preset--font-size--small-text) !important;}.compat-child{--wp--preset--font-family--body-font: Georgia, serif;}.compat-child.has-body-font-font-family{font-family: var(--wp--preset--font-family--body-font) !important;}.compat-child{--wp--preset--spacing--small-gap: 1rem;}.compat-child{--wp--preset--shadow--soft-shadow: 0 2px 4px #0003;}"
+  },
+  "nested exact blocks": {
+    "settings": {
+      "compat/parent": {
+        "allowedBlocks": [ "compat/child" ],
+        "color": {
+          "palette": {
+            "theme": [
+              {
+                "name": "Brand Red",
+                "slug": "brandRed",
+                "color": "#F00"
+              }
+            ]
+          }
+        },
+        "compat/child": {
+          "color": {
+            "palette": {
+              "theme": [
+                {
+                  "name": "Blue",
+                  "slug": "blue",
+                  "color": "rgb(0, 0, 255)"
+                }
+              ]
+            }
+          },
+          "compat/child": {
+            "typography": {
+              "fluid": false,
+              "fontSizes": {
+                "theme": [
+                  {
+                    "name": "Small",
+                    "slug": "smallText",
+                    "size": "16px"
+                  }
+                ]
+              },
+              "fontFamilies": {
+                "theme": [
+                  {
+                    "name": "Serif",
+                    "slug": "bodyFont",
+                    "fontFamily": "Georgia, serif"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "css": ".compat-parent{--wp--preset--color--brand-red: #F00;}.compat-parent.has-brand-red-color{color: var(--wp--preset--color--brand-red) !important;}.compat-parent.has-brand-red-background-color{background-color: var(--wp--preset--color--brand-red) !important;}.compat-parent.has-brand-red-border-color{border-color: var(--wp--preset--color--brand-red) !important;}.compat-parent .compat-child{--wp--preset--color--blue: rgb(0, 0, 255);}.compat-parent .compat-child.has-blue-color{color: var(--wp--preset--color--blue) !important;}.compat-parent .compat-child.has-blue-background-color{background-color: var(--wp--preset--color--blue) !important;}.compat-parent .compat-child.has-blue-border-color{border-color: var(--wp--preset--color--blue) !important;}.compat-parent .compat-child .compat-child{--wp--preset--font-size--small-text: 16px;}.compat-parent .compat-child .compat-child.has-small-text-font-size{font-size: var(--wp--preset--font-size--small-text) !important;}.compat-parent .compat-child .compat-child{--wp--preset--font-family--body-font: Georgia, serif;}.compat-parent .compat-child .compat-child.has-body-font-font-family{font-family: var(--wp--preset--font-family--body-font) !important;}"
+  },
+  "wildcard descendants": {
+    "settings": {
+      "compat/parent": {
+        "core/*": {
+          "color": {
+            "palette": {
+              "theme": [
+                {
+                  "name": "Brand Red",
+                  "slug": "brandRed",
+                  "color": "#F00"
+                },
+                {
+                  "name": "Blue",
+                  "slug": "blue",
+                  "color": "rgb(0, 0, 255)"
+                }
+              ]
+            }
+          }
+        },
+        "*": {
+          "color": {
+            "gradients": {
+              "theme": [
+                {
+                  "name": "Sunset",
+                  "slug": "sunSet",
+                  "gradient": "linear-gradient(90deg, #f00, #00f)"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "css": ".compat-parent p, .compat-parent [class*=wp-block]{--wp--preset--color--brand-red: #F00;--wp--preset--color--blue: rgb(0, 0, 255);}.compat-parent p.has-brand-red-color, .compat-parent [class*=wp-block].has-brand-red-color{color: var(--wp--preset--color--brand-red) !important;}.compat-parent p.has-blue-color, .compat-parent [class*=wp-block].has-blue-color{color: var(--wp--preset--color--blue) !important;}.compat-parent p.has-brand-red-background-color, .compat-parent [class*=wp-block].has-brand-red-background-color{background-color: var(--wp--preset--color--brand-red) !important;}.compat-parent p.has-blue-background-color, .compat-parent [class*=wp-block].has-blue-background-color{background-color: var(--wp--preset--color--blue) !important;}.compat-parent p.has-brand-red-border-color, .compat-parent [class*=wp-block].has-brand-red-border-color{border-color: var(--wp--preset--color--brand-red) !important;}.compat-parent p.has-blue-border-color, .compat-parent [class*=wp-block].has-blue-border-color{border-color: var(--wp--preset--color--blue) !important;}.compat-parent p, .compat-parent [class*=wp-block]{--wp--preset--gradient--sun-set: linear-gradient(90deg, #f00, #00f);}.compat-parent p.has-sun-set-gradient-background, .compat-parent [class*=wp-block].has-sun-set-gradient-background{background: var(--wp--preset--gradient--sun-set) !important;}"
+  },
+  "wildcard parent": {
+    "settings": {
+      "*": {
+        "compat/child": {
+          "color": {
+            "palette": {
+              "theme": [
+                {
+                  "name": "Brand Red",
+                  "slug": "brandRed",
+                  "color": "#F00"
+                },
+                {
+                  "name": "Blue",
+                  "slug": "blue",
+                  "color": "rgb(0, 0, 255)"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "css": "p .compat-child, [class*=wp-block] .compat-child{--wp--preset--color--brand-red: #F00;--wp--preset--color--blue: rgb(0, 0, 255);}p .compat-child.has-brand-red-color, [class*=wp-block] .compat-child.has-brand-red-color{color: var(--wp--preset--color--brand-red) !important;}p .compat-child.has-blue-color, [class*=wp-block] .compat-child.has-blue-color{color: var(--wp--preset--color--blue) !important;}p .compat-child.has-brand-red-background-color, [class*=wp-block] .compat-child.has-brand-red-background-color{background-color: var(--wp--preset--color--brand-red) !important;}p .compat-child.has-blue-background-color, [class*=wp-block] .compat-child.has-blue-background-color{background-color: var(--wp--preset--color--blue) !important;}p .compat-child.has-brand-red-border-color, [class*=wp-block] .compat-child.has-brand-red-border-color{border-color: var(--wp--preset--color--brand-red) !important;}p .compat-child.has-blue-border-color, [class*=wp-block] .compat-child.has-blue-border-color{border-color: var(--wp--preset--color--blue) !important;}"
+  },
+  "compound selectors": {
+    "settings": {
+      "compat/compound-parent": {
+        "compat/compound-child": {
+          "color": {
+            "palette": {
+              "theme": [
+                {
+                  "name": "Brand Red",
+                  "slug": "brandRed",
+                  "color": "#F00"
+                },
+                {
+                  "name": "Blue",
+                  "slug": "blue",
+                  "color": "rgb(0, 0, 255)"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "css": ":is(.parent, .alternate) :where(.child, .other), :is(.parent, .alternate) [data-child=\",\"], [data-parent=\",\"] :where(.child, .other), [data-parent=\",\"] [data-child=\",\"]{--wp--preset--color--brand-red: #F00;--wp--preset--color--blue: rgb(0, 0, 255);}:is(.parent, .alternate) :where(.child, .other).has-brand-red-color, :is(.parent, .alternate) [data-child=\",\"].has-brand-red-color, [data-parent=\",\"] :where(.child, .other).has-brand-red-color, [data-parent=\",\"] [data-child=\",\"].has-brand-red-color{color: var(--wp--preset--color--brand-red) !important;}:is(.parent, .alternate) :where(.child, .other).has-blue-color, :is(.parent, .alternate) [data-child=\",\"].has-blue-color, [data-parent=\",\"] :where(.child, .other).has-blue-color, [data-parent=\",\"] [data-child=\",\"].has-blue-color{color: var(--wp--preset--color--blue) !important;}:is(.parent, .alternate) :where(.child, .other).has-brand-red-background-color, :is(.parent, .alternate) [data-child=\",\"].has-brand-red-background-color, [data-parent=\",\"] :where(.child, .other).has-brand-red-background-color, [data-parent=\",\"] [data-child=\",\"].has-brand-red-background-color{background-color: var(--wp--preset--color--brand-red) !important;}:is(.parent, .alternate) :where(.child, .other).has-blue-background-color, :is(.parent, .alternate) [data-child=\",\"].has-blue-background-color, [data-parent=\",\"] :where(.child, .other).has-blue-background-color, [data-parent=\",\"] [data-child=\",\"].has-blue-background-color{background-color: var(--wp--preset--color--blue) !important;}:is(.parent, .alternate) :where(.child, .other).has-brand-red-border-color, :is(.parent, .alternate) [data-child=\",\"].has-brand-red-border-color, [data-parent=\",\"] :where(.child, .other).has-brand-red-border-color, [data-parent=\",\"] [data-child=\",\"].has-brand-red-border-color{border-color: var(--wp--preset--color--brand-red) !important;}:is(.parent, .alternate) :where(.child, .other).has-blue-border-color, :is(.parent, .alternate) [data-child=\",\"].has-blue-border-color, [data-parent=\",\"] :where(.child, .other).has-blue-border-color, [data-parent=\",\"] [data-child=\",\"].has-blue-border-color{border-color: var(--wp--preset--color--blue) !important;}"
+  },
+  "origin precedence": {
+    "settings": {
+      "compat/child": {
+        "color": {
+          "palette": {
+            "default": [
+              {
+                "slug": "shared",
+                "color": "#000"
+              }
+            ],
+            "theme": [
+              {
+                "slug": "shared",
+                "color": "#123"
+              }
+            ],
+            "custom": [
+              {
+                "slug": "custom",
+                "color": "#456"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ".compat-child{--wp--preset--color--shared: #123;}.compat-child.has-shared-color{color: var(--wp--preset--color--shared) !important;}.compat-child.has-shared-background-color{background-color: var(--wp--preset--color--shared) !important;}.compat-child.has-shared-border-color{border-color: var(--wp--preset--color--shared) !important;}"
+  },
+  "no theme origin": {
+    "settings": {
+      "compat/child": {
+        "color": {
+          "palette": {
+            "default": [
+              {
+                "name": "Brand Red",
+                "slug": "brandRed",
+                "color": "#F00"
+              },
+              {
+                "name": "Blue",
+                "slug": "blue",
+                "color": "rgb(0, 0, 255)"
+              }
+            ],
+            "custom": [
+              {
+                "name": "Brand Red",
+                "slug": "brandRed",
+                "color": "#F00"
+              },
+              {
+                "name": "Blue",
+                "slug": "blue",
+                "color": "rgb(0, 0, 255)"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ""
+  },
+  "empty preset lists": {
+    "settings": {
+      "compat/child": {
+        "color": {
+          "palette": {
+            "theme": []
+          },
+          "gradients": {
+            "theme": []
+          },
+          "duotone": {
+            "theme": []
+          }
+        },
+        "typography": {
+          "fontSizes": {
+            "theme": []
+          },
+          "fontFamilies": {
+            "theme": []
+          }
+        },
+        "spacing": {
+          "spacingSizes": {
+            "theme": []
+          }
+        },
+        "shadow": {
+          "presets": {
+            "theme": []
+          }
+        }
+      }
+    },
+    "css": ""
+  },
+  "duplicate normalized slugs": {
+    "settings": {
+      "compat/child": {
+        "color": {
+          "palette": {
+            "theme": [
+              {
+                "slug": "brandRed",
+                "color": "#000"
+              },
+              {
+                "slug": "brand-red",
+                "color": "#fff"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ".compat-child{--wp--preset--color--brand-red: #fff;}.compat-child.has-brand-red-color{color: var(--wp--preset--color--brand-red) !important;}.compat-child.has-brand-red-background-color{background-color: var(--wp--preset--color--brand-red) !important;}.compat-child.has-brand-red-border-color{border-color: var(--wp--preset--color--brand-red) !important;}"
+  },
+  "unsupported block unchanged": {
+    "settings": {
+      "missing/block": {
+        "color": {
+          "palette": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        },
+        "compat/child": {
+          "color": {
+            "palette": [
+              {
+                "name": "Brand Red",
+                "slug": "brandRed",
+                "color": "#F00"
+              },
+              {
+                "name": "Blue",
+                "slug": "blue",
+                "color": "rgb(0, 0, 255)"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ""
+  },
+  "non preset settings": {
+    "settings": {
+      "compat/child": {
+        "allowedBlocks": [],
+        "color": {
+          "text": false,
+          "custom": false
+        },
+        "typography": {
+          "fontSize": false
+        },
+        "spacing": {
+          "padding": true
+        }
+      }
+    },
+    "css": ""
+  },
+  "fluid typography settings": {
+    "settings": {
+      "compat/child": {
+        "typography": {
+          "fluid": {
+            "minViewportWidth": "400px",
+            "maxViewportWidth": "1000px"
+          },
+          "fontSizes": {
+            "theme": [
+              {
+                "name": "Large",
+                "slug": "large",
+                "size": "48px"
+              }
+            ]
+          }
+        },
+        "layout": {
+          "wideSize": "900px"
+        }
+      }
+    },
+    "css": ".compat-child{--wp--preset--font-size--large: 48px;}.compat-child.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}"
+  },
+  "core block selectors": {
+    "settings": {
+      "core/media-text": {
+        "allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
+        "core/heading": {
+          "color": {
+            "text": true,
+            "palette": {
+              "theme": [
+                {
+                  "name": "Custom red",
+                  "slug": "custom-red",
+                  "color": "#ff0000"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "core/quote": {
+        "allowedBlocks": [ "core/paragraph", "core/heading" ],
+        "core/*": {
+          "color": {
+            "gradients": {
+              "theme": [
+                {
+                  "slug": "vertical-red-to-green",
+                  "gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
+                  "name": "Vertical red to green"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "core/heading": {
+        "color": {
+          "text": true,
+          "palette": {
+            "theme": [
+              {
+                "name": "Custom yellow",
+                "slug": "custom-yellow",
+                "color": "#FFFF00"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ".wp-block-media-text .wp-block-heading{--wp--preset--color--custom-red: #ff0000;}.wp-block-media-text .wp-block-heading.has-custom-red-color{color: var(--wp--preset--color--custom-red) !important;}.wp-block-media-text .wp-block-heading.has-custom-red-background-color{background-color: var(--wp--preset--color--custom-red) !important;}.wp-block-media-text .wp-block-heading.has-custom-red-border-color{border-color: var(--wp--preset--color--custom-red) !important;}.wp-block-quote p, .wp-block-quote [class*=wp-block]{--wp--preset--gradient--vertical-red-to-green: linear-gradient(to bottom,#ff0000 0%,#00FF00 100%);}.wp-block-quote p.has-vertical-red-to-green-gradient-background, .wp-block-quote [class*=wp-block].has-vertical-red-to-green-gradient-background{background: var(--wp--preset--gradient--vertical-red-to-green) !important;}.wp-block-heading{--wp--preset--color--custom-yellow: #FFFF00;}.wp-block-heading.has-custom-yellow-color{color: var(--wp--preset--color--custom-yellow) !important;}.wp-block-heading.has-custom-yellow-background-color{background-color: var(--wp--preset--color--custom-yellow) !important;}.wp-block-heading.has-custom-yellow-border-color{border-color: var(--wp--preset--color--custom-yellow) !important;}"
+  },
+  "compound root selector": {
+    "settings": {
+      "compat/compound-parent": {
+        "color": {
+          "palette": {
+            "theme": [
+              {
+                "slug": "red",
+                "color": "#f00"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "css": ":is(.parent, .alternate), [data-parent=\",\"]{--wp--preset--color--red: #f00;}:is(.parent, .alternate).has-red-color, [data-parent=\",\"].has-red-color{color: var(--wp--preset--color--red) !important;}:is(.parent, .alternate).has-red-background-color, [data-parent=\",\"].has-red-background-color{background-color: var(--wp--preset--color--red) !important;}:is(.parent, .alternate).has-red-border-color, [data-parent=\",\"].has-red-border-color{border-color: var(--wp--preset--color--red) !important;}"
+  }
+}

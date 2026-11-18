@@ -7,29 +7,20 @@ import {
 import type { BlockSettings } from './types';
 
 describe( 'nested settings filter', () => {
-	const namesById: Record< string, string > = {
-		root: 'core/group',
-		parent: 'core/quote',
-		current: 'core/heading',
-	};
-	const getBlockName = jest.fn( ( id: string ) => namesById[ id ] );
-
 	function resolve(
 		nestedSettings: BlockSettings,
-		options: {
-			getBlockName?: ( id: string ) => string | undefined;
-			getBlockParents?: () => string[];
-			path?: string;
-		} = {}
+		{
+			blockNames = [ 'core/heading', 'core/group' ],
+			path = 'color.text',
+		}: { blockNames?: ( string | undefined )[]; path?: string } = {}
 	) {
 		return resolveNestedSetting( {
 			defaultValue: 'original',
-			path: 'color.text',
-			clientId: 'current',
+			path,
+			clientId: '0',
 			rules: createNestedSettingRules( nestedSettings ),
-			getBlockParents: () => [ 'root' ],
-			getBlockName,
-			...options,
+			getBlockParents: () => blockNames.slice( 1 ).map( ( _, index ) => String( index + 1 ) ),
+			getBlockName: id => blockNames[ Number( id ) ],
 		} );
 	}
 
@@ -57,12 +48,6 @@ describe( 'nested settings filter', () => {
 	} );
 
 	it( 'uses the deepest exact setting in the current hierarchy', () => {
-		const hierarchyNames: Record< string, string > = {
-			root: 'core/group',
-			parent: 'core/quote',
-			current: 'core/paragraph',
-		};
-
 		expect(
 			resolve(
 				{
@@ -73,21 +58,12 @@ describe( 'nested settings filter', () => {
 						},
 					},
 				},
-				{
-					getBlockParents: () => [ 'parent', 'root' ],
-					getBlockName: ( id: string ) => hierarchyNames[ id ],
-				}
+				{ blockNames: [ 'core/paragraph', 'core/quote', 'core/group' ] }
 			)
 		).toBe( false );
 	} );
 
 	it( 'uses the deepest setting when ancestor block names repeat', () => {
-		const hierarchyNames: Record< string, string > = {
-			root: 'core/group',
-			parent: 'core/group',
-			current: 'core/paragraph',
-		};
-
 		expect(
 			resolve(
 				{
@@ -98,21 +74,12 @@ describe( 'nested settings filter', () => {
 						},
 					},
 				},
-				{
-					getBlockParents: () => [ 'parent', 'root' ],
-					getBlockName: ( id: string ) => hierarchyNames[ id ],
-				}
+				{ blockNames: [ 'core/paragraph', 'core/group', 'core/group' ] }
 			)
 		).toBe( false );
 	} );
 
 	it( 'uses the later setting when matching paths have equal depth', () => {
-		const hierarchyNames: Record< string, string > = {
-			root: 'core/group',
-			parent: 'core/quote',
-			current: 'core/paragraph',
-		};
-
 		expect(
 			resolve(
 				{
@@ -123,20 +90,12 @@ describe( 'nested settings filter', () => {
 						'core/paragraph': { color: { text: false } },
 					},
 				},
-				{
-					getBlockParents: () => [ 'parent', 'root' ],
-					getBlockName: ( id: string ) => hierarchyNames[ id ],
-				}
+				{ blockNames: [ 'core/paragraph', 'core/quote', 'core/group' ] }
 			)
 		).toBe( false );
 	} );
 
 	it( 'ignores a missing ancestor name while resolving nested settings', () => {
-		const hierarchyNames: Record< string, string > = {
-			root: 'core/group',
-			current: 'core/heading',
-		};
-
 		expect(
 			resolve(
 				{
@@ -144,10 +103,7 @@ describe( 'nested settings filter', () => {
 						'core/heading': { color: { text: false } },
 					},
 				},
-				{
-					getBlockParents: () => [ 'missing', 'root' ],
-					getBlockName: ( id: string ) => hierarchyNames[ id ],
-				}
+				{ blockNames: [ 'core/heading', undefined, 'core/group' ] }
 			)
 		).toBe( false );
 	} );
@@ -161,17 +117,12 @@ describe( 'nested settings filter', () => {
 						'core/*': { color: { text: false } },
 					},
 				},
-				{ getBlockParents: () => [ 'parent' ] }
+				{ blockNames: [ 'core/heading', 'core/quote' ] }
 			)
 		).toBe( true );
 	} );
 
 	it( 'preserves the legacy limitation on wildcard ancestors', () => {
-		const hierarchyNames: Record< string, string > = {
-			root: 'core/group',
-			current: 'core/paragraph',
-		};
-
 		expect(
 			resolve(
 				{
@@ -179,7 +130,7 @@ describe( 'nested settings filter', () => {
 						'core/paragraph': { color: { text: false } },
 					},
 				},
-				{ getBlockName: ( id: string ) => hierarchyNames[ id ] }
+				{ blockNames: [ 'core/paragraph', 'core/group' ] }
 			)
 		).toBeUndefined();
 	} );
@@ -243,12 +194,95 @@ describe( 'nested settings filter', () => {
 		);
 	} );
 
-	it( 'preserves bracket path lookup compatibility', () => {
+	it.each( [
+		[ 'flags.disabled', false ],
+		[ 'flags.zero', 0 ],
+		[ 'flags.empty', '' ],
+		[ 'flags.nullValue', null ],
+		[ 'flags.missing', undefined ],
+		[ 'items[0].enabled', true ],
+		[ '.items[0].enabled', true ],
+		[ 'items.10.enabled', true ],
+		[ 'items[10].enabled', undefined ],
+		[ 'items.length', 11 ],
+		[ 'label.length', undefined ],
+		[ '', undefined ],
+	] )( 'preserves trunk path lookup for %s', ( path, expected ) => {
+		const settings = {
+			'core/group': {
+				flags: { disabled: false, zero: 0, empty: '', nullValue: null },
+				items: Array.from( { length: 11 }, () => ( { enabled: true } ) ),
+				label: 'text',
+			},
+		};
+
+		expect( getNestedSetting( [ 'core/group' ], path, settings ).value ).toBe( expected );
+	} );
+
+	it( 'preserves inherited setting lookup', () => {
+		const color: unknown = Object.create( { text: false } );
+
 		expect(
-			getNestedSetting( [ 'core/group' ], 'items[0].enabled', {
-				'core/group': { items: [ { enabled: true } ] },
-			} ).value
-		).toBe( true );
+			getNestedSetting( [ 'core/group' ], 'color.text', { 'core/group': { color } } ).value
+		).toBe( false );
+	} );
+
+	it( 'preserves precedence across repeated and mixed ancestor paths', () => {
+		const settings = {
+			'core/heading': { custom: { marker: 'root' } },
+			'core/group': {
+				'core/heading': { custom: { marker: 'group' } },
+				'core/quote': { 'core/heading': { custom: { marker: 'group/quote' } } },
+				'core/group': {
+					'core/heading': { custom: { marker: 'group/group' } },
+					'core/quote': {
+						'core/heading': { custom: { marker: 'group/group/quote' } },
+					},
+				},
+			},
+			'core/quote': {
+				'core/heading': { custom: { marker: 'quote' } },
+				'core/group': { 'core/heading': { custom: { marker: 'quote/group' } } },
+			},
+		};
+		const results: string[] = [];
+		let ancestors: string[][] = [ [] ];
+		for ( let depth = 0; depth <= 5; depth++ ) {
+			for ( const names of ancestors ) {
+				const result = getNestedSetting( [ 'core/heading', ...names ], 'custom.marker', settings );
+				results.push(
+					`${ names.join( ' > ' ) || 'root' }: ${ result.depth } ${ String( result.value ) }`
+				);
+			}
+			ancestors = ancestors.flatMap( names => [
+				[ ...names, 'core/group' ],
+				[ ...names, 'core/quote' ],
+			] );
+		}
+		expect( results ).toMatchSnapshot();
+	} );
+
+	it( 'does not repeatedly resolve the same rule through equivalent group ancestors', () => {
+		let lookups = 0;
+		let settings: BlockSettings = { 'core/heading': { color: { text: false } } };
+		for ( let depth = 0; depth < 5; depth++ ) {
+			const child = settings;
+			settings = {
+				get 'core/group'() {
+					lookups++;
+					return child;
+				},
+			};
+		}
+
+		expect(
+			getNestedSetting(
+				[ 'core/heading', ...Array< string >( 12 ).fill( 'core/group' ) ],
+				'color.text',
+				settings
+			)
+		).toEqual( { depth: 6, value: false } );
+		expect( lookups ).toBeLessThanOrEqual( 100 );
 	} );
 
 	it( 'preserves the documented wildcard limitation for parent allowedBlocks', () => {
