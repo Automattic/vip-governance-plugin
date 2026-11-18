@@ -54,7 +54,7 @@ build/                          # Compiled JS output (do not edit directly)
 tests/
   GovernanceUtilitiesTest.php  # PHPUnit tests for rule logic
   RulesParserTest.php           # PHPUnit tests for schema validation
-  NestedGovernanceProcessingTest.php  # PHPUnit tests for CSS generation
+  NestedGovernanceCompatibilityTest.php  # Trunk compatibility and native CSS tests
   e2e/                          # Playwright end-to-end tests
   private/                      # Test governance rules files
 ```
@@ -194,6 +194,12 @@ npm run test         # Runs both PHP and JS unit tests
 - Do not replace compatibility tests with expectations for new behavior just to make a fix pass. Keep those tests and add regression coverage for the reported issue.
 - If resolving an alert requires a behavior change, explain the concrete compatibility impact and obtain explicit authorization for that change before implementing it. Otherwise, preserve behavior and report the unresolved alert or use a justified, narrowly scoped suppression.
 
+### Maintaining code ported from core
+
+- Check `NESTED-GOVERNANCE.md` before changing nested CSS generation. Prefer supported core APIs when they preserve the existing behavior; do not use production reflection to reach protected helpers.
+- When updating a port, compare it with `WP_Theme_JSON` in WordPress 6.8 and the other supported core versions. Record upstream changes and intentional governance differences in the comparison document.
+- Run the nested governance characterization and core-parity tests before and after changes. Do not regenerate their golden expectations to hide a mismatch. A core update that changes existing output needs explicit authorization as a behavior change.
+
 ### Pull request descriptions
 
 - Follow `.github/PULL_REQUEST_TEMPLATE.md`. Keep the Description to one or two short sentences explaining the problem and the resulting behavior.
@@ -213,7 +219,7 @@ npm run test         # Runs both PHP and JS unit tests
 
 - **PHP versions**: 8.2, 8.3, 8.4, 8.5
 - **WordPress versions**: 6.8, latest
-- **Checks on PR**: JS lint, JS unit tests, PHPCS, PHPUnit (5 matrix combinations)
+- **Checks on PR**: JS lint, JS unit tests, PHPCS, PHPUnit (5 core combinations plus latest Gutenberg on PHP 8.2 and 8.5)
 - **Release on trunk push**: Auto-creates a GitHub release and ZIP when the plugin header version changes
 
 ## Writing Tests

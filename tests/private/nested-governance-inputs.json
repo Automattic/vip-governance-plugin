@@ -1,0 +1,413 @@
+{
+  "empty": {},
+  "all presets": {
+    "compat/child": {
+      "color": {
+        "text": false,
+        "palette": [
+          {
+            "name": "Brand Red",
+            "slug": "brandRed",
+            "color": "#F00"
+          },
+          {
+            "name": "Blue",
+            "slug": "blue",
+            "color": "rgb(0, 0, 255)"
+          }
+        ],
+        "gradients": [
+          {
+            "name": "Sunset",
+            "slug": "sunSet",
+            "gradient": "linear-gradient(90deg, #f00, #00f)"
+          }
+        ],
+        "duotone": [
+          {
+            "name": "Ink",
+            "slug": "ink",
+            "colors": [ "#000", "#fff" ]
+          }
+        ]
+      },
+      "typography": {
+        "fluid": false,
+        "fontSizes": [
+          {
+            "name": "Small",
+            "slug": "smallText",
+            "size": "16px"
+          }
+        ],
+        "fontFamilies": [
+          {
+            "name": "Serif",
+            "slug": "bodyFont",
+            "fontFamily": "Georgia, serif"
+          }
+        ]
+      },
+      "spacing": {
+        "units": [ "px", "rem" ],
+        "spacingSizes": [
+          {
+            "name": "Gap",
+            "slug": "smallGap",
+            "size": "1rem"
+          }
+        ]
+      },
+      "shadow": {
+        "presets": [
+          {
+            "name": "Soft",
+            "slug": "softShadow",
+            "shadow": "0 2px 4px #0003"
+          }
+        ]
+      },
+      "dimensions": {
+        "aspectRatios": [
+          {
+            "name": "Wide",
+            "slug": "wideScreen",
+            "ratio": "16/9"
+          }
+        ]
+      }
+    }
+  },
+  "nested exact blocks": {
+    "compat/parent": {
+      "allowedBlocks": [ "compat/child" ],
+      "color": {
+        "palette": [
+          {
+            "name": "Brand Red",
+            "slug": "brandRed",
+            "color": "#F00"
+          }
+        ]
+      },
+      "compat/child": {
+        "color": {
+          "palette": [
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        },
+        "compat/child": {
+          "typography": {
+            "fluid": false,
+            "fontSizes": [
+              {
+                "name": "Small",
+                "slug": "smallText",
+                "size": "16px"
+              }
+            ],
+            "fontFamilies": [
+              {
+                "name": "Serif",
+                "slug": "bodyFont",
+                "fontFamily": "Georgia, serif"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "wildcard descendants": {
+    "compat/parent": {
+      "core/*": {
+        "color": {
+          "palette": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        }
+      },
+      "*": {
+        "color": {
+          "gradients": [
+            {
+              "name": "Sunset",
+              "slug": "sunSet",
+              "gradient": "linear-gradient(90deg, #f00, #00f)"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "wildcard parent": {
+    "*": {
+      "compat/child": {
+        "color": {
+          "palette": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "compound selectors": {
+    "compat/compound-parent": {
+      "compat/compound-child": {
+        "color": {
+          "palette": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "origin precedence": {
+    "compat/child": {
+      "color": {
+        "palette": {
+          "default": [
+            {
+              "slug": "shared",
+              "color": "#000"
+            }
+          ],
+          "theme": [
+            {
+              "slug": "shared",
+              "color": "#123"
+            }
+          ],
+          "custom": [
+            {
+              "slug": "custom",
+              "color": "#456"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "no theme origin": {
+    "compat/child": {
+      "color": {
+        "palette": {
+          "default": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ],
+          "custom": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "empty preset lists": {
+    "compat/child": {
+      "color": {
+        "palette": [],
+        "gradients": [],
+        "duotone": []
+      },
+      "typography": {
+        "fontSizes": [],
+        "fontFamilies": []
+      },
+      "spacing": {
+        "spacingSizes": []
+      },
+      "shadow": {
+        "presets": []
+      }
+    }
+  },
+  "duplicate normalized slugs": {
+    "compat/child": {
+      "color": {
+        "palette": [
+          {
+            "slug": "brandRed",
+            "color": "#000"
+          },
+          {
+            "slug": "brand-red",
+            "color": "#fff"
+          }
+        ]
+      }
+    }
+  },
+  "unsupported block unchanged": {
+    "missing/block": {
+      "color": {
+        "palette": [
+          {
+            "name": "Brand Red",
+            "slug": "brandRed",
+            "color": "#F00"
+          },
+          {
+            "name": "Blue",
+            "slug": "blue",
+            "color": "rgb(0, 0, 255)"
+          }
+        ]
+      },
+      "compat/child": {
+        "color": {
+          "palette": [
+            {
+              "name": "Brand Red",
+              "slug": "brandRed",
+              "color": "#F00"
+            },
+            {
+              "name": "Blue",
+              "slug": "blue",
+              "color": "rgb(0, 0, 255)"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "non preset settings": {
+    "compat/child": {
+      "allowedBlocks": [],
+      "color": {
+        "text": false,
+        "custom": false
+      },
+      "typography": {
+        "fontSize": false
+      },
+      "spacing": {
+        "padding": true
+      }
+    }
+  },
+  "fluid typography settings": {
+    "compat/child": {
+      "typography": {
+        "fluid": {
+          "minViewportWidth": "400px",
+          "maxViewportWidth": "1000px"
+        },
+        "fontSizes": [
+          {
+            "name": "Large",
+            "slug": "large",
+            "size": "48px"
+          }
+        ]
+      },
+      "layout": {
+        "wideSize": "900px"
+      }
+    }
+  },
+  "core block selectors": {
+    "core/media-text": {
+      "allowedBlocks": [ "core/paragraph", "core/heading", "core/image" ],
+      "core/heading": {
+        "color": {
+          "text": true,
+          "palette": [
+            {
+              "name": "Custom red",
+              "slug": "custom-red",
+              "color": "#ff0000"
+            }
+          ]
+        }
+      }
+    },
+    "core/quote": {
+      "allowedBlocks": [ "core/paragraph", "core/heading" ],
+      "core/*": {
+        "color": {
+          "gradients": [
+            {
+              "slug": "vertical-red-to-green",
+              "gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
+              "name": "Vertical red to green"
+            }
+          ]
+        }
+      }
+    },
+    "core/heading": {
+      "color": {
+        "text": true,
+        "palette": [
+          {
+            "name": "Custom yellow",
+            "slug": "custom-yellow",
+            "color": "#FFFF00"
+          }
+        ]
+      }
+    }
+  },
+  "compound root selector": {
+    "compat/compound-parent": {
+      "color": {
+        "palette": [
+          {
+            "slug": "red",
+            "color": "#f00"
+          }
+        ]
+      }
+    }
+  }
+}

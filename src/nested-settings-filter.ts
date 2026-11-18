@@ -78,18 +78,13 @@ function deepGet( value: unknown, path: string | string[] ): unknown {
 				.replace( /^\./, '' )
 				.split( '.' );
 
-	if ( keys.length === 0 ) {
-		return value;
+	for ( const key of keys ) {
+		if ( typeof value !== 'object' || value === null || ! ( key in value ) ) {
+			return undefined;
+		}
+		value = ( value as Record< string, unknown > )[ key ];
 	}
-
-	if ( typeof value !== 'object' || value === null ) {
-		return undefined;
-	}
-
-	const [ key, ...remainingPath ] = keys;
-	return key in value
-		? deepGet( ( value as Record< string, unknown > )[ key ], remainingPath )
-		: undefined;
+	return value;
 }
 
 /** Resolve an exact-name setting from a nearest-block-first hierarchy. */
@@ -104,31 +99,36 @@ export function getNestedSetting(
 		return result;
 	}
 
-	const currentBlockName = blockNamePath.at( -1 );
-	if ( currentBlockName === undefined ) {
-		return result;
+	let candidates = new Map< BlockSettings, number >( [ [ settings, depth ] ] );
+	for ( let index = blockNamePath.length - 1; index > 0; index-- ) {
+		const next = new Map< BlockSettings, number >();
+		const remember = ( branch: BlockSettings, branchDepth: number ) => {
+			const previousDepth = next.get( branch );
+			if ( previousDepth === undefined || branchDepth >= previousDepth ) {
+				// Keep the later occurrence when equally deep paths reach the same rule.
+				next.delete( branch );
+				next.set( branch, branchDepth );
+			}
+		};
+		for ( const [ branch, branchDepth ] of candidates ) {
+			const nested = branch[ blockNamePath[ index ] ];
+			if ( isRecord( nested ) ) {
+				remember( nested, branchDepth + 1 );
+			}
+			// Matching before skipping preserves trunk's later-match tie breaking.
+			remember( branch, branchDepth );
+		}
+		candidates = next;
 	}
 
-	const remainingBlockNames = blockNamePath.slice( 0, -1 );
-	const candidate = settings[ currentBlockName ];
-	const blockSettings = isRecord( candidate ) ? candidate : undefined;
-
-	if ( remainingBlockNames.length === 0 ) {
-		const value = deepGet( blockSettings, normalizedPath );
-		return value !== undefined && depth >= result.depth ? { depth, value } : result;
+	for ( const [ branch, branchDepth ] of candidates ) {
+		const candidate = branch[ blockNamePath[ 0 ] ];
+		const value = deepGet( isRecord( candidate ) ? candidate : undefined, normalizedPath );
+		if ( value !== undefined && branchDepth >= result.depth ) {
+			result = { depth: branchDepth, value };
+		}
 	}
-
-	if ( blockSettings ) {
-		result = getNestedSetting(
-			remainingBlockNames,
-			normalizedPath,
-			blockSettings,
-			result,
-			depth + 1
-		);
-	}
-
-	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
+	return result;
 }
 
 /** Return block names from the current block through the root ancestor. */

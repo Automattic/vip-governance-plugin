@@ -8,7 +8,9 @@
     "phpcs": "phpcs",
     "phpcs-fix": "phpcbf",
     "test": "npx wp-env run cli --config=.wp-env.test.json --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c phpunit.xml.dist",
-    "test-multisite": "npx wp-env run cli --config=.wp-env.test.json --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
+    "test-multisite": "npx wp-env run cli --config=.wp-env.test.json --env-cwd=wp-content/plugins/vip-governance-plugin ./vendor/bin/phpunit -c tests/phpunit/multisite.xml",
+    "test-gutenberg": "npx wp-env run cli --config=.wp-env.gutenberg.json --env-cwd=wp-content/plugins/vip-governance-plugin env GOVERNANCE_TEST_GUTENBERG=1 ./vendor/bin/phpunit -c phpunit.xml.dist",
+    "test-multisite-gutenberg": "npx wp-env run cli --config=.wp-env.gutenberg.json --env-cwd=wp-content/plugins/vip-governance-plugin env GOVERNANCE_TEST_GUTENBERG=1 ./vendor/bin/phpunit -c tests/phpunit/multisite.xml"
   },
   "require": {
     "php": ">=8.2",

@@ -15,8 +15,12 @@ defined( 'ABSPATH' ) || die();
 
 /**
  * Nested governance processing class that's used to process nested settings.
+ *
+ * Preset value, slug, and ruleset helpers are inherited from WP_Theme_JSON.
+ * Nesting, robust selector parsing, and per-preset CSS ordering remain local.
+ * See NESTED-GOVERNANCE.md for the core API dependency and compatibility tests.
  */
-class NestedGovernanceProcessing {
+class NestedGovernanceProcessing extends WP_Theme_JSON {
 	/**
 	 * Nested settings and css that's used to process nested settings.
 	 *
@@ -45,74 +49,119 @@ class NestedGovernanceProcessing {
 			return self::$nested_settings_and_css;
 		}
 
-		// Get all the registered blocks from the server-side registry.
-		$blocks_registered = WP_Block_Type_Registry::get_instance()->get_all_registered();
-		// Get the map of paths to block settings, and their corresponding CSS selectors.
-		$setting_nodes = static::get_settings_of_blocks( $blocks_registered, $governance_rules );
-
 		if ( class_exists( 'WP_Theme_JSON_Gutenberg' ) ) {
 			$presets_metadata = WP_Theme_JSON_Gutenberg::PRESETS_METADATA;
 		} else {
 			$presets_metadata = WP_Theme_JSON::PRESETS_METADATA;
 		}
 
-		// Get the massaged settings and css together for the nested blocks.
-		self::$nested_settings_and_css = static::get_css_and_theme_settings( $governance_rules, $setting_nodes, $presets_metadata );
+		$settings   = $governance_rules;
+		$stylesheet = static::process_nested_settings( $settings, WP_Block_Type_Registry::get_instance()->get_all_registered(), $presets_metadata );
+
+		self::$nested_settings_and_css = [
+			'settings' => $settings,
+			'css'      => $stylesheet,
+		];
 
 		return self::$nested_settings_and_css;
 	}
 
 	/**
-	 * Builds the metadata for settings.blocks, whilst ensuring support for nested blocks. This returns in the form of:
+	 * Normalize presets and render supported block rules in their original order.
 	 *
-	 *     [
-	 *       [
-	 *         'path'     => ['path', 'to', 'some', 'node' ],
-	 *         'selector' => 'CSS selector for some node'
-	 *       ],
-	 *       [
-	 *         'path'     => [ 'path', 'to', 'other', 'node' ],
-	 *         'selector' => 'CSS selector for other node'
-	 *       ],
-	 *     ]
-	 *
-	 * @param array       $blocks_registered List of valid blocks.
-	 * @param array       $current_block     The current block to break down.
-	 * @param array       $nodes             The metadata of the nodes that have been built so far.
-	 * @param string|null $current_selector The current selector of the current block.
-	 * @param array       $current_path      The current path to the block.
-	 *
-	 * @return array
+	 * @param array       $settings          Block settings, normalized in place.
+	 * @param array       $blocks_registered Registered block types.
+	 * @param array       $presets_metadata  Core or Gutenberg preset metadata.
+	 * @param string|null $parent_selector   Selector of the enclosing block.
+	 * @return string Nested preset CSS.
 	 */
-	private static function get_settings_of_blocks( array $blocks_registered, array $current_block, array $nodes = [], ?string $current_selector = null, array $current_path = [] ): array {
-		foreach ( $current_block as $block_name => $block ) {
-			if ( ! self::is_block_supported( $block_name, $blocks_registered ) ) {
+	private static function process_nested_settings( array &$settings, array $blocks_registered, array $presets_metadata, ?string $parent_selector = null ): string {
+		$stylesheet = '';
+		foreach ( $settings as $block_name => &$block_settings ) {
+			$is_wildcard = '*' === $block_name || str_ends_with( $block_name, '/*' );
+			if ( ! $is_wildcard && ! array_key_exists( $block_name, $blocks_registered ) ) {
 				continue;
 			}
 
-			// If the block name ends with /* or is just *, then it's a wildcard rule and we need to use the wp-block selector to match against any block.
-			if ( str_ends_with( $block_name, '/*' ) || ( '*' === $block_name ) ) {
-				// Due to the fact that the paragraph block doesn't have a wp-block-paragraph class, we need to add it manually.
-				// In addition, wp-block is prefixed to the block name so this allows us to target all blocks.
-				$looked_up_selector = 'p, [class*=wp-block]';
-			} else {
-				$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
+			// Paragraphs have no wp-block class. Preserve the existing broad wildcard selector.
+			$block_selector = $is_wildcard ? 'p, [class*=wp-block]' : wp_get_block_css_selector( $blocks_registered[ $block_name ] );
+			$selector       = null === $block_selector ? $parent_selector : self::scope_nested_selector( $parent_selector, $block_selector );
+
+			$stylesheet .= static::get_preset_css( $block_settings, $selector, $presets_metadata, $block_name );
+			$stylesheet .= static::process_nested_settings( $block_settings, $blocks_registered, $presets_metadata, $selector );
+		}
+		unset( $block_settings );
+		return $stylesheet;
+	}
+
+	/**
+	 * Wrap theme presets and render each preset's variables followed by its classes.
+	 *
+	 * @param array       $settings         Settings for one block, normalized in place.
+	 * @param string|null $selector         Scoped block selector.
+	 * @param array       $presets_metadata Core or Gutenberg preset metadata.
+	 * @param string      $block_name       Block whose native settings provide defaults.
+	 * @return string Preset CSS for this block.
+	 */
+	private static function get_preset_css( array &$settings, ?string $selector, array $presets_metadata, string $block_name ): string {
+		$stylesheet = '';
+		foreach ( $presets_metadata as $metadata ) {
+			$preset = _wp_array_get( $settings, $metadata['path'], null );
+			if ( null !== $preset && ( isset( $preset[0] ) || empty( $preset ) ) ) {
+				$preset = [ self::DEFAULT_ORIGIN => $preset ];
+				_wp_array_set( $settings, $metadata['path'], $preset );
+			}
+			if ( null === $selector ) {
+				continue;
 			}
 
-			$selector = null === $looked_up_selector ? $current_selector : self::scope_selector( $current_selector, $looked_up_selector );
+			if ( ! empty( $preset[ self::DEFAULT_ORIGIN ] ) && is_callable( $metadata['value_func'] ?? null ) ) {
+				$core_settings   = wp_get_global_settings();
+				$native_settings = $core_settings['blocks'][ $block_name ] ?? [];
+				$root_slugs      = static::get_settings_slugs( $core_settings, $metadata );
+				$native_slugs    = static::get_settings_slugs( $native_settings, $metadata );
+				$contexts        = [
+					'root'  => array_replace_recursive( $core_settings, $settings ),
+					'block' => array_replace_recursive( array_replace( $core_settings, $native_settings ), $settings ),
+				];
+				foreach ( $contexts as &$context ) {
+					// Defaults are callback context, not additional allowed presets.
+					_wp_array_set( $context, $metadata['path'], $preset );
+				}
+				unset( $context );
+				$value_func             = $metadata['value_func'];
+				$metadata['value_func'] = static function ( $preset ) use ( $value_func, $contexts, $root_slugs, $native_slugs ) {
+					$slug = _wp_to_kebab_case( $preset['slug'] );
+					// Existing root variables retain their root context until overridden by a native preset.
+					$context = isset( $native_slugs[ $slug ] ) || ! isset( $root_slugs[ $slug ] ) ? 'block' : 'root';
+					return call_user_func( $value_func, $preset, $contexts[ $context ] );
+				};
+			}
+			$declarations = [];
+			foreach ( static::get_settings_values_by_slug( $settings, $metadata, [ self::DEFAULT_ORIGIN ] ) as $slug => $value ) {
+				$declarations[] = [
+					'name'  => static::replace_slug_in_string( $metadata['css_vars'], $slug ),
+					'value' => $value,
+				];
+			}
+			$stylesheet .= static::to_ruleset( $selector, $declarations );
 
-			$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
-			array_push( $path, $block_name );
-
-			$nodes[] = array(
-				'path'     => $path,
-				'selector' => $selector,
-			);
-
-			$nodes = static::get_settings_of_blocks( $blocks_registered, $block, $nodes, $selector, $path );
+			$slugs = static::get_settings_slugs( $settings, $metadata, [ self::DEFAULT_ORIGIN ] );
+			foreach ( $metadata['classes'] as $class => $property ) {
+				foreach ( $slugs as $slug ) {
+					$css_var        = static::replace_slug_in_string( $metadata['css_vars'], $slug );
+					$class_name     = static::replace_slug_in_string( $class, $slug );
+					$class_selector = '' === $selector ? $class_name : static::append_nested_selector( $selector, $class_name );
+					$stylesheet    .= static::to_ruleset( $class_selector, [
+						[
+							'name'  => $property,
+							'value' => 'var(' . $css_var . ') !important',
+						],
+					] );
+				}
+			}
 		}
-
-		return $nodes;
+		return $stylesheet;
 	}
 
 	/**
@@ -123,14 +172,14 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return string Scoped selector.
 	 */
-	private static function scope_selector( ?string $parent_selector, string $child_selector ): string {
+	private static function scope_nested_selector( ?string $parent_selector, string $child_selector ): string {
 		if ( null === $parent_selector ) {
 			return $child_selector;
 		}
 
 		$scoped_selectors = [];
-		$parent_selectors = self::split_selector_list( $parent_selector );
-		$child_selectors  = self::split_selector_list( $child_selector );
+		$parent_selectors = self::split_nested_selector_list( $parent_selector );
+		$child_selectors  = self::split_nested_selector_list( $child_selector );
 
 		foreach ( $parent_selectors as $parent ) {
 			foreach ( $child_selectors as $child ) {
@@ -149,7 +198,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return array
 	 */
-	private static function split_selector_list( string $selector ): array {
+	private static function split_nested_selector_list( string $selector ): array {
 		$selectors         = [];
 		$current_selector  = '';
 		$parentheses_depth = 0;
@@ -209,96 +258,6 @@ class NestedGovernanceProcessing {
 	}
 
 	/**
-	 * Validates if a block is supported.
-	 *
-	 * Supported blocks are blocks that are registered in the block registry, or blocks that are wildcard blocks.
-	 *
-	 * @param string $block_name     The name of the block.
-	 * @param array  $blocks_registered The blocks that are registered in the block registry.
-	 * @return boolean True if the block is supported, false otherwise.
-	 */
-	private static function is_block_supported( string $block_name, array $blocks_registered ): bool {
-		return array_key_exists( $block_name, $blocks_registered ) || str_ends_with( $block_name, '/*' ) || ( '*' === $block_name );
-	}
-
-	/**
-	 * Combine the block metadata with the presets to generate the nested settings and css, that would be used for nested governance
-	 *
-	 * @param array $governance_rules            Governance rules to be used.
-	 * @param array $path_and_selector_of_blocks The map of paths and selectors for each block.
-	 * @param array $presets_metadata            Preset metadata from Gutenberg/WordPress.
-	 *
-	 * @return array
-	 */
-	private static function get_css_and_theme_settings( array $governance_rules, array $path_and_selector_of_blocks, array $presets_metadata ): array {
-		// Expected theme.json path.
-		$theme_json = array(
-			'settings' => array(
-				'blocks' => $governance_rules,
-			),
-		);
-
-		$stylesheet = '';
-
-		foreach ( $path_and_selector_of_blocks as $path_and_selector_of_block ) {
-			foreach ( $presets_metadata as $preset_metadata ) {
-				// Append the path of the property with the path from the block settings.
-				$path = array_merge( $path_and_selector_of_block['path'], $preset_metadata['path'] );
-				// Get the preset value from the theme.json.
-				$preset = _wp_array_get( $theme_json, $path, null );
-				if ( null !== $preset ) {
-					// If the preset is not already keyed with an origin.
-					if ( isset( $preset[0] ) || empty( $preset ) ) {
-						// Add theme as the top level item for each preset value.
-						_wp_array_set( $theme_json, $path, array( self::DEFAULT_ORIGIN => $preset ) );
-					}
-				}
-
-				if ( null === $path_and_selector_of_block['selector'] ) {
-					continue;
-				}
-
-				$setting        = _wp_array_get( $theme_json, $path_and_selector_of_block['path'], [] );
-				$declarations   = [];
-				$values_by_slug = static::get_settings_values_by_slug( $setting, $preset_metadata );
-				foreach ( $values_by_slug as $slug => $value ) {
-					$declarations[] = array(
-						'name'  => static::replace_slug_in_string( $preset_metadata['css_vars'], $slug ),
-						'value' => $value,
-					);
-				}
-
-				$stylesheet .= static::to_ruleset( $path_and_selector_of_block['selector'], $declarations );
-
-				$slugs = static::get_settings_slugs( $setting, $preset_metadata );
-				foreach ( $preset_metadata['classes'] as $class => $property ) {
-					foreach ( $slugs as $slug ) {
-						$css_var    = static::replace_slug_in_string( $preset_metadata['css_vars'], $slug );
-						$class_name = static::replace_slug_in_string( $class, $slug );
-
-						// $selector is often empty, so we can save ourselves the `append_to_selector()` call then.
-						$new_selector = '' === $path_and_selector_of_block['selector'] ? $class_name : static::append_to_selector( $path_and_selector_of_block['selector'], $class_name );
-						$stylesheet  .= static::to_ruleset(
-							$new_selector,
-							array(
-								array(
-									'name'  => $property,
-									'value' => 'var(' . $css_var . ') !important',
-								),
-							)
-						);
-					}
-				}
-			}
-		}
-
-		return array(
-			'settings' => $theme_json['settings']['blocks'],
-			'css'      => $stylesheet,
-		);
-	}
-
-	/**
 	 * Appends a sub-selector to an existing one.
 	 *
 	 * Given the compounded $selector "h1, h2, h3"
@@ -314,8 +273,8 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return string New selector.
 	 */
-	private static function append_to_selector( string $selector, string $to_append ): string {
-		$selectors = self::split_selector_list( $selector );
+	private static function append_nested_selector( string $selector, string $to_append ): string {
+		$selectors = self::split_nested_selector_list( $selector );
 
 		return implode(
 			', ',
@@ -326,137 +285,5 @@ class NestedGovernanceProcessing {
 				$selectors
 			)
 		);
-	}
-
-	/**
-	 * Similar to get_settings_values_by_slug, but doesn't compute the value.
-	 *
-	 * @since 5.9.0
-	 *
-	 * @param array $settings        Settings to process.
-	 * @param array $preset_metadata One of the PRESETS_METADATA values.
-	 *
-	 * @return array Array of presets where the key and value are both the slug.
-	 */
-	private static function get_settings_slugs( array $settings, array $preset_metadata ): array {
-		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], [] );
-
-		$result = [];
-		if ( isset( $preset_per_origin[ self::DEFAULT_ORIGIN ] ) ) {
-			foreach ( $preset_per_origin[ self::DEFAULT_ORIGIN ] as $preset ) {
-				$slug = _wp_to_kebab_case( $preset['slug'] );
-
-				$result[ $slug ] = $slug;
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Given a selector and a declaration list,
-	 * creates the corresponding ruleset.
-	 *
-	 * @since 5.8.0
-	 *
-	 * @param string $selector     CSS selector.
-	 * @param array  $declarations List of declarations.
-	 *
-	 * @return string Resulting CSS ruleset.
-	 */
-	private static function to_ruleset( string $selector, array $declarations ): string {
-		if ( empty( $declarations ) ) {
-			return '';
-		}
-
-		$declaration_block = array_reduce(
-			$declarations,
-			static function ( $carry, $element ) {
-				return $carry .= $element['name'] . ': ' . $element['value'] . ';'; },
-			''
-		);
-
-		return $selector . '{' . $declaration_block . '}';
-	}
-
-	/**
-	 * Gets preset values keyed by slugs based on settings and metadata.
-	 *
-	 * <code>
-	 * $settings = array(
-	 *     'typography' => array(
-	 *         'fontFamilies' => array(
-	 *             array(
-	 *                 'slug'       => 'sansSerif',
-	 *                 'fontFamily' => '"Helvetica Neue", sans-serif',
-	 *             ),
-	 *             array(
-	 *                 'slug'   => 'serif',
-	 *                 'colors' => 'Georgia, serif',
-	 *             )
-	 *         ),
-	 *     ),
-	 * );
-	 * $meta = array(
-	 *    'path'      => array( 'typography', 'fontFamilies' ),
-	 *    'value_key' => 'fontFamily',
-	 * );
-	 * $values_by_slug = get_settings_values_by_slug();
-	 * // $values_by_slug === array(
-	 * //   'sans-serif' => '"Helvetica Neue", sans-serif',
-	 * //   'serif'      => 'Georgia, serif',
-	 * // );
-	 * </code>
-	 *
-	 * @since 5.9.0
-	 *
-	 * @param array $settings        Settings to process.
-	 * @param array $preset_metadata One of the PRESETS_METADATA values.
-	 *
-	 * @return array Array of presets where each key is a slug and each value is the preset value.
-	 */
-	private static function get_settings_values_by_slug( array $settings, array $preset_metadata ): array {
-		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], [] );
-
-		$result = [];
-
-		if ( isset( $preset_per_origin[ self::DEFAULT_ORIGIN ] ) ) {
-			foreach ( $preset_per_origin[ self::DEFAULT_ORIGIN ] as $preset ) {
-				$slug = _wp_to_kebab_case( $preset['slug'] );
-
-				$value = '';
-				if ( isset( $preset_metadata['value_key'], $preset[ $preset_metadata['value_key'] ] ) ) {
-					$value_key = $preset_metadata['value_key'];
-					$value     = $preset[ $value_key ];
-				} elseif (
-					isset( $preset_metadata['value_func'] ) &&
-					is_callable( $preset_metadata['value_func'] )
-				) {
-					$value_func = $preset_metadata['value_func'];
-					$value      = call_user_func( $value_func, $preset );
-				} else {
-					// If we don't have a value, then don't add it to the result.
-					continue;
-				}
-
-				$result[ $slug ] = $value;
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Transforms a slug into a CSS Custom Property.
-	 *
-	 * @since 5.9.0
-	 *
-	 * @param string $input String to replace.
-	 * @param string $slug  Slug value to use to generate the custom property.
-	 *
-	 * @return string CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
-	 */
-	private static function replace_slug_in_string( string $input, string $slug ): string {
-		return strtr( $input, array( '$slug' => $slug ) );
 	}
 }
