@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticeStore } from '@wordpress/notices';
 
 import { setupBlockLocking } from './block-locking';
+import { BlockWildcardMatcher } from './block-matching';
 import { isBlockAllowedInHierarchy } from './block-utils';
 import { createNestedSettingRules, resolveNestedSetting } from './nested-settings-filter';
 
@@ -36,6 +37,7 @@ export function setupGovernance( config: GovernanceRuntimeConfig ): void {
 	}
 
 	const { governanceRules } = config;
+	const { match: matchWildcard } = new BlockWildcardMatcher();
 	const { getBlockParents, getBlockName } = select( blockEditorStore ) as BlockEditorSelectors;
 
 	addFilter(
@@ -67,7 +69,8 @@ export function setupGovernance( config: GovernanceRuntimeConfig ): void {
 			const isAllowed = isBlockAllowedInHierarchy(
 				blockType.name,
 				parentBlockNames,
-				governanceRules
+				governanceRules,
+				matchWildcard
 			);
 
 			return applyFilters(
@@ -97,11 +100,12 @@ export function setupGovernance( config: GovernanceRuntimeConfig ): void {
 				getBlockParents,
 				path,
 				rules: nestedSettingRules,
+				matchWildcard,
 			} );
 		}
 	);
 
 	if ( governanceRules.allowedBlocks ) {
-		setupBlockLocking( governanceRules );
+		setupBlockLocking( governanceRules, matchWildcard );
 	}
 }

@@ -4,6 +4,7 @@ export { doesBlockNameMatchBlockWildcard, isBlockAllowedByBlockWildcards } from 
 import { isBlockAllowedByBlockWildcards } from './block-matching';
 import { getNestedSetting } from './nested-settings-filter';
 
+import type { BlockWildcardMatch } from './block-matching';
 import type { BlockName, BlockSettings, GovernanceRules } from './types';
 
 const DEFAULT_CORE_BLOCK_LIST: Readonly< Record< BlockName, readonly BlockName[] > > = {
@@ -39,7 +40,8 @@ function getNestedAllowedBlocks(
 export function isBlockAllowedInHierarchy(
 	blockName: BlockName,
 	parentBlockNames: BlockName[],
-	governanceRules: GovernanceRules
+	governanceRules: GovernanceRules,
+	matchWildcard?: BlockWildcardMatch
 ): boolean {
 	const isInCascadingMode = applyFilters(
 		'vip_governance__is_block_allowed_in_hierarchy',
@@ -63,5 +65,5 @@ export function isBlockAllowedInHierarchy(
 		);
 	}
 
-	return isBlockAllowedByBlockWildcards( blockName, allowedBlocks );
+	return isBlockAllowedByBlockWildcards( blockName, allowedBlocks, matchWildcard );
 }

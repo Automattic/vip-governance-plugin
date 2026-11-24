@@ -1,5 +1,6 @@
 import { applyFilters } from '@wordpress/hooks';
 
+import { BlockWildcardMatcher } from './block-matching';
 import {
 	doesBlockNameMatchBlockWildcard,
 	isBlockAllowedByBlockWildcards,
@@ -351,6 +352,20 @@ describe( 'blockUtils', () => {
 			expect( () => doesBlockNameMatchBlockWildcard( 'core/heading', 'core/**' ) ).toThrow(
 				SyntaxError
 			);
+		} );
+
+		it( 'returns fresh legacy match arrays when reusing a compiled expression', () => {
+			const matcher = new BlockWildcardMatcher();
+			const rule = 'core/(head)*';
+			const name = 'prefix/core/heading';
+			const uncached = doesBlockNameMatchBlockWildcard( name, rule );
+			const first = matcher.match( name, rule );
+			const second = matcher.match( name, rule );
+
+			expect( first ).toEqual( uncached );
+			expect( second ).toEqual( uncached );
+			expect( second ).not.toBe( first );
+			expect( matcher.match( 'example/heading', rule ) ).toBeNull();
 		} );
 
 		it( 'should return true if the block name matches any of the rules', () => {

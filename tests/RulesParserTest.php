@@ -1166,6 +1166,51 @@ class RulesParserTest extends TestCase {
 		$this->assertSame( [ 'core/paragraph' ], $result['rules'][0]['allowedBlocks'] );
 	}
 
+	public function test_parse_with_warnings__reports_non_object_palette_entries_without_changing_rules(): void {
+		$input = '{
+			"version": "1.0.0",
+			"rules": [
+				{ "type": "postType", "postTypes": ["post"], "allowedBlocks": ["core/heading"] },
+				{
+					"type": "role",
+					"roles": ["editor"],
+					"blockSettings": {
+						"core/group": {
+							"core/heading": {
+								"color": {
+									"palette": [
+										"synthetic-entry",
+										{ "slug": "valid", "color": "#000" },
+										false
+									],
+									"text": false
+								}
+							}
+						},
+						"core/paragraph": {
+							"color": { "palette": { "theme": [ [] ], "custom": ["preserved"], "default": [] } }
+						},
+						"core/image": { "color": { "palette": [] } }
+					}
+				},
+				{ "type": "default", "allowedFeatures": ["codeEditor"] }
+			]
+		}';
+
+		$result = RulesParser::parse_with_warnings( $input );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( json_decode( $input, true, 512, JSON_THROW_ON_ERROR )['rules'], $result['rules'] );
+		$this->assertSame(
+			[
+				'2nd rule: expected an object at "blockSettings.core/group.core/heading.color.palette[0]".',
+				'2nd rule: expected an object at "blockSettings.core/group.core/heading.color.palette[2]".',
+				'2nd rule: expected an object at "blockSettings.core/paragraph.color.palette.theme[0]".',
+			],
+			$result['warnings']
+		);
+	}
+
 	public function test_parse_with_warnings__reports_multiple_repairs_in_ordinal_order(): void {
 		$result = RulesParser::parse_with_warnings( '{
 			"version": "1.0.0",

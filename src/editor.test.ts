@@ -97,7 +97,8 @@ describe( 'setupGovernance', () => {
 		expect( isBlockAllowedInHierarchy ).toHaveBeenCalledWith(
 			'core/heading',
 			[ 'core/quote', 'core/group' ],
-			config.governanceRules
+			config.governanceRules,
+			expect.any( Function )
 		);
 		expect( applyFilters ).toHaveBeenCalledWith(
 			'vip_governance__is_block_allowed_for_insertion',
@@ -114,6 +115,9 @@ describe( 'setupGovernance', () => {
 
 		expect( settingsFilter( 'original', 'color.text', 'current', undefined ) ).toBe( 'original' );
 		expect( resolveNestedSetting ).not.toHaveBeenCalled();
-		expect( setupBlockLocking ).toHaveBeenCalledWith( config.governanceRules );
+		expect( setupBlockLocking ).toHaveBeenCalledWith(
+			config.governanceRules,
+			expect.any( Function )
+		);
 	} );
 } );
