@@ -46,12 +46,6 @@ class Settings {
 				'default'           => [ self::OPTIONS_KEY_IS_ENABLED => true ],
 			]
 		);
-
-		$section_id = 'plugin-settings';
-		add_settings_section( $section_id, __( 'Plugin Settings', 'vip-governance' ), '__return_null', self::MENU_SLUG );
-		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance', 'vip-governance' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
-			'label_for' => self::OPTIONS_KEY_IS_ENABLED,
-		] );
 	}
 
 	/**
@@ -78,7 +72,7 @@ class Settings {
 		wp_enqueue_style(
 			'wpcomvip-governance-settings',
 			plugins_url( '/governance/settings/settings.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
-			/* dependencies */ [],
+			/* dependencies */ [ 'wp-components' ],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
 	}
@@ -112,6 +106,7 @@ class Settings {
 			$asset_file['version'],
 			/* in footer */ true
 		);
+		wp_set_script_translations( 'wpcomvip-governance-settings', 'vip-governance' );
 	}
 
 	/**
@@ -174,22 +169,6 @@ class Settings {
 			}
 		}
 		return $labels;
-	}
-
-	/**
-	 * Setting used to enable/disable the plugin.
-	 *
-	 * @return void
-	 * 
-	 * @access private
-	 */
-	public static function render_is_enabled(): void {
-		$options    = get_option( self::OPTIONS_KEY, [] );
-		$options    = is_array( $options ) ? $options : [];
-		$is_enabled = $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
-
-		printf( '<input id="%1$s" name="%2$s[%1$s]" type="checkbox" value="yes" %3$s />', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_attr( self::OPTIONS_KEY ), checked( $is_enabled, true, false ) );
-		printf( '<label for="%s"><p class="description" style="display: inline-block; margin-left: 0.25rem">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable block editor governance rules for all users.', 'vip-governance' ) );
 	}
 
 	/**
