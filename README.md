@@ -509,6 +509,8 @@ With this rule set, the following rules will apply:
 - Support for `color.duotone` has not been implemented.
 - Currently, the plugin is restricted to the post editor only and won't work on other pages like site-editor, widgets, etc.
 - In WordPress 6.8 and 6.9, the main block inserter can show blocks that governance will not allow. Attempting to insert one is still rejected and displays a snackbar notice. WordPress 7.0 and later filter those unavailable blocks from the inserter again, following the [Gutenberg 22.4 inserter fix][gutenberg-22-4].
+- Preset CSS from a namespace wildcard such as `audit/*` can affect blocks outside that namespace. For example, it can change a heading that uses the same color preset slug. Use explicit block rules to avoid the broad wildcard selector. Nested blocks can still inherit CSS preset variables from their parent.
+- A preset defined only in a role rule can appear in the editor but lose its intended styling in published content. For example, an anonymous reader may see a heading in the default text color if the preset's CSS variable is missing. For colors that should appear consistently in published content, define the preset in the site's `theme.json` and use the same slug and value in governance rules.
 
 ## Code Filters
 

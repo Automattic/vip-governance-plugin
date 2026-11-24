@@ -123,8 +123,6 @@ class Settings {
 	 * @access private
 	 */
 	public static function render(): void {
-		$post_types_available  = get_post_types();
-		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
 		$governance_error      = false;
 		$governance_warnings   = [];
@@ -141,7 +139,41 @@ class Settings {
 			}
 		}
 
+		$role_labels = [ '' => __( 'My roles', 'vip-governance' ) ];
+		foreach ( wp_roles()->roles as $role_slug => $registered_role ) {
+			$role_name                 = $registered_role['name'] ?? '';
+			$role_labels[ $role_slug ] = '' === $role_name ? $role_slug : translate_user_role( $role_name );
+		}
+		$role_labels = self::disambiguate_preview_labels( $role_labels );
+
+		$post_type_labels = [ '' => __( 'No post type selected', 'vip-governance' ) ];
+		foreach ( get_post_types( [], 'objects' ) as $registered_post_type ) {
+			$label = $registered_post_type->labels->singular_name ?? '';
+			if ( '' === $label ) {
+				$label = $registered_post_type->label ?? '';
+			}
+			$post_type_labels[ $registered_post_type->name ] = '' === $label ? $registered_post_type->name : $label;
+		}
+		$post_type_labels = self::disambiguate_preview_labels( $post_type_labels );
+
 		include __DIR__ . '/settings-view.php';
+	}
+
+	/**
+	 * Add slugs to repeated preview labels.
+	 *
+	 * @param array $labels Display labels keyed by slug, with an empty key for the placeholder.
+	 * @return array Display labels keyed by the original slugs.
+	 */
+	private static function disambiguate_preview_labels( array $labels ): array {
+		$counts = array_count_values( $labels );
+		foreach ( $labels as $slug => $label ) {
+			if ( '' !== $slug && $counts[ $label ] > 1 ) {
+				/* translators: 1: Option label, 2: Option slug. */
+				$labels[ $slug ] = sprintf( __( '%1$s (%2$s)', 'vip-governance' ), $label, $slug );
+			}
+		}
+		return $labels;
 	}
 
 	/**

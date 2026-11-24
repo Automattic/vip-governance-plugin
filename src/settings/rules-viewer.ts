@@ -33,6 +33,7 @@ export function initializeRulesViewer( { root = document, request }: RulesViewer
 	const postTypeSelector = root.getElementById( 'post-type-selector' );
 	const viewButton = root.getElementById( 'view-rules-button' );
 	const spinner = root.querySelector( '.vip-governance-query-spinner' );
+	const status = root.getElementById( 'vip-governance-preview-status' );
 	const output = root.getElementById( 'json' );
 
 	if (
@@ -40,6 +41,7 @@ export function initializeRulesViewer( { root = document, request }: RulesViewer
 		! ( postTypeSelector instanceof HTMLSelectElement ) ||
 		! ( viewButton instanceof HTMLButtonElement ) ||
 		! ( spinner instanceof HTMLElement ) ||
+		! status ||
 		! ( output instanceof HTMLElement )
 	) {
 		return;
@@ -59,18 +61,24 @@ export function initializeRulesViewer( { root = document, request }: RulesViewer
 		return data;
 	};
 
-	const updateControls = () => {
-		const hasSelection = Object.keys( getRequestData() ).length > 0;
-		viewButton.hidden = ! hasSelection;
+	let latestRequestId = 0;
 
-		if ( ! hasSelection ) {
-			output.hidden = true;
-		}
+	const clearOutput = () => {
+		output.hidden = true;
+		output.textContent = '';
 	};
 
-	const showOutput = ( value: string ) => {
-		output.textContent = value;
-		output.hidden = false;
+	const setLoading = ( isLoading: boolean ) => {
+		spinner.hidden = ! isLoading;
+		spinner.classList.toggle( 'is-active', isLoading );
+	};
+
+	const updateControls = () => {
+		latestRequestId++;
+		viewButton.hidden = ! ( roleSelector.value || postTypeSelector.value );
+		clearOutput();
+		setLoading( false );
+		status.textContent = '';
 	};
 
 	const handleRequest = async () => {
@@ -80,23 +88,32 @@ export function initializeRulesViewer( { root = document, request }: RulesViewer
 			return;
 		}
 
-		spinner.hidden = false;
-		spinner.classList.add( 'is-active' );
+		const requestId = ++latestRequestId;
+		clearOutput();
+		setLoading( true );
+		status.textContent = status.dataset.loading ?? '';
 
+		let value: string;
+		let announcement = status.dataset.loaded ?? '';
 		try {
 			const rules = await request( {
 				path: `${ RULES_ENDPOINT }?${ new URLSearchParams( data ) }`,
 			} );
 
-			showOutput( JSON.stringify( rules, null, 4 ) );
+			value = JSON.stringify( rules, null, 4 );
 		} catch ( error ) {
-			showOutput(
-				getErrorMessage( error, output.dataset.errorMessage ?? 'Unable to load rules.' )
-			);
-		} finally {
-			spinner.hidden = true;
-			spinner.classList.remove( 'is-active' );
+			value = getErrorMessage( error, output.dataset.errorMessage ?? 'Unable to load rules.' );
+			announcement = value;
 		}
+
+		if ( requestId !== latestRequestId ) {
+			return;
+		}
+
+		output.textContent = value;
+		output.hidden = false;
+		status.textContent = announcement;
+		setLoading( false );
 	};
 
 	roleSelector.addEventListener( 'change', updateControls );
