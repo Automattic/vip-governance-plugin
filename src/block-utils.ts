@@ -1,10 +1,10 @@
 import { applyFilters } from '@wordpress/hooks';
 
 export { doesBlockNameMatchBlockWildcard, isBlockAllowedByBlockWildcards } from './block-matching';
-import { isBlockAllowedByBlockWildcards } from './block-matching';
-import { getNestedSetting } from './nested-settings-filter';
+import { doesBlockNameMatchBlockWildcard, isBlockAllowedByBlockWildcards } from './block-matching';
+import { getNestedAllowedBlocks } from './nested-settings-filter';
 
-import type { BlockName, BlockSettings, GovernanceRules } from './types';
+import type { BlockName, GovernanceRules } from './types';
 
 const DEFAULT_CORE_BLOCK_LIST: Readonly< Record< BlockName, readonly BlockName[] > > = {
 	'core/list': [ 'core/list-item' ],
@@ -22,19 +22,6 @@ const DEFAULT_CORE_BLOCK_LIST: Readonly< Record< BlockName, readonly BlockName[]
 	],
 };
 
-function getNestedAllowedBlocks(
-	parentBlockNames: BlockName[],
-	blockSettings?: BlockSettings
-): BlockName[] {
-	if ( ! blockSettings ) {
-		return [];
-	}
-
-	const { value } = getNestedSetting( parentBlockNames, 'allowedBlocks', blockSettings );
-
-	return Array.isArray( value ) && value.every( item => typeof item === 'string' ) ? value : [];
-}
-
 /** Determine whether a block can be inserted or edited at a hierarchy location. */
 export function isBlockAllowedInHierarchy(
 	blockName: BlockName,
@@ -51,6 +38,7 @@ export function isBlockAllowedInHierarchy(
 
 	const allowedBlocks =
 		isInCascadingMode || parentBlockNames.length === 0 ? [ ...governanceRules.allowedBlocks ] : [];
+	let wildcardParentCandidates: BlockName[] = [];
 
 	if ( parentBlockNames.length > 0 ) {
 		const immediateParentDefaults = DEFAULT_CORE_BLOCK_LIST[ parentBlockNames[ 0 ] ];
@@ -58,10 +46,28 @@ export function isBlockAllowedInHierarchy(
 			return true;
 		}
 
-		allowedBlocks.push(
-			...getNestedAllowedBlocks( parentBlockNames, governanceRules.blockSettings )
-		);
+		if ( governanceRules.blockSettings ) {
+			const nested = getNestedAllowedBlocks( parentBlockNames, governanceRules.blockSettings );
+			if ( nested.usesWildcardParent ) {
+				wildcardParentCandidates = nested.allowedBlocks;
+			} else {
+				allowedBlocks.push( ...nested.allowedBlocks );
+			}
+		}
 	}
 
-	return isBlockAllowedByBlockWildcards( blockName, allowedBlocks );
+	return (
+		isBlockAllowedByBlockWildcards( blockName, allowedBlocks ) ||
+		wildcardParentCandidates.some( rule => {
+			try {
+				return doesBlockNameMatchBlockWildcard( blockName, rule );
+			} catch ( error ) {
+				// Newly active child lists can contain patterns that never compiled before.
+				if ( error instanceof SyntaxError ) {
+					return false;
+				}
+				throw error;
+			}
+		} )
+	);
 }

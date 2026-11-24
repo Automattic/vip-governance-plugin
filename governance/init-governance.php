@@ -153,12 +153,10 @@ class InitGovernance {
 					Analytics::record_usage();
 				}
 			}
-		} catch ( Throwable $throwable ) {
+		} catch ( Throwable ) {
 			// This is an unexpected exception. Record error for follow-up with WPVIP customers.
 			Analytics::record_error();
-			// ToDo: Log the error to QueryMonitor instead of doing this.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( $throwable->getMessage() );
+			trigger_error( 'VIP Block Governance could not load its rules due to an unexpected error.', E_USER_WARNING );
 
 			$governance_error = __( 'Governance rules could not be loaded due to a plugin error.', 'vip-governance' );
 		}

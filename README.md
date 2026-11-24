@@ -83,7 +83,7 @@ Each rule can have any of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks` (ability to lock/unlock blocks that restrict movement/deletion). Use an empty array or omit the property when no optional features should be enabled by that rule.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block.
-- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. You can also put `allowedBlocks` in an exact parent's `blockSettings`. In the default cascading mode this adds child candidates to the root list; use restrictive hierarchy mode when the parent list must be exclusive.
+- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. You can put `allowedBlocks` in an exact parent's `blockSettings` or [wildcard parents](#wildcards). In cascading mode, child candidates are added to the root candidates inside the parent. In restrictive mode, the parent list supplies the governed candidates.
 
 #### Runtime Parsing
 
@@ -109,35 +109,11 @@ The wildcard `*` can be used within `allowedBlocks` and within `blockSettings` t
 
 For an example of this feature, [refer to the example file here](#default-wildcard-rule-set).
 
-Note: `allowedBlocks` are not respected when a parent `blockSettings` also has a wildcard. For example, this will not work:
+Child lists work beneath exact parent names, namespace wildcards such as `core/*`, and `*`. A matching exact-path list takes priority, including an empty list after rules are merged. Otherwise, the deepest matching wildcard path wins. At equal depth, compare from the immediate parent outward, with exact names taking priority over namespace wildcards, then `*`. Equally specific matches retain the existing later-match precedence. Invalid child patterns in a wildcard fallback list are skipped.
 
-##### ❌ Using `allowedBlocks` under a parent wildcard:
+Previously, child lists beneath wildcard parents were ignored. They now affect insertion and editing automatically. In cascading mode, the root list also applies inside the parent. In restrictive mode, the selected parent list supplies the governed candidates. WordPress containment rules and the plugin’s structural child allowances still apply.
 
-```js
-{
-  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
-  "version": "1.0.0",
-  "rules": [
-    {
-      "type": "default",
-      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
-      "allowedBlocks": [ "core/*" ],
-      "blockSettings": {
-        "core/*": {
-          "allowedBlocks": [ "core/paragraph", "core/heading" ],  // ← Not allowed under "core/*"
-          "color": {
-            "text": true,
-          }
-        }
-      }
-    }
-  ]
-}
-```
-
-Instead, only apply block settings to wildcards, and specify `allowedBlocks` to individual parent blocks:
-
-##### ✅ Using `allowedBlocks` under defined blocks:
+In the following example, Columns uses its exact child list. Other Core parents use the wildcard list.
 
 ```json
 {
@@ -147,18 +123,13 @@ Instead, only apply block settings to wildcards, and specify `allowedBlocks` to 
     {
       "type": "default",
       "allowedFeatures": [ "codeEditor", "lockBlocks" ],
-      "allowedBlocks": [ "core/*" ],
+      "allowedBlocks": [ "core/paragraph", "core/group", "core/columns" ],
       "blockSettings": {
         "core/*": {
-          "color": {
-            "text": true
-          }
-        },
-        "core/quote": {
           "allowedBlocks": [ "core/paragraph", "core/heading" ]
         },
-        "core/media-text": {
-          "allowedBlocks": [ "core/paragraph", "core/heading" ]
+        "core/columns": {
+          "allowedBlocks": [ "core/column" ]
         }
       }
     }

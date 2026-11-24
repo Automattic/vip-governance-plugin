@@ -131,6 +131,76 @@ export function getNestedSetting(
 	return result;
 }
 
+function isAllowedBlocksList( value: unknown ): value is BlockName[] {
+	return Array.isArray( value ) && value.every( item => typeof item === 'string' );
+}
+
+function parentRuleKeys( blockName: BlockName ): BlockName[] {
+	return [ '*', `${ blockName.split( '/' )[ 0 ] }/*`, blockName ];
+}
+
+function ranksAtLeastAsHigh( rank: string, otherRank: string ): boolean {
+	return (
+		rank.length > otherRank.length || ( rank.length === otherRank.length && rank >= otherRank )
+	);
+}
+
+/** Resolve an insertion/editing list without changing visual setting precedence. */
+export function getNestedAllowedBlocks(
+	parentBlockNames: BlockName[],
+	settings: BlockSettings
+): { allowedBlocks: BlockName[]; usesWildcardParent: boolean } {
+	const { value } = getNestedSetting( parentBlockNames, ALLOWED_BLOCKS_KEY, settings );
+	if ( isAllowedBlocksList( value ) ) {
+		return { allowedBlocks: value, usesWildcardParent: false };
+	}
+	if ( parentBlockNames.length === 0 ) {
+		return { allowedBlocks: [], usesWildcardParent: false };
+	}
+
+	// One digit per matched level, nearest parent first. Higher digits mean more specific keys.
+	let candidates = new Map< BlockSettings, string >( [ [ settings, '' ] ] );
+	for ( let index = parentBlockNames.length - 1; index > 0; index-- ) {
+		const keys = parentRuleKeys( parentBlockNames[ index ] );
+		const next = new Map< BlockSettings, string >();
+		const remember = ( branch: BlockSettings, rank: string ) => {
+			const previousRank = next.get( branch );
+			if ( previousRank === undefined || ranksAtLeastAsHigh( rank, previousRank ) ) {
+				// Retain the exact resolver's later-match order on ties.
+				next.delete( branch );
+				next.set( branch, rank );
+			}
+		};
+		for ( const [ branch, rank ] of candidates ) {
+			keys.forEach( ( key, specificity ) => {
+				const nested = branch[ key ];
+				if ( isRecord( nested ) ) {
+					remember( nested, specificity + rank );
+				}
+			} );
+			remember( branch, rank );
+		}
+		candidates = next;
+	}
+
+	const keys = parentRuleKeys( parentBlockNames[ 0 ] );
+	let best = { rank: '', allowedBlocks: [] as BlockName[] };
+	for ( const [ branch, rank ] of candidates ) {
+		keys.forEach( ( key, specificity ) => {
+			const nested = branch[ key ];
+			const allowedBlocks = isRecord( nested ) ? nested[ ALLOWED_BLOCKS_KEY ] : undefined;
+			const candidateRank = specificity + rank;
+			if (
+				isAllowedBlocksList( allowedBlocks ) &&
+				ranksAtLeastAsHigh( candidateRank, best.rank )
+			) {
+				best = { rank: candidateRank, allowedBlocks };
+			}
+		} );
+	}
+	return { allowedBlocks: best.allowedBlocks, usesWildcardParent: true };
+}
+
 /** Return block names from the current block through the root ancestor. */
 export function getBlockNamePath(
 	clientId: ClientId,

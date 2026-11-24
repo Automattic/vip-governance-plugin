@@ -121,4 +121,24 @@ describe( 'block locking', () => {
 			expect.any( Function )
 		);
 	} );
+	it( 'applies wildcard parent rules to BlockEdit', () => {
+		jest
+			.mocked( isBlockAllowedInHierarchy )
+			.mockImplementation(
+				jest.requireActual< typeof import( './block-utils' ) >( './block-utils' )
+					.isBlockAllowedInHierarchy
+			);
+		jest.mocked( applyFilters ).mockImplementation( ( _name, value ) => value );
+		setupBlockLocking( {
+			...governanceRules,
+			blockSettings: { 'core/*': { allowedBlocks: [ 'core/**', 'core/heading' ] } },
+		} );
+		const wrapBlockEdit = jest.mocked( addFilter ).mock.calls[ 0 ][ 2 ] as (
+			BlockEdit: () => null
+		) => ( blockProps: BlockEditProps ) => ReactElement;
+
+		wrapBlockEdit( () => null )( props );
+
+		expect( useBlockEditingMode ).toHaveBeenCalledWith( undefined );
+	} );
 } );
