@@ -102,9 +102,9 @@ The plugin exposes `VIP_GOVERNANCE` to the block editor with:
 
 Only the first matching rule of each type is used. A role rule replaces fields it defines from a matching post-type rule; omitted fields retain the post-type value. The default rule is then added to the selected non-default values. Schema: `https://api.wpvip.com/schemas/plugins/governance.json`
 
-### Wildcard Limitation
+### Wildcard Parents
 
-`allowedBlocks` is not respected when a parent `blockSettings` uses a wildcard key. Specify `allowedBlocks` on individual parent blocks instead.
+`allowedBlocks` supports wildcard parent paths as a fallback to exact child lists. See README Wildcards for precedence.
 
 ## PHP Filters (Hooks)
 

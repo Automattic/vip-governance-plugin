@@ -16,6 +16,9 @@ jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( './block-locking', () => ( { setupBlockLocking: jest.fn() } ) );
 jest.mock( './block-utils', () => ( { isBlockAllowedInHierarchy: jest.fn() } ) );
 jest.mock( './nested-settings-filter', () => ( {
+	...jest.requireActual< typeof import( './nested-settings-filter' ) >(
+		'./nested-settings-filter'
+	),
 	createNestedSettingRules: jest.fn( () => ( { pathsByBlock: new Map(), settings: {} } ) ),
 	resolveNestedSetting: jest.fn(),
 } ) );
@@ -115,5 +118,28 @@ describe( 'setupGovernance', () => {
 		expect( settingsFilter( 'original', 'color.text', 'current', undefined ) ).toBe( 'original' );
 		expect( resolveNestedSetting ).not.toHaveBeenCalled();
 		expect( setupBlockLocking ).toHaveBeenCalledWith( config.governanceRules );
+	} );
+	it( 'applies wildcard parent rules to insertion', () => {
+		jest
+			.mocked( isBlockAllowedInHierarchy )
+			.mockImplementation(
+				jest.requireActual< typeof import( './block-utils' ) >( './block-utils' )
+					.isBlockAllowedInHierarchy
+			);
+		jest.mocked( applyFilters ).mockImplementation( ( _name, value ) => value );
+		setupGovernance( {
+			...config,
+			governanceRules: {
+				allowedBlocks: [ 'core/paragraph' ],
+				blockSettings: { 'core/*': { allowedBlocks: [ 'core/**', 'core/heading' ] } },
+			},
+		} );
+		const insertionFilter = getRegisteredFilter( 'blockEditor.__unstableCanInsertBlockType' );
+
+		expect(
+			insertionFilter( true, { name: 'core/heading' }, 'parent', {
+				getBlock: () => ( { clientId: 'parent', name: 'core/quote' } ),
+			} )
+		).toBe( true );
 	} );
 } );

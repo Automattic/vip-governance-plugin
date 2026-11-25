@@ -11,6 +11,112 @@ jest.mock( '@wordpress/hooks', () => ( {
 } ) );
 
 describe( 'blockUtils', () => {
+	describe( 'wildcard parent child lists', () => {
+		const rules = {
+			allowedBlocks: [ 'core/paragraph' ],
+			blockSettings: {
+				'*': { allowedBlocks: [ 'core/list' ] },
+				'core/*': { allowedBlocks: [ 'core/heading' ] },
+				'core/cover': { allowedBlocks: [ 'core/image' ] },
+				'core/columns': { allowedBlocks: [] },
+			},
+		};
+
+		beforeEach( () => {
+			jest.mocked( applyFilters ).mockReturnValue( false );
+		} );
+
+		it.each( [ true, false ] )( 'preserves hierarchy mode and root behavior (%s)', cascading => {
+			jest.mocked( applyFilters ).mockReturnValue( cascading );
+			expect( isBlockAllowedInHierarchy( 'core/heading', [ 'core/group' ], rules ) ).toBe( true );
+			expect( isBlockAllowedInHierarchy( 'core/paragraph', [ 'core/group' ], rules ) ).toBe(
+				cascading
+			);
+			expect( isBlockAllowedInHierarchy( 'core/heading', [], rules ) ).toBe( false );
+			expect( isBlockAllowedInHierarchy( 'core/paragraph', [], rules ) ).toBe( true );
+		} );
+
+		it( 'prefers exact lists including empty and preserves structural children', () => {
+			expect( isBlockAllowedInHierarchy( 'core/image', [ 'core/cover' ], rules ) ).toBe( true );
+			expect( isBlockAllowedInHierarchy( 'core/heading', [ 'core/cover' ], rules ) ).toBe( false );
+			expect( isBlockAllowedInHierarchy( 'core/heading', [ 'core/columns' ], rules ) ).toBe(
+				false
+			);
+			expect( isBlockAllowedInHierarchy( 'core/column', [ 'core/columns' ], rules ) ).toBe( true );
+		} );
+
+		it( 'prefers a namespace wildcard and falls back to the universal wildcard for custom parents', () => {
+			expect( isBlockAllowedInHierarchy( 'core/list', [ 'core/group' ], rules ) ).toBe( false );
+			expect( isBlockAllowedInHierarchy( 'core/list', [ 'acme/group' ], rules ) ).toBe( true );
+			expect( isBlockAllowedInHierarchy( 'core/heading', [ 'acme/group' ], rules ) ).toBe( false );
+		} );
+
+		it( 'prefers depth, then specificity starting at the immediate parent', () => {
+			const nested = {
+				allowedBlocks: [],
+				blockSettings: {
+					'core/*': { allowedBlocks: [ 'core/heading' ] },
+					'acme/wrapper': { 'core/*': { allowedBlocks: [ 'core/image' ] } },
+					'acme/*': { 'core/group': { allowedBlocks: [ 'core/list' ] } },
+				},
+			};
+			const parents = [ 'core/group', 'core/cover', 'acme/wrapper' ];
+
+			expect( isBlockAllowedInHierarchy( 'core/list', parents, nested ) ).toBe( true );
+			expect( isBlockAllowedInHierarchy( 'core/image', parents, nested ) ).toBe( false );
+			expect( isBlockAllowedInHierarchy( 'core/heading', parents, nested ) ).toBe( false );
+		} );
+
+		it( 'uses the existing later-match tie-break for equally specific ancestor paths', () => {
+			const nested = {
+				allowedBlocks: [],
+				blockSettings: {
+					'acme/outer': { 'core/*': { allowedBlocks: [ 'core/image' ] } },
+					'acme/inner': { 'core/*': { allowedBlocks: [ 'core/list' ] } },
+				},
+			};
+			const parents = [ 'core/group', 'acme/inner', 'acme/outer' ];
+
+			expect( isBlockAllowedInHierarchy( 'core/list', parents, nested ) ).toBe( true );
+			expect( isBlockAllowedInHierarchy( 'core/image', parents, nested ) ).toBe( false );
+		} );
+
+		it( 'skips an invalid wildcard fallback entry and checks the remaining candidates in order', () => {
+			const nested = {
+				allowedBlocks: [],
+				blockSettings: {
+					'core/*': { allowedBlocks: [ 'core/**', 'core/heading' ] },
+				},
+			};
+
+			expect( isBlockAllowedInHierarchy( 'core/heading', [ 'core/group' ], nested ) ).toBe( true );
+			expect( isBlockAllowedInHierarchy( 'core/image', [ 'core/group' ], nested ) ).toBe( false );
+		} );
+
+		it( 'preserves legacy wildcard matching for exact and root lists', () => {
+			const nested = {
+				allowedBlocks: [ 'core/**' ],
+				blockSettings: {
+					'core/group': { allowedBlocks: [ 'core/**' ] },
+					'core/*': { allowedBlocks: [ 'core/heading' ] },
+				},
+			};
+
+			expect( () => isBlockAllowedInHierarchy( 'core/heading', [ 'core/group' ], nested ) ).toThrow(
+				SyntaxError
+			);
+			expect( () =>
+				isBlockAllowedInHierarchy( 'core/heading', [ 'core/group' ], {
+					...nested,
+					allowedBlocks: [],
+				} )
+			).toThrow( SyntaxError );
+			expect( () => isBlockAllowedInHierarchy( 'core/heading', [], nested ) ).toThrow(
+				SyntaxError
+			);
+		} );
+	} );
+
 	describe( 'isBlockAllowedInHierarchy', () => {
 		describe( 'cascading mode', () => {
 			beforeEach( () => {
@@ -170,7 +276,7 @@ describe( 'blockUtils', () => {
 				expect( result ).toBe( false );
 			} );
 
-			it( 'does not apply allowedBlocks declared under a wildcard parent', () => {
+			it( 'applies allowedBlocks declared under a wildcard parent', () => {
 				const result = isBlockAllowedInHierarchy( 'core/heading', [ 'core/group' ], {
 					allowedBlocks: [ 'core/group' ],
 					blockSettings: {
@@ -180,7 +286,7 @@ describe( 'blockUtils', () => {
 					},
 				} );
 
-				expect( result ).toBe( false );
+				expect( result ).toBe( true );
 			} );
 		} );
 

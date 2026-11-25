@@ -119,7 +119,6 @@ class InitGovernance {
 	 * @return bool Whether the current page is a post editor.
 	 */
 	private static function should_load_for_current_page(): bool {
-		// ToDo: Turn this into a configurable rule in the future.
 		$allowed_pages = [ 'page-new.php', 'post-new.php', 'post.php' ];
 
 		return in_array( $GLOBALS['pagenow'] ?? '', $allowed_pages, true );
@@ -153,12 +152,10 @@ class InitGovernance {
 					Analytics::record_usage();
 				}
 			}
-		} catch ( Throwable $throwable ) {
+		} catch ( Throwable ) {
 			// This is an unexpected exception. Record error for follow-up with WPVIP customers.
 			Analytics::record_error();
-			// ToDo: Log the error to QueryMonitor instead of doing this.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( $throwable->getMessage() );
+			trigger_error( 'VIP Block Governance could not load its rules due to an unexpected error.', E_USER_WARNING );
 
 			$governance_error = __( 'Governance rules could not be loaded due to a plugin error.', 'vip-governance' );
 		}
