@@ -119,7 +119,6 @@ class InitGovernance {
 	 * @return bool Whether the current page is a post editor.
 	 */
 	private static function should_load_for_current_page(): bool {
-		// ToDo: Turn this into a configurable rule in the future.
 		$allowed_pages = [ 'page-new.php', 'post-new.php', 'post.php' ];
 
 		return in_array( $GLOBALS['pagenow'] ?? '', $allowed_pages, true );

@@ -83,7 +83,7 @@ Each rule can have any of the following properties.
 
 - `allowedFeatures`: This is an array of the features that are allowed in the block editor. This list will expand with time, but we currently support two values: `codeEditor` (viewing the content of your post as code in the editor) and `lockBlocks` (ability to lock/unlock blocks that restrict movement/deletion). Use an empty array or omit the property when no optional features should be enabled by that rule.
 - `blockSettings`: These are specific settings related to the styling available for a block. They match the settings available in theme.json under the key `blocks`. The definition for that can be [found here][gutenberg-block-settings]. Unlike theme.json, you can nest these rules under a block name to apply different settings depending on the parent of a particular block.
-- `allowedBlocks`: These are the blocks allowed to be inserted into the block editor. You can put `allowedBlocks` in an exact parent's `blockSettings` or [wildcard parents](#wildcards). In cascading mode, child candidates are added to the root candidates inside the parent. In restrictive mode, the parent list supplies the governed candidates.
+- `allowedBlocks`: Lists allowed blocks. Put it on the rule for the root list, or in `blockSettings` for [child blocks under an exact or wildcard parent](#wildcards).
 
 #### Runtime Parsing
 
@@ -105,37 +105,32 @@ Only the first matching rule of each type in file order is used. A matching role
 
 #### Wildcards
 
-The wildcard `*` can be used within `allowedBlocks` and within `blockSettings` to target more than 1 block. The intention is that it will limit repeated rules, and allow greater flexibility in controlling the editor experience.
+Use `core/*` to match Core blocks and `*` to match any block. See the [wildcard starter rules](#default-wildcard-rule-set) for styling examples.
 
-For an example of this feature, [refer to the example file here](#default-wildcard-rule-set).
-
-Child lists work beneath exact parent names, namespace wildcards such as `core/*`, and `*`. A matching exact-path list takes priority, including an empty list after rules are merged. Otherwise, the deepest matching wildcard path wins. At equal depth, compare from the immediate parent outward, with exact names taking priority over namespace wildcards, then `*`. Equally specific matches retain the existing later-match precedence. Invalid child patterns in a wildcard fallback list are skipped.
-
-Previously, child lists beneath wildcard parents were ignored. They now affect insertion and editing automatically. In cascading mode, the root list also applies inside the parent. In restrictive mode, the selected parent list supplies the governed candidates. WordPress containment rules and the plugin’s structural child allowances still apply.
-
-In the following example, Columns uses its exact child list. Other Core parents use the wildcard list.
+An `allowedBlocks` list under a wildcard parent used to be ignored. It now applies to insertion and editing. In this example, Heading is allowed inside Group through `core/*` and is unavailable at the post root.
 
 ```json
 {
-  "$schema": "https://api.wpvip.com/schemas/plugins/governance.json",
   "version": "1.0.0",
   "rules": [
     {
       "type": "default",
-      "allowedFeatures": [ "codeEditor", "lockBlocks" ],
-      "allowedBlocks": [ "core/paragraph", "core/group", "core/columns" ],
+      "allowedBlocks": ["core/paragraph", "core/group"],
       "blockSettings": {
         "core/*": {
-          "allowedBlocks": [ "core/paragraph", "core/heading" ]
-        },
-        "core/columns": {
-          "allowedBlocks": [ "core/column" ]
+          "allowedBlocks": ["core/paragraph", "core/heading", "core/image"]
         }
       }
     }
   ]
 }
 ```
+
+To allow only Paragraph in Group, add `"core/group": { "allowedBlocks": ["core/paragraph"] }` alongside `core/*` and use [restrictive mode](#vip_governance__is_block_allowed_in_hierarchy). With the default cascading mode, the root list still applies inside Group.
+
+- An exact parent path wins, even if its merged child list is empty.
+- For wildcard paths, the deepest match wins. At the same depth, compare names from the immediate parent outward: exact name, then namespace wildcard, then `*`. The later match wins any remaining tie.
+- Invalid child patterns in a wildcard list are skipped. WordPress containment rules and structural child allowances still apply.
 
 ### Quick Start
 
