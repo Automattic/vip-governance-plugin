@@ -16,6 +16,33 @@ use Throwable;
  */
 class InitGovernance {
 	/**
+	 * Core blocks needed to edit template layout, site identity, navigation, and post listings.
+	 */
+	private const SITE_EDITOR_BLOCKS = [
+		'core/group',
+		'core/columns',
+		'core/template-part',
+		'core/site-logo',
+		'core/site-title',
+		'core/site-tagline',
+		'core/navigation',
+		'core/query',
+		'core/query-title',
+		'core/query-no-results',
+		'core/query-pagination',
+		'core/query-pagination-next',
+		'core/query-pagination-numbers',
+		'core/query-pagination-previous',
+		'core/post-template',
+		'core/post-content',
+		'core/post-title',
+		'core/post-featured-image',
+		'core/post-date',
+		'core/post-terms',
+		'core/post-excerpt',
+	];
+
+	/**
 	 * Governance configuration.
 	 *
 	 * @var array
@@ -165,12 +192,18 @@ class InitGovernance {
 					? self::get_permissive_governance_rules()
 					: GovernanceUtilities::get_rules_by_type( $parsed_governance_rules, [], $post_type );
 
-				if ( 'core/edit-widgets' === $context && ! in_array( 'core/widget-area', $governance_rules_for_user['allowedBlocks'], true ) ) {
-					// The block editor uses this internal block to keep widget areas editable.
-					$governance_rules_for_user['allowedBlocks'][] = 'core/widget-area';
-				}
-				$block_settings_for_user = $governance_rules_for_user['blockSettings'];
-				$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
+				$editor_blocks = match ( $context ) {
+					'core/edit-site'    => self::SITE_EDITOR_BLOCKS,
+					// This internal block keeps widget areas editable.
+					'core/edit-widgets' => [ 'core/widget-area' ],
+					default             => [],
+				};
+
+				$allowed_blocks = $governance_rules_for_user['allowedBlocks'];
+
+				$governance_rules_for_user['allowedBlocks'] = array_merge( $allowed_blocks, array_diff( $editor_blocks, $allowed_blocks ) );
+
+				$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $governance_rules_for_user['blockSettings'] );
 				BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 
 				if ( ( time() % 10 ) === 0 ) {

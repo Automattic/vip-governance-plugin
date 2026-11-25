@@ -45,7 +45,7 @@ class InitGovernanceTest extends TestCase {
 		$this->assertTrue( function_exists( 'WPCOMVIP\\Governance\\vip_governance_pre_init' ) );
 	}
 
-	public function test_site_editor_applies_governance_without_post_type_rules(): void {
+	public function test_site_editor_allows_template_blocks_alongside_configured_rules(): void {
 		$settings = [
 			'canLockBlocks'      => true,
 			'codeEditingEnabled' => true,
@@ -61,7 +61,7 @@ class InitGovernanceTest extends TestCase {
 			static fn (): string => '{
 				"version": "1.0.0",
 				"rules": [
-					{ "type": "default", "allowedBlocks": ["core/paragraph"] },
+					{ "type": "default", "allowedBlocks": ["core/paragraph", "core/template-part"] },
 					{ "type": "postType", "postTypes": ["page"], "allowedBlocks": ["core/list"], "allowedFeatures": ["lockBlocks"] }
 				]
 			}'
@@ -80,7 +80,15 @@ class InitGovernanceTest extends TestCase {
 		} finally {
 			remove_filter( 'block_editor_settings_all', $theme_settings );
 		}
-		$this->assertSame( [ 'core/paragraph' ], InitGovernance::$governance_configuration['governanceRules']['allowedBlocks'] );
+		$allowed_blocks = InitGovernance::$governance_configuration['governanceRules']['allowedBlocks'];
+		$this->assertTrue( array_is_list( $allowed_blocks ) );
+		$this->assertSame( array_unique( $allowed_blocks ), $allowed_blocks );
+		$this->assertContains( 'core/paragraph', $allowed_blocks );
+		$this->assertContains( 'core/template-part', $allowed_blocks );
+		$this->assertContains( 'core/navigation', $allowed_blocks );
+		$this->assertContains( 'core/query', $allowed_blocks );
+		$this->assertNotContains( 'core/list', $allowed_blocks );
+		$this->assertNotContains( 'core/widget-area', $allowed_blocks );
 	}
 
 	public function test_widgets_editor_keeps_the_widget_area_container_allowed(): void {

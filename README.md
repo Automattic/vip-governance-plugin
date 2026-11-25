@@ -64,7 +64,7 @@ On WordPress VIP, place your governance rules in `governance-rules.json` in [you
 
 Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, or while using [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) locally.
 
-Governance applies in the post editor, Site Editor, and block-based Widgets editor. The Site Editor and Widgets use default and role rules.
+Governance applies in the post editor, Site Editor, and block-based Widgets editor. The Site Editor and Widgets use default and role rules. The Site Editor adds core blocks for template layout, site identity, navigation, and post listings to its top-level allowlist. In restrictive hierarchy mode, nested blocks still follow the rules for their parent blocks.
 
 Define duotone presets in `theme.json`. To limit which theme presets Image offers, list them by slug and colors in `blockSettings.core/image.color.duotone`. WordPress renders saved presets using the theme.
 
