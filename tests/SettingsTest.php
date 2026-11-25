@@ -97,4 +97,51 @@ class SettingsTest extends TestCase {
 		$this->assertStringContainsString( '✅ Governance Rules Validation', $output );
 		$this->assertStringContainsString( 'Rules loaded successfully.', $output );
 	}
+
+	public function test_render__shows_registry_labels_and_preserves_preview_option_values(): void {
+		wp_roles()->add_role( 'governance_test_role', 'Editorial & <Review>' );
+		wp_roles()->add_role( 'governance_editor', 'Editor' );
+		wp_roles()->add_role( 'governance_unlabeled', '' );
+		register_post_type( 'governance_internal', [
+			'labels' => [ 'singular_name' => 'Internal & <Review>' ],
+			'public' => false,
+		] );
+		register_post_type( 'governance_default' );
+		$unlabeled_post_type        = register_post_type( 'governance_no_label' );
+		$unlabeled_post_type->label = '';
+		unset( $unlabeled_post_type->labels->singular_name );
+
+		$role_values      = [ '', ...array_keys( wp_roles()->roles ) ];
+		$post_type_values = [ '', ...array_values( get_post_types() ) ];
+		ob_start();
+		try {
+			Settings::render();
+		} finally {
+			$output = ob_get_clean();
+			unregister_post_type( 'governance_no_label' );
+			unregister_post_type( 'governance_default' );
+			unregister_post_type( 'governance_internal' );
+			remove_role( 'governance_unlabeled' );
+			remove_role( 'governance_editor' );
+			remove_role( 'governance_test_role' );
+		}
+
+		$this->assertSame( 1, preg_match( '/<select[^>]*id="user-role-selector"[^>]*>(.*?)<\/select>/s', $output, $roles ) );
+		$this->assertSame( 1, preg_match( '/<select[^>]*id="post-type-selector"[^>]*>(.*?)<\/select>/s', $output, $post_types ) );
+		preg_match_all( '/<option value="([^"]*)">/', $roles[1], $role_options );
+		preg_match_all( '/<option value="([^"]*)">/', $post_types[1], $post_type_options );
+
+		$this->assertSame( $role_values, $role_options[1] );
+		$this->assertSame( $post_type_values, $post_type_options[1] );
+		$this->assertStringContainsString( '<option value="">My roles</option>', $roles[1] );
+		$this->assertStringContainsString( '<option value="governance_test_role">Editorial &amp; &lt;Review&gt;</option>', $roles[1] );
+		$this->assertStringContainsString( '<option value="governance_unlabeled">governance_unlabeled</option>', $roles[1] );
+		$this->assertStringContainsString( '<option value="">No post type selected</option>', $post_types[1] );
+		$this->assertStringContainsString( '<option value="governance_internal">Internal &amp; &lt;Review&gt;</option>', $post_types[1] );
+		$this->assertStringContainsString( '<option value="governance_no_label">governance_no_label</option>', $post_types[1] );
+		$this->assertStringContainsString( '<option value="editor">Editor (editor)</option>', $roles[1] );
+		$this->assertStringContainsString( '<option value="governance_editor">Editor (governance_editor)</option>', $roles[1] );
+		$this->assertStringContainsString( '<option value="post">Post (post)</option>', $post_types[1] );
+		$this->assertStringContainsString( '<option value="governance_default">Post (governance_default)</option>', $post_types[1] );
+	}
 }
