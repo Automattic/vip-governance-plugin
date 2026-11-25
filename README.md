@@ -94,6 +94,8 @@ The runtime parser distinguishes fatal configuration failures from problems that
 - Safe corrections include converting string list values to arrays, removing invalid or duplicate list entries, removing unsupported features and properties, and retaining valid portions of `blockSettings`.
 - Repairs and dropped rules are reported as ordinal warnings on the settings page, such as `3rd rule: removed 1 invalid allowedBlocks value.` These warnings are not passed to the block editor as errors.
 
+Non-object entries in `color.palette` or `color.palette.theme` are flagged by rule and index and kept as-is.
+
 Valid configurations are preserved and applied normally. If a mixture of valid and invalid rules is supplied, the valid rules continue to apply after the invalid portions are repaired or dropped. If nothing usable remains, the editor receives a permissive fallback that allows all blocks, the code editor, and block locking. The REST v1 combined-rules endpoint continues to return an empty array for that case.
 
 Non-default rule types are combined with the default rule to avoid needless repetition. Matching non-default rules have the following ascending priority:

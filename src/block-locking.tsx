@@ -6,6 +6,7 @@ import { addFilter, applyFilters } from '@wordpress/hooks';
 
 import { isBlockAllowedInHierarchy } from './block-utils';
 
+import type { BlockWildcardMatch } from './block-matching';
 import type { BlockEditorSelectors, BlockName, ClientId, GovernanceRules } from './types';
 import type { ComponentType } from 'react';
 
@@ -28,7 +29,8 @@ type BlockEditComponent = ComponentType< BlockEditProps >;
 /** Create the governed block editor wrapper. Exported for focused integration tests. */
 export function createGovernedBlockEdit(
 	BlockEdit: BlockEditComponent,
-	governanceRules: GovernanceRules
+	governanceRules: GovernanceRules,
+	matchWildcard?: BlockWildcardMatch
 ): BlockEditComponent {
 	return function GovernedBlockEdit( props: BlockEditProps ) {
 		const { name: blockName, clientId } = props;
@@ -48,7 +50,8 @@ export function createGovernedBlockEdit(
 			blockName,
 			parentBlockNames,
 			governanceRules,
-			isParentLocked
+			isParentLocked,
+			matchWildcard
 		);
 
 		useBlockEditingMode( isAllowed ? undefined : 'disabled' );
@@ -70,11 +73,15 @@ export function createGovernedBlockEdit(
 }
 
 /** Register governance-driven editing restrictions with Gutenberg. */
-export function setupBlockLocking( governanceRules: GovernanceRules ): void {
+export function setupBlockLocking(
+	governanceRules: GovernanceRules,
+	matchWildcard?: BlockWildcardMatch
+): void {
 	addFilter(
 		'editor.BlockEdit',
 		'wpcomvip-governance/with-disabled-blocks',
-		( BlockEdit: BlockEditComponent ) => createGovernedBlockEdit( BlockEdit, governanceRules )
+		( BlockEdit: BlockEditComponent ) =>
+			createGovernedBlockEdit( BlockEdit, governanceRules, matchWildcard )
 	);
 }
 
@@ -83,13 +90,19 @@ export function isBlockAllowedForEditing(
 	blockName: BlockName,
 	parentBlockNames: BlockName[],
 	governanceRules: GovernanceRules,
-	isParentLocked: boolean
+	isParentLocked: boolean,
+	matchWildcard?: BlockWildcardMatch
 ): boolean {
 	if ( isParentLocked ) {
 		return true;
 	}
 
-	const isAllowed = isBlockAllowedInHierarchy( blockName, parentBlockNames, governanceRules );
+	const isAllowed = isBlockAllowedInHierarchy(
+		blockName,
+		parentBlockNames,
+		governanceRules,
+		matchWildcard
+	);
 
 	return applyFilters(
 		'vip_governance__is_block_allowed_for_editing',

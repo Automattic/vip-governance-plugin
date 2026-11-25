@@ -311,11 +311,40 @@ class RulesParser {
 				continue;
 			}
 
-			// Other nested properties are theme.json settings and intentionally unrestricted.
+			if ( 'color' === $property && $value instanceof stdClass ) {
+				self::add_palette_entry_warnings( $value->palette ?? null, $rule_ordinal, $path . '.color.palette', $warnings );
+			}
+
+			// Keep theme.json settings unchanged, including entries that produced warnings.
 			$normalized->{$property} = $value;
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Report non-object entries in palette lists consumed by the renderer.
+	 *
+	 * @param mixed  $palette Palette list or origin map.
+	 * @param string $rule_ordinal Ordinal position of the rule.
+	 * @param string $path Dot-separated palette path.
+	 * @param array  $warnings Non-fatal warnings collected while parsing.
+	 */
+	private static function add_palette_entry_warnings( mixed $palette, string $rule_ordinal, string $path, array &$warnings ): void {
+		if ( $palette instanceof stdClass ) {
+			$palette = $palette->theme ?? null;
+			$path   .= '.theme';
+		}
+		if ( ! is_array( $palette ) ) {
+			return;
+		}
+
+		foreach ( $palette as $index => $entry ) {
+			if ( ! $entry instanceof stdClass ) {
+				/* translators: 1: Ordinal number of a rule, e.g. 3rd. 2: Path to the palette entry. */
+				$warnings[] = sprintf( __( '%1$s rule: expected an object at "%2$s".', 'vip-governance' ), $rule_ordinal, $path . '[' . $index . ']' );
+			}
+		}
 	}
 
 	/**

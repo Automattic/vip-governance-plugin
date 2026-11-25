@@ -1,5 +1,6 @@
 import { doesBlockNameMatchBlockWildcard } from './block-matching';
 
+import type { BlockWildcardMatch } from './block-matching';
 import type { BlockEditorSelectors, BlockName, BlockSettings, ClientId } from './types';
 
 const ALLOWED_BLOCKS_KEY = 'allowedBlocks';
@@ -14,12 +15,14 @@ interface ResolveForBlockNamesOptions {
 	defaultValue: unknown;
 	path: string;
 	rules: NestedSettingRules;
+	matchWildcard?: BlockWildcardMatch;
 }
 
 interface ResolveNestedSettingOptions
-	extends Omit< ResolveForBlockNamesOptions, 'blockNames' >, BlockEditorSelectors {
+	extends Omit< ResolveForBlockNamesOptions, 'blockNames' | 'rules' >, BlockEditorSelectors {
 	clientId: ClientId;
 	currentBlockName?: BlockName;
+	rules?: NestedSettingRules | null;
 }
 
 export interface NestedSettingResult {
@@ -154,6 +157,7 @@ export function resolveSettingForBlockNames( {
 	defaultValue,
 	path,
 	rules,
+	matchWildcard = doesBlockNameMatchBlockWildcard,
 }: ResolveForBlockNamesOptions ): unknown {
 	const currentBlockName = blockNames[ 0 ];
 
@@ -169,7 +173,7 @@ export function resolveSettingForBlockNames( {
 		if (
 			blockPattern.includes( '*' ) &&
 			settingPaths.has( path ) &&
-			doesBlockNameMatchBlockWildcard( currentBlockName, blockPattern )
+			matchWildcard( currentBlockName, blockPattern )
 		) {
 			const normalizedBlockNames = [ ...blockNames ];
 			normalizedBlockNames[ 0 ] = blockPattern;
@@ -191,11 +195,17 @@ export function resolveNestedSetting( {
 	getBlockParents,
 	path,
 	rules,
+	matchWildcard,
 }: ResolveNestedSettingOptions ): unknown {
+	if ( ! rules || rules.pathsByBlock.size === 0 ) {
+		return defaultValue;
+	}
+
 	return resolveSettingForBlockNames( {
 		blockNames: getBlockNamePath( clientId, getBlockParents, getBlockName, currentBlockName ),
 		defaultValue,
 		path,
 		rules,
+		matchWildcard,
 	} );
 }

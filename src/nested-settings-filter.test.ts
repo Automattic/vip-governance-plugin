@@ -7,6 +7,37 @@ import {
 import type { BlockSettings } from './types';
 
 describe( 'nested settings filter', () => {
+	it.each( [
+		[ 'empty settings', createNestedSettingRules( {} ) ],
+		[
+			'allowlist-only settings',
+			createNestedSettingRules( { 'core/group': { allowedBlocks: [ 'core/heading' ] } } ),
+		],
+		[ 'null rules', null ],
+		[ 'undefined rules', undefined ],
+	] as const )(
+		'returns the native value by identity without ancestry reads for %s',
+		( _description, rules ) => {
+			const defaultValue = { theme: [ { slug: 'native' } ] };
+			const getBlockParents = jest.fn( () => [ 'parent' ] );
+			const getBlockName = jest.fn( () => 'core/group' );
+
+			expect(
+				resolveNestedSetting( {
+					clientId: 'child',
+					currentBlockName: 'core/heading',
+					defaultValue,
+					getBlockName,
+					getBlockParents,
+					path: 'color.palette',
+					rules,
+				} )
+			).toBe( defaultValue );
+			expect( getBlockParents ).not.toHaveBeenCalled();
+			expect( getBlockName ).not.toHaveBeenCalled();
+		}
+	);
+
 	function resolve(
 		nestedSettings: BlockSettings,
 		{
