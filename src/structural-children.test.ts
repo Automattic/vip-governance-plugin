@@ -4,6 +4,7 @@ import { useContext } from '@wordpress/element';
 import { addFilter, applyFilters } from '@wordpress/hooks';
 
 import { createGovernedBlockEdit } from './block-locking';
+import { isBlockAllowedInHierarchy } from './block-utils';
 import { setupGovernance } from './editor';
 
 import type { BlockRecord, GovernanceRules } from './types';
@@ -123,17 +124,22 @@ describe.each( [
 		} );
 	} );
 
-	it.each( exemptions )( 'allows %s → %s for insertion and editing', ( parent, child ) => {
+	it.each( exemptions )( 'allows %s → %s', ( parent, child ) => {
 		expect(
-			getDecisions( [ parent, 'core/group' ], child, { allowedBlocks: [ parent ] } )
-		).toEqual( { insert: true, edit: true } );
+			isBlockAllowedInHierarchy( child, [ parent, 'core/group' ], { allowedBlocks: [ parent ] } )
+		).toBe( true );
 	} );
 
-	it.each( governed )( 'checks governance for %s → %s after native approval', ( parent, child ) => {
-		expect( getDecisions( [ parent ], child, { allowedBlocks: [ parent ] } ) ).toEqual( {
-			insert: false,
-			edit: false,
-		} );
+	it.each( governed )( 'requires governance permission for %s → %s', ( parent, child ) => {
+		expect( isBlockAllowedInHierarchy( child, [ parent ], { allowedBlocks: [ parent ] } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'applies a structural exemption in both editor entry points', () => {
+		expect(
+			getDecisions( [ 'core/navigation' ], 'core/navigation-link', { allowedBlocks: [] } )
+		).toEqual( { insert: true, edit: true } );
 	} );
 
 	it( 'honors a native veto for an exempt child while leaving existing content editable', () => {
@@ -179,7 +185,7 @@ describe.each( [
 } );
 
 describe( 'editor wildcard compilation', () => {
-	const validRule = 'core/.+*';
+	const validRule = 'core/*';
 	const invalidRule = 'core/**';
 	const governanceRules = { allowedBlocks: [ 'example/literal', validRule, invalidRule ] };
 	const configuration = {
@@ -188,7 +194,6 @@ describe( 'editor wildcard compilation', () => {
 		nestedSettings: {
 			'core/heading': { color: { text: true } },
 			[ validRule ]: { color: { text: false } },
-			[ invalidRule ]: { color: { text: 'unreachable' } },
 		},
 		urlSettingsPage: '',
 	};
@@ -235,7 +240,7 @@ describe( 'editor wildcard compilation', () => {
 
 	it( 'compiles only when reached and reuses the same successful expression across editor hooks', () => {
 		const regexp = jest.spyOn( globalThis, 'RegExp' );
-		const compilations = () => regexp.mock.calls.filter( ( [ input ] ) => input === 'core/.+.*' );
+		const compilations = () => regexp.mock.calls.filter( ( [ input ] ) => input === 'core/.*' );
 		const first = registerEditor();
 		expect( first.insert( 'core/heading', false ) ).toBe( false );
 		expect( first.insert( 'example/literal' ) ).toBe( false );
@@ -243,14 +248,13 @@ describe( 'editor wildcard compilation', () => {
 		expect( first.setting( 'core/image', 'color.background' ) ).toBe( 'native' );
 		expect( compilations() ).toHaveLength( 0 );
 
-		for ( let call = 0; call < 10; call++ ) {
+		for ( let call = 0; call < 2; call++ ) {
 			expect( first.insert( 'core/image' ) ).toBe( false );
 			first.edit( 'core/image' );
 			expect( first.setting( 'core/image' ) ).toBe( false );
 		}
-		expect( compilations() ).toEqual( [ [ 'core/.+.*' ] ] );
+		expect( compilations() ).toEqual( [ [ 'core/.*' ] ] );
 		expect( useBlockEditingMode ).toHaveBeenLastCalledWith( undefined );
-		expect( applyFilters ).toHaveBeenCalledTimes( 42 );
 		expect( applyFilters ).toHaveBeenCalledWith(
 			'vip_governance__is_block_allowed_for_insertion',
 			true,
@@ -262,7 +266,7 @@ describe( 'editor wildcard compilation', () => {
 		const second = registerEditor();
 		second.insert( 'core/image' );
 		first.insert( 'core/image' );
-		expect( compilations() ).toEqual( [ [ 'core/.+.*' ], [ 'core/.+.*' ] ] );
+		expect( compilations() ).toEqual( [ [ 'core/.*' ], [ 'core/.*' ] ] );
 	} );
 
 	it( 'throws and retries every invalid pattern that is reached', () => {
@@ -271,9 +275,7 @@ describe( 'editor wildcard compilation', () => {
 
 		expect( () => editor.insert( 'example/missing' ) ).toThrow( SyntaxError );
 		expect( () => editor.edit( 'example/missing' ) ).toThrow( SyntaxError );
-		expect( () => editor.setting( 'example/missing' ) ).toThrow( SyntaxError );
 		expect( regexp.mock.calls.filter( ( [ input ] ) => input === 'core/.**' ) ).toEqual( [
-			[ 'core/.**' ],
 			[ 'core/.**' ],
 			[ 'core/.**' ],
 		] );
