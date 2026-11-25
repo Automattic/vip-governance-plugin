@@ -57,11 +57,11 @@ class SettingsTest extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertSame( 1, $filter_calls, 'Settings should retrieve and parse the rules JSON only once.' );
-		$this->assertStringContainsString( '⚠️ Governance Rules Validation', $output );
-		$this->assertStringContainsString( 'Rules loaded with warnings:', $output );
-		$this->assertStringContainsString( 'converted allowedBlocks to an array.', $output );
-		$this->assertStringContainsString( '&quot;&lt;unsafe&gt;&quot;', $output );
-		$this->assertStringContainsString( 'View Governance Rules For A Rule Type', $output );
+		$data = $this->settings_data( $output );
+		$this->assertNotEmpty( $data['warnings'] );
+		$this->assertStringContainsString( 'converted allowedBlocks to an array.', implode( ' ', $data['warnings'] ) );
+		$this->assertStringContainsString( '&lt;unsafe&gt;', $output );
+		$this->assertFalse( $data['error'] );
 	}
 
 	public function test_render__with_fatal_parser_error__shows_error_and_hides_combined_rules_tool(): void {
@@ -74,9 +74,7 @@ class SettingsTest extends TestCase {
 		Settings::render();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( '❌ Governance Rules Validation', $output );
-		$this->assertStringContainsString( 'Failed to load:', $output );
-		$this->assertStringNotContainsString( 'View Governance Rules For A Rule Type', $output );
+		$this->assertNotEmpty( $this->settings_data( $output )['error'] );
 	}
 
 	public function test_render__with_valid_rules__shows_success(): void {
@@ -94,12 +92,13 @@ class SettingsTest extends TestCase {
 		Settings::render();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( '✅ Governance Rules Validation', $output );
-		$this->assertStringContainsString( 'Rules loaded successfully.', $output );
+		$data = $this->settings_data( $output );
+		$this->assertFalse( $data['error'] );
+		$this->assertSame( [], $data['warnings'] );
 	}
 
 	public function test_render__shows_registry_labels_and_preserves_preview_option_values(): void {
-		wp_roles()->add_role( 'governance_test_role', 'Editorial & <Review>' );
+		wp_roles()->add_role( 'governance_test_role', 'Editorial & <Review> &quot;Desk&quot;' );
 		wp_roles()->add_role( 'governance_editor', 'Editor' );
 		wp_roles()->add_role( 'governance_unlabeled', '' );
 		register_post_type( 'governance_internal', [
@@ -126,22 +125,23 @@ class SettingsTest extends TestCase {
 			remove_role( 'governance_test_role' );
 		}
 
-		$this->assertSame( 1, preg_match( '/<select[^>]*id="user-role-selector"[^>]*>(.*?)<\/select>/s', $output, $roles ) );
-		$this->assertSame( 1, preg_match( '/<select[^>]*id="post-type-selector"[^>]*>(.*?)<\/select>/s', $output, $post_types ) );
-		preg_match_all( '/<option value="([^"]*)">/', $roles[1], $role_options );
-		preg_match_all( '/<option value="([^"]*)">/', $post_types[1], $post_type_options );
+		$data = $this->settings_data( $output );
+		$this->assertSame( $role_values, array_keys( $data['roles'] ) );
+		$this->assertSame( $post_type_values, array_keys( $data['postTypes'] ) );
+		$this->assertSame( 'My roles', $data['roles'][''] );
+		$this->assertSame( 'No post type selected', $data['postTypes'][''] );
+		$this->assertSame( 'Editorial & <Review> &quot;Desk&quot;', $data['roles']['governance_test_role'] );
+		$this->assertSame( 'governance_unlabeled', $data['roles']['governance_unlabeled'] );
+		$this->assertSame( 'Internal & <Review>', $data['postTypes']['governance_internal'] );
+		$this->assertSame( 'governance_no_label', $data['postTypes']['governance_no_label'] );
+		$this->assertSame( 'Post (post)', $data['postTypes']['post'] );
+		$this->assertSame( 'Post (governance_default)', $data['postTypes']['governance_default'] );
+		$this->assertSame( 'Editor (editor)', $data['roles']['editor'] );
+		$this->assertSame( 'Editor (governance_editor)', $data['roles']['governance_editor'] );
+	}
 
-		$this->assertSame( $role_values, $role_options[1] );
-		$this->assertSame( $post_type_values, $post_type_options[1] );
-		$this->assertStringContainsString( '<option value="">My roles</option>', $roles[1] );
-		$this->assertStringContainsString( '<option value="governance_test_role">Editorial &amp; &lt;Review&gt;</option>', $roles[1] );
-		$this->assertStringContainsString( '<option value="governance_unlabeled">governance_unlabeled</option>', $roles[1] );
-		$this->assertStringContainsString( '<option value="">No post type selected</option>', $post_types[1] );
-		$this->assertStringContainsString( '<option value="governance_internal">Internal &amp; &lt;Review&gt;</option>', $post_types[1] );
-		$this->assertStringContainsString( '<option value="governance_no_label">governance_no_label</option>', $post_types[1] );
-		$this->assertStringContainsString( '<option value="editor">Editor (editor)</option>', $roles[1] );
-		$this->assertStringContainsString( '<option value="governance_editor">Editor (governance_editor)</option>', $roles[1] );
-		$this->assertStringContainsString( '<option value="post">Post (post)</option>', $post_types[1] );
-		$this->assertStringContainsString( '<option value="governance_default">Post (governance_default)</option>', $post_types[1] );
+	private function settings_data( string $output ): array {
+		$this->assertSame( 1, preg_match( '/data-settings="([^"]*)"/', $output, $match ) );
+		return json_decode( html_entity_decode( $match[1], ENT_QUOTES ), true, 512, JSON_THROW_ON_ERROR );
 	}
 }

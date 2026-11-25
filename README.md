@@ -787,7 +787,7 @@ Governance validation has three states:
 - `⚠️ Rules loaded with warnings`: Usable rules continue to apply. Rule-level warnings identify the rule ordinal and, where relevant, the nested property path.
 - `✅ Rules loaded successfully`: The configuration loaded without any corrections.
 
-Warnings are escaped and displayed only on this server-rendered validation page. They do not change the editor-side `VIP_GOVERNANCE` payload. The combined-rules preview remains available when warnings exist.
+WordPress validates the rules and JavaScript displays the results. Warnings leave the editor payload unchanged and the preview available.
 
 ![Admin setting in action][settings-panel-example-gif]
 
@@ -795,7 +795,7 @@ Warnings are escaped and displayed only on this server-rendered validation page.
 
 ### `vip-governance/v1/rules`
 
-This endpoint returns effective rules for an optional role and/or post type. The settings page uses it only for the combined-rules preview; settings validation and parser warnings are rendered separately on the server. It is available only to users with the `manage_options` capability.
+This endpoint returns effective rules for an optional role and/or post type. The settings page uses it only for the combined-rules preview. It is available only to users with the `manage_options` capability.
 
 Pass `role` and `postType` as query parameters. Each is optional, and supplied values must name a registered WordPress role or post type. If `role` is omitted, resolution uses the authenticated user's roles:
 

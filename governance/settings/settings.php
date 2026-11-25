@@ -46,12 +46,6 @@ class Settings {
 				'default'           => [ self::OPTIONS_KEY_IS_ENABLED => true ],
 			]
 		);
-
-		$section_id = 'plugin-settings';
-		add_settings_section( $section_id, __( 'Plugin Settings', 'vip-governance' ), '__return_null', self::MENU_SLUG );
-		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance', 'vip-governance' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
-			'label_for' => self::OPTIONS_KEY_IS_ENABLED,
-		] );
 	}
 
 	/**
@@ -63,34 +57,23 @@ class Settings {
 	 */
 	public static function register_menu(): void {
 		$hook = add_menu_page( __( 'VIP Block Governance', 'vip-governance' ), __( 'VIP Block Governance', 'vip-governance' ), 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
-		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
-		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
+		add_action( 'load-' . $hook, static function (): void {
+			add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		} );
 	}
 
 	/**
-	 * Load the CSS for the settings page.
-	 *
-	 * @return void
-	 * 
-	 * @access private
+	 * Enqueue assets for the settings page.
 	 */
-	public static function enqueue_resources(): void {
+	public static function enqueue_assets(): void {
+		$handle = 'wpcomvip-governance-settings';
 		wp_enqueue_style(
-			'wpcomvip-governance-settings',
+			$handle,
 			plugins_url( '/governance/settings/settings.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
-			/* dependencies */ [],
+			[ 'wp-components' ],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
-	}
 
-	/**
-	 * Load the JS for the settings page.
-	 *
-	 * @return void
-	 *
-	 * @access private
-	 */
-	public static function enqueue_scripts(): void {
 		$asset_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/settings.asset.php';
 		if ( ! is_readable( $asset_file_path ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -106,12 +89,13 @@ class Settings {
 		}
 
 		wp_enqueue_script(
-			'wpcomvip-governance-settings',
+			$handle,
 			plugins_url( '/build/settings.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			/* in footer */ true
 		);
+		wp_set_script_translations( $handle, 'vip-governance' );
 	}
 
 	/**
@@ -174,22 +158,6 @@ class Settings {
 			}
 		}
 		return $labels;
-	}
-
-	/**
-	 * Setting used to enable/disable the plugin.
-	 *
-	 * @return void
-	 * 
-	 * @access private
-	 */
-	public static function render_is_enabled(): void {
-		$options    = get_option( self::OPTIONS_KEY, [] );
-		$options    = is_array( $options ) ? $options : [];
-		$is_enabled = $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
-
-		printf( '<input id="%1$s" name="%2$s[%1$s]" type="checkbox" value="yes" %3$s />', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_attr( self::OPTIONS_KEY ), checked( $is_enabled, true, false ) );
-		printf( '<label for="%s"><p class="description" style="display: inline-block; margin-left: 0.25rem">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable block editor governance rules for all users.', 'vip-governance' ) );
 	}
 
 	/**
