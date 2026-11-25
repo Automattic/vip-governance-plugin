@@ -14,19 +14,37 @@ defined( 'ABSPATH' ) || die();
  */
 class BlockLocking {
 	/**
-	 * Apply feature restrictions to the block editor settings.
+	 * Initialize the class
 	 *
-	 * @param array $settings Editor settings.
-	 * @param array $allowed_features Features allowed by governance.
-	 * @return array Editor settings.
+	 * @param array $allowed_features Features that are allowed from the governance rules.
+	 * @return void
+	 *
+	 * @access private
 	 */
-	public static function apply_editor_settings( array $settings, array $allowed_features ): array {
-		if ( ! in_array( 'lockBlocks', $allowed_features, true ) ) {
-			$settings['canLockBlocks'] = false;
+	public static function init( array $allowed_features ): void {
+		$allow_lock_blocks = false;
+		$allow_code_editor = false;
+
+		if ( in_array( 'lockBlocks', $allowed_features, true ) ) {
+			$allow_lock_blocks = true;
 		}
-		if ( ! in_array( 'codeEditor', $allowed_features, true ) ) {
-			$settings['codeEditingEnabled'] = false;
+
+		if ( in_array( 'codeEditor', $allowed_features, true ) ) {
+			$allow_code_editor = true;
 		}
-		return $settings;
+
+		add_filter( 'block_editor_settings_all', function ( $settings ) use ( $allow_lock_blocks, $allow_code_editor ) {
+			if ( false === $allow_lock_blocks ) {
+				// Disable locking and unlocking blocks.
+				$settings['canLockBlocks'] = false;
+			}
+
+			if ( false === $allow_code_editor ) {
+				// Disable switching to code editing mode.
+				$settings['codeEditingEnabled'] = false;
+			}
+
+			return $settings;
+		} );
 	}
 }

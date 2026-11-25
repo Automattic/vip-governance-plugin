@@ -66,10 +66,20 @@ class InitGovernanceTest extends TestCase {
 				]
 			}'
 		);
-		$this->assertSame( [
-			'canLockBlocks'      => false,
-			'codeEditingEnabled' => false,
-		], InitGovernance::apply_editor_settings( $settings ) );
+		$theme_settings = static function ( array $editor_settings ): array {
+			$editor_settings['canLockBlocks']      = true;
+			$editor_settings['codeEditingEnabled'] = true;
+			return $editor_settings;
+		};
+		add_filter( 'block_editor_settings_all', $theme_settings );
+		try {
+			InitGovernance::load_css();
+			$editor_settings = apply_filters( 'block_editor_settings_all', $settings, $context );
+			$this->assertFalse( $editor_settings['canLockBlocks'] );
+			$this->assertFalse( $editor_settings['codeEditingEnabled'] );
+		} finally {
+			remove_filter( 'block_editor_settings_all', $theme_settings );
+		}
 		$this->assertSame( [ 'core/paragraph' ], InitGovernance::$governance_configuration['governanceRules']['allowedBlocks'] );
 	}
 
@@ -84,7 +94,7 @@ class InitGovernanceTest extends TestCase {
 
 		$context = new \WP_Block_Editor_Context( [ 'name' => 'core/edit-widgets' ] );
 		$this->assertSame( [ 'core/paragraph' ], InitGovernance::capture_editor_context( [ 'core/paragraph' ], $context ) );
-		InitGovernance::apply_editor_settings( [] );
+		InitGovernance::load_css();
 
 		$this->assertSame(
 			[ 'core/paragraph', 'core/widget-area' ],

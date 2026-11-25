@@ -38,7 +38,6 @@ class InitGovernance {
 	 */
 	public static function init(): void {
 		add_filter( 'allowed_block_types_all', [ __CLASS__, 'capture_editor_context' ], 10, 2 );
-		add_filter( 'block_editor_settings_all', [ __CLASS__, 'apply_editor_settings' ] );
 
 		// Assets for block editor UI.
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'load_settings' ] );
@@ -57,23 +56,6 @@ class InitGovernance {
 	public static function capture_editor_context( bool|array $allowed_blocks, \WP_Block_Editor_Context $context ): bool|array {
 		self::$editor_context = $context;
 		return $allowed_blocks;
-	}
-
-	/**
-	 * Apply governance feature settings to the current editor.
-	 *
-	 * @param array $settings Editor settings.
-	 * @return array Editor settings.
-	 */
-	public static function apply_editor_settings( array $settings ): array {
-		if ( ! Settings::is_enabled() ) {
-			return $settings;
-		}
-
-		$rules = self::get_governance_configuration()['governanceRules'];
-		return isset( $rules['allowedFeatures'] )
-			? BlockLocking::apply_editor_settings( $settings, $rules['allowedFeatures'] )
-			: $settings;
 	}
 
 	/**
@@ -189,6 +171,7 @@ class InitGovernance {
 				}
 				$block_settings_for_user = $governance_rules_for_user['blockSettings'];
 				$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
+				BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 
 				if ( ( time() % 10 ) === 0 ) {
 					// Sample results. Only send analytics on 10% of configuration loads.
