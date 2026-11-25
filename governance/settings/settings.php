@@ -57,34 +57,23 @@ class Settings {
 	 */
 	public static function register_menu(): void {
 		$hook = add_menu_page( __( 'VIP Block Governance', 'vip-governance' ), __( 'VIP Block Governance', 'vip-governance' ), 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
-		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
-		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
+		add_action( 'load-' . $hook, static function (): void {
+			add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		} );
 	}
 
 	/**
-	 * Load the CSS for the settings page.
-	 *
-	 * @return void
-	 * 
-	 * @access private
+	 * Enqueue assets for the settings page.
 	 */
-	public static function enqueue_resources(): void {
+	public static function enqueue_assets(): void {
+		$handle = 'wpcomvip-governance-settings';
 		wp_enqueue_style(
-			'wpcomvip-governance-settings',
+			$handle,
 			plugins_url( '/governance/settings/settings.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
-			/* dependencies */ [ 'wp-components' ],
+			[ 'wp-components' ],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
-	}
 
-	/**
-	 * Load the JS for the settings page.
-	 *
-	 * @return void
-	 *
-	 * @access private
-	 */
-	public static function enqueue_scripts(): void {
 		$asset_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/settings.asset.php';
 		if ( ! is_readable( $asset_file_path ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -100,13 +89,13 @@ class Settings {
 		}
 
 		wp_enqueue_script(
-			'wpcomvip-governance-settings',
+			$handle,
 			plugins_url( '/build/settings.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			/* in footer */ true
 		);
-		wp_set_script_translations( 'wpcomvip-governance-settings', 'vip-governance' );
+		wp_set_script_translations( $handle, 'vip-governance' );
 	}
 
 	/**

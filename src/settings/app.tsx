@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	CheckboxControl,
@@ -6,8 +7,8 @@ import {
 	SelectControl,
 	Spinner,
 } from '@wordpress/components';
-import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 
 export interface SettingsData {
 	enabled: boolean;
@@ -19,41 +20,26 @@ export interface SettingsData {
 	version: string;
 }
 
-export type RulesRequest = ( options: { path: string } ) => Promise< unknown >;
+type PreviewResult = { value: string; error: boolean };
 
-export function SettingsApp( {
-	settings,
-	request,
-}: {
-	settings: SettingsData;
-	request: RulesRequest;
-} ) {
+export function SettingsApp( settings: SettingsData ) {
 	const [ enabled, setEnabled ] = useState( settings.enabled );
 	const [ role, setRole ] = useState( '' );
 	const [ postType, setPostType ] = useState( '' );
-	const [ preview, setPreview ] = useState< { loading: boolean; value: string; error: boolean } >( {
-		loading: false,
-		value: '',
-		error: false,
-	} );
-	const latestRequestRef = useRef( 0 );
+	const [ preview, setPreview ] = useState< PreviewResult | 'loading' | null >( null );
+	const previewRequestRef = useRef< AbortController | null >( null );
 
-	useEffect(
-		() => () => {
-			latestRequestRef.current++;
-		},
-		[]
-	);
-
-	function changeSelection( update: ( value: string ) => void, value: string ) {
-		latestRequestRef.current++;
-		update( value );
-		setPreview( { loading: false, value: '', error: false } );
+	function clearPreview() {
+		previewRequestRef.current?.abort();
+		previewRequestRef.current = null;
+		setPreview( null );
 	}
 
 	async function viewRules() {
-		const requestId = ++latestRequestRef.current;
-		setPreview( { loading: true, value: '', error: false } );
+		previewRequestRef.current?.abort();
+		const controller = new AbortController();
+		previewRequestRef.current = controller;
+		setPreview( 'loading' );
 		const query = new URLSearchParams();
 		if ( role ) {
 			query.set( 'role', role );
@@ -61,27 +47,29 @@ export function SettingsApp( {
 		if ( postType ) {
 			query.set( 'postType', postType );
 		}
-		let value: string;
-		let error = false;
+		let result: PreviewResult;
 		try {
-			value = JSON.stringify(
-				await request( { path: `/vip-governance/v1/rules?${ query }` } ),
-				null,
-				4
-			);
+			const rules = await apiFetch( {
+				path: `/vip-governance/v1/rules?${ query }`,
+				signal: controller.signal,
+			} );
+			result = { value: JSON.stringify( rules, null, 4 ), error: false };
 		} catch ( failure ) {
-			error = true;
-			value =
+			const message =
 				typeof failure === 'object' &&
 				failure !== null &&
 				'message' in failure &&
-				typeof failure.message === 'string' &&
-				failure.message
+				typeof failure.message === 'string'
 					? failure.message
-					: __( 'Unable to load governance rules.', 'vip-governance' );
+					: '';
+			result = {
+				value: message || __( 'Unable to load governance rules.', 'vip-governance' ),
+				error: true,
+			};
 		}
-		if ( requestId === latestRequestRef.current ) {
-			setPreview( { loading: false, value, error } );
+		if ( ! controller.signal.aborted ) {
+			previewRequestRef.current = null;
+			setPreview( result );
 		}
 	}
 
@@ -95,10 +83,12 @@ export function SettingsApp( {
 	if ( settings.error ) {
 		validationStatus = 'error';
 	}
+	const loading = preview === 'loading';
+	const result = loading ? null : preview;
 	let announcement = '';
-	if ( preview.loading ) {
+	if ( loading ) {
 		announcement = __( 'Loading governance rules…', 'vip-governance' );
-	} else if ( preview.value && ! preview.error ) {
+	} else if ( result?.value && ! result.error ) {
 		announcement = __( 'Governance rules loaded.', 'vip-governance' );
 	}
 
@@ -145,7 +135,10 @@ export function SettingsApp( {
 							label={ __( 'User role', 'vip-governance' ) }
 							value={ role }
 							options={ options( settings.roles ) }
-							onChange={ value => changeSelection( setRole, value ) }
+							onChange={ value => {
+								setRole( value );
+								clearPreview();
+							} }
 						/>
 						<SelectControl
 							__nextHasNoMarginBottom
@@ -153,32 +146,39 @@ export function SettingsApp( {
 							label={ __( 'Post type', 'vip-governance' ) }
 							value={ postType }
 							options={ options( settings.postTypes ) }
-							onChange={ value => changeSelection( setPostType, value ) }
+							onChange={ value => {
+								setPostType( value );
+								clearPreview();
+							} }
 						/>
 						{ ( role || postType ) && (
 							<Button variant="secondary" type="button" onClick={ () => void viewRules() }>
 								{ __( 'View Rules', 'vip-governance' ) }
 							</Button>
 						) }
-						{ preview.loading && <Spinner /> }
+						{ loading && <Spinner /> }
 					</div>
 					<div role="status" className="screen-reader-text">
 						{ announcement }
 					</div>
-					{ preview.error && (
+					{ result?.error && (
 						<Notice status="error" isDismissible={ false }>
-							{ preview.value }
+							{ result.value }
 						</Notice>
 					) }
-					{ preview.value && ! preview.error && (
+					{ result?.value && ! result.error && (
 						<pre id="json" tabIndex={ 0 }>
-							{ preview.value }
+							{ result.value }
 						</pre>
 					) }
 				</PanelBody>
 			) }
 			<p>
-				{ __( 'Plugin Version:', 'vip-governance' ) } { settings.version }
+				{ sprintf(
+					/* translators: %s: Plugin version. */
+					__( 'Plugin Version: %s', 'vip-governance' ),
+					settings.version
+				) }
 			</p>
 		</div>
 	);

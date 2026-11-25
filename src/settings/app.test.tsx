@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { createRoot } from '@wordpress/element';
 // React is supplied by @wordpress/element. Its test helper is not re-exported.
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -8,6 +9,8 @@ import { SettingsApp, SettingsData } from './app';
 jest.mock( '@wordpress/theme', () => ( {
 	ThemeProvider: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
+
+jest.mock( '@wordpress/api-fetch' );
 
 jest.mock( 'uuid', () => ( { v4: () => 'test-id' } ) );
 
@@ -42,6 +45,7 @@ describe( 'SettingsApp', () => {
 	let container: HTMLDivElement;
 	let root: ReturnType< typeof createRoot >;
 	beforeEach( () => {
+		jest.mocked( apiFetch ).mockReset();
 		Object.assign( globalThis, { IS_REACT_ACT_ENVIRONMENT: true } );
 		window.matchMedia = jest
 			.fn()
@@ -77,22 +81,22 @@ describe( 'SettingsApp', () => {
 			const old = deferred();
 			const current = deferred();
 			const request = jest
-				.fn()
+				.mocked( apiFetch )
 				.mockReturnValueOnce( old.promise )
 				.mockReturnValueOnce( current.promise );
-			await flush( () => root.render( <SettingsApp settings={ settings } request={ request } /> ) );
+			await flush( () => root.render( <SettingsApp { ...settings } /> ) );
 			await select( 'editor' );
 			await clickPreview();
 			await select( 'author' );
+			expect( request.mock.calls[ 0 ][ 0 ].signal?.aborted ).toBe( true );
 			await clickPreview();
 			await flush( () => old[ settle ]( { message: 'Stale' } ) );
 			expect( container.querySelector( '#json' ) ).toBeNull();
 			expect( container.querySelector( '[role="status"]' )?.textContent ).toContain( 'Loading' );
 			await flush( () => current.resolve( { allowedBlocks: [ 'core/heading' ] } ) );
 			expect( container.querySelector( '#json' )?.textContent ).toContain( 'core/heading' );
-			expect( request ).toHaveBeenLastCalledWith( {
-				path: '/vip-governance/v1/rules?role=author',
-			} );
+			expect( request.mock.lastCall?.[ 0 ].path ).toBe( '/vip-governance/v1/rules?role=author' );
+			expect( request.mock.lastCall?.[ 0 ].signal?.aborted ).toBe( false );
 			await select( '' );
 			expect( container.querySelector( '#json' ) ).toBeNull();
 			expect( request ).toHaveBeenCalledTimes( 2 );
@@ -104,14 +108,15 @@ describe( 'SettingsApp', () => {
 		const current = deferred();
 		const pending = deferred();
 		const request = jest
-			.fn()
+			.mocked( apiFetch )
 			.mockReturnValueOnce( old.promise )
 			.mockReturnValueOnce( current.promise )
 			.mockReturnValueOnce( pending.promise );
-		await flush( () => root.render( <SettingsApp settings={ settings } request={ request } /> ) );
+		await flush( () => root.render( <SettingsApp { ...settings } /> ) );
 		await select( 'editor' );
 		await clickPreview();
 		await clickPreview();
+		expect( request.mock.calls[ 0 ][ 0 ].signal?.aborted ).toBe( true );
 		await flush( () => current.reject( new Error( 'Current error' ) ) );
 		await flush( () => old.resolve( { stale: true } ) );
 		expect( container.textContent ).toContain( 'Current error' );
@@ -126,12 +131,7 @@ describe( 'SettingsApp', () => {
 
 	it( 'submits the existing checkbox value and escapes raw rules', async () => {
 		await flush( () =>
-			root.render(
-				<SettingsApp
-					settings={ { ...settings, source: '<script>unsafe</script>' } }
-					request={ jest.fn() }
-				/>
-			)
+			root.render( <SettingsApp { ...settings } source="<script>unsafe</script>" /> )
 		);
 		const checkbox = container.querySelector( 'input[type="checkbox"]' ) as HTMLInputElement;
 		expect( checkbox.name ).toBe( 'vip-governance[is-enabled]' );

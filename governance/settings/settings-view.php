@@ -21,6 +21,7 @@ $settings_data = [
 ?>
 <div class="wrap">
 	<h1><?php esc_html_e( 'WordPress VIP Block Governance', 'vip-governance' ); ?></h1>
+	<?php settings_errors(); ?>
 	<form action="options.php" method="post">
 		<?php settings_fields( Settings::OPTIONS_KEY ); ?>
 		<div id="vip-governance-settings" data-settings="<?php echo esc_attr( wp_json_encode( $settings_data ) ); ?>"></div>
