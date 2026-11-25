@@ -344,6 +344,6 @@ Returns merged governance rules for an optional role and/or post type. Requires 
 
 - The plugin takes an **opt-in approach**: an empty effective rule set severely limits the editor. The bundled fallback rule explicitly allows all blocks and supported features.
 - Always include `core/paragraph` in `allowedBlocks` for default rules — the editor uses it as an insertion primitive.
-- The plugin only works in the **post editor** (not site-editor, widgets, etc.).
+- Governance runs in the post editor, Site Editor, and block-based Widgets. Site Editor and Widgets apply default and role rules.
 - Starting from WordPress 6.8, the block inserter sidebar shows all blocks regardless; disallowed blocks show a snackbar error on insertion attempt.
 - Analytics are VIP-only and contain no content/metadata — just counters with site ID. Usage is sampled on roughly 10% of configuration loads.

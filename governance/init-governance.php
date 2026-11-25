@@ -16,6 +16,33 @@ use Throwable;
  */
 class InitGovernance {
 	/**
+	 * Core blocks needed to edit template layout, site identity, navigation, and post listings.
+	 */
+	private const SITE_EDITOR_BLOCKS = [
+		'core/group',
+		'core/columns',
+		'core/template-part',
+		'core/site-logo',
+		'core/site-title',
+		'core/site-tagline',
+		'core/navigation',
+		'core/query',
+		'core/query-title',
+		'core/query-no-results',
+		'core/query-pagination',
+		'core/query-pagination-next',
+		'core/query-pagination-numbers',
+		'core/query-pagination-previous',
+		'core/post-template',
+		'core/post-content',
+		'core/post-title',
+		'core/post-featured-image',
+		'core/post-date',
+		'core/post-terms',
+		'core/post-excerpt',
+	];
+
+	/**
 	 * Governance configuration.
 	 *
 	 * @var array
@@ -25,16 +52,37 @@ class InitGovernance {
 	public static array $governance_configuration = [];
 
 	/**
+	 * Context available before WordPress collects assets for the editor iframe.
+	 *
+	 * @var \WP_Block_Editor_Context|null
+	 */
+	private static ?\WP_Block_Editor_Context $editor_context = null;
+
+	/**
 	 * Initialize the class
 	 *
 	 * @return void
 	 */
 	public static function init(): void {
+		add_filter( 'allowed_block_types_all', [ __CLASS__, 'capture_editor_context' ], 10, 2 );
+
 		// Assets for block editor UI.
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'load_settings' ] );
 
 		// Assets for iframed block editor and editor UI.
 		add_action( 'enqueue_block_assets', [ __CLASS__, 'load_css' ] );
+	}
+
+	/**
+	 * Capture editor context before WordPress enqueues iframe styles.
+	 *
+	 * @param bool|string[]            $allowed_blocks WordPress's allowed block types.
+	 * @param \WP_Block_Editor_Context $context        The editor being rendered.
+	 * @return bool|string[] WordPress's allowed block types.
+	 */
+	public static function capture_editor_context( bool|array $allowed_blocks, \WP_Block_Editor_Context $context ): bool|array {
+		self::$editor_context = $context;
+		return $allowed_blocks;
 	}
 
 	/**
@@ -45,12 +93,11 @@ class InitGovernance {
 	 * @access private
 	 */
 	public static function load_settings(): void {
-		// Only load the settings if the plugin is enabled, from the wp-admin settings page or a post/page is being edited.
-		if ( ! Settings::is_enabled() || ! self::should_load_for_current_page() ) {
+		if ( ! Settings::is_enabled() ) {
 			return;
-		} elseif ( empty( self::$governance_configuration ) ) {
-			self::$governance_configuration = self::load_governance_configuration();
 		}
+
+		$configuration = self::get_governance_configuration();
 
 		$asset_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.asset.php';
 		if ( ! is_readable( $asset_file_path ) ) {
@@ -77,14 +124,14 @@ class InitGovernance {
 		);
 		wp_set_script_translations( 'wpcomvip-governance', 'vip-governance' );
 
-		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
+		$nested_settings_and_css = $configuration['nestedSettingsAndCss'];
 
 		wp_localize_script(
 			'wpcomvip-governance',
 			'VIP_GOVERNANCE',
 			[
-				'error'           => self::$governance_configuration['error'],
-				'governanceRules' => self::$governance_configuration['governanceRules'],
+				'error'           => $configuration['error'],
+				'governanceRules' => $configuration['governanceRules'],
 				'nestedSettings'  => $nested_settings_and_css['settings'] ?? [],
 				'urlSettingsPage' => menu_page_url( Settings::MENU_SLUG, /* display */ false ),
 			]
@@ -101,11 +148,9 @@ class InitGovernance {
 	public static function load_css(): void {
 		if ( ! Settings::is_enabled() ) {
 			return;
-		} elseif ( empty( self::$governance_configuration ) ) {
-			self::$governance_configuration = self::load_governance_configuration();
 		}
 
-		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
+		$nested_settings_and_css = self::get_governance_configuration()['nestedSettingsAndCss'];
 
 		// Hack to load the CSS dynamically for the block editor without needing a blank CSS file.
 		wp_register_style( 'wpcomvip-governance', false, [], WPCOMVIP__GOVERNANCE__PLUGIN_VERSION );
@@ -114,15 +159,15 @@ class InitGovernance {
 	}
 
 	/**
-	 * Check whether governance assets should load for the current admin page.
+	 * Get the governance configuration for this request.
 	 *
-	 * @return bool Whether the current page is a post editor.
+	 * @return array Governance configuration.
 	 */
-	private static function should_load_for_current_page(): bool {
-		// ToDo: Turn this into a configurable rule in the future.
-		$allowed_pages = [ 'page-new.php', 'post-new.php', 'post.php' ];
-
-		return in_array( $GLOBALS['pagenow'] ?? '', $allowed_pages, true );
+	private static function get_governance_configuration(): array {
+		if ( empty( self::$governance_configuration ) ) {
+			self::$governance_configuration = self::load_governance_configuration();
+		}
+		return self::$governance_configuration;
 	}
 
 	/**
@@ -141,11 +186,24 @@ class InitGovernance {
 			if ( is_wp_error( $parsed_governance_rules ) ) {
 				$governance_error = __( 'Governance rules could not be loaded.', 'vip-governance' );
 			} else {
+				$context                   = self::$editor_context?->name;
+				$post_type                 = null === $context || 'core/edit-post' === $context ? ( self::$editor_context?->post?->post_type ?? '' ) : null;
 				$governance_rules_for_user = empty( $parsed_governance_rules )
 					? self::get_permissive_governance_rules()
-					: GovernanceUtilities::get_rules_by_type( $parsed_governance_rules );
-				$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
-				$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
+					: GovernanceUtilities::get_rules_by_type( $parsed_governance_rules, [], $post_type );
+
+				$editor_blocks = match ( $context ) {
+					'core/edit-site'    => self::SITE_EDITOR_BLOCKS,
+					// This internal block keeps widget areas editable.
+					'core/edit-widgets' => [ 'core/widget-area' ],
+					default             => [],
+				};
+
+				$allowed_blocks = $governance_rules_for_user['allowedBlocks'];
+
+				$governance_rules_for_user['allowedBlocks'] = array_merge( $allowed_blocks, array_diff( $editor_blocks, $allowed_blocks ) );
+
+				$nested_settings_and_css = NestedGovernanceProcessing::get_nested_settings_and_css( $governance_rules_for_user['blockSettings'] );
 				BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
 
 				if ( ( time() % 10 ) === 0 ) {

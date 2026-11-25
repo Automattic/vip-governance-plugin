@@ -64,6 +64,10 @@ On WordPress VIP, place your governance rules in `governance-rules.json` in [you
 
 Note: The [private folder][wpvip-private-dir] is only supported on VIP sites, or while using [`vip dev-env`](https://docs.wpvip.com/how-tos/local-development/use-the-vip-local-development-environment/) locally.
 
+Governance applies in the post editor, Site Editor, and block-based Widgets editor. The Site Editor and Widgets use default and role rules. The Site Editor adds core blocks for template layout, site identity, navigation, and post listings to its top-level allowlist. In restrictive hierarchy mode, nested blocks still follow the rules for their parent blocks.
+
+Define duotone presets in `theme.json`. To limit which theme presets Image offers, list them by slug and colors in `blockSettings.core/image.color.duotone`. WordPress renders saved presets using the theme.
+
 ### Schema Basics
 
 You can find the JSON Schema for authoring rules [here][repo-schema-location]. Use `https://api.wpvip.com/schemas/plugins/governance.json` as the `$schema` value to get code completion and validation in supported editors. At runtime, the plugin parses JSON, rejects unrecoverable configuration errors, and corrects recoverable rule problems rather than evaluating this schema file directly.
@@ -506,8 +510,6 @@ With this rule set, the following rules will apply:
 
     It is possible to disable `core/paragraph` blocks for a role if it makes sense for your workflow but keep in mind these limitations when doing so.
 
-- Support for `color.duotone` has not been implemented.
-- Currently, the plugin is restricted to the post editor only and won't work on other pages like site-editor, widgets, etc.
 - In WordPress 6.8 and 6.9, the main block inserter can show blocks that governance will not allow. Attempting to insert one is still rejected and displays a snackbar notice. WordPress 7.0 and later filter those unavailable blocks from the inserter again, following the [Gutenberg 22.4 inserter fix][gutenberg-22-4].
 
 ## Code Filters

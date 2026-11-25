@@ -18,7 +18,7 @@ class BlockLocking {
 	 *
 	 * @param array $allowed_features Features that are allowed from the governance rules.
 	 * @return void
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function init( array $allowed_features ): void {

@@ -13,6 +13,8 @@ class InitGovernanceTest extends TestCase {
 		wp_dequeue_style( 'wpcomvip-governance' );
 		wp_deregister_style( 'wpcomvip-governance' );
 		remove_all_filters( 'vip_governance__governance_rules_json' );
+		$editor_context = new \ReflectionProperty( InitGovernance::class, 'editor_context' );
+		$editor_context->setValue( null, null );
 		InitGovernance::$governance_configuration = [];
 		$nested_cache                             = new \ReflectionProperty( NestedGovernanceProcessing::class, 'nested_settings_and_css' );
 		$nested_cache->setValue( null, null );
@@ -41,6 +43,71 @@ class InitGovernanceTest extends TestCase {
 		require WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE;
 
 		$this->assertTrue( function_exists( 'WPCOMVIP\\Governance\\vip_governance_pre_init' ) );
+	}
+
+	public function test_site_editor_allows_template_blocks_alongside_configured_rules(): void {
+		$settings = [
+			'canLockBlocks'      => true,
+			'codeEditingEnabled' => true,
+		];
+		$context  = new \WP_Block_Editor_Context( [
+			'name' => 'core/edit-site',
+			'post' => new \WP_Post( (object) [ 'post_type' => 'page' ] ),
+		] );
+
+		$this->assertTrue( InitGovernance::capture_editor_context( true, $context ) );
+		add_filter(
+			'vip_governance__governance_rules_json',
+			static fn (): string => '{
+				"version": "1.0.0",
+				"rules": [
+					{ "type": "default", "allowedBlocks": ["core/paragraph", "core/template-part"] },
+					{ "type": "postType", "postTypes": ["page"], "allowedBlocks": ["core/list"], "allowedFeatures": ["lockBlocks"] }
+				]
+			}'
+		);
+		$theme_settings = static function ( array $editor_settings ): array {
+			$editor_settings['canLockBlocks']      = true;
+			$editor_settings['codeEditingEnabled'] = true;
+			return $editor_settings;
+		};
+		add_filter( 'block_editor_settings_all', $theme_settings );
+		try {
+			InitGovernance::load_css();
+			$editor_settings = apply_filters( 'block_editor_settings_all', $settings, $context );
+			$this->assertFalse( $editor_settings['canLockBlocks'] );
+			$this->assertFalse( $editor_settings['codeEditingEnabled'] );
+		} finally {
+			remove_filter( 'block_editor_settings_all', $theme_settings );
+		}
+		$allowed_blocks = InitGovernance::$governance_configuration['governanceRules']['allowedBlocks'];
+		$this->assertTrue( array_is_list( $allowed_blocks ) );
+		$this->assertSame( array_unique( $allowed_blocks ), $allowed_blocks );
+		$this->assertContains( 'core/paragraph', $allowed_blocks );
+		$this->assertContains( 'core/template-part', $allowed_blocks );
+		$this->assertContains( 'core/navigation', $allowed_blocks );
+		$this->assertContains( 'core/query', $allowed_blocks );
+		$this->assertNotContains( 'core/list', $allowed_blocks );
+		$this->assertNotContains( 'core/widget-area', $allowed_blocks );
+	}
+
+	public function test_widgets_editor_keeps_the_widget_area_container_allowed(): void {
+		add_filter(
+			'vip_governance__governance_rules_json',
+			static fn (): string => '{
+				"version": "1.0.0",
+				"rules": [{ "type": "default", "allowedBlocks": ["core/paragraph"] }]
+			}'
+		);
+
+		$context = new \WP_Block_Editor_Context( [ 'name' => 'core/edit-widgets' ] );
+		$this->assertSame( [ 'core/paragraph' ], InitGovernance::capture_editor_context( [ 'core/paragraph' ], $context ) );
+		InitGovernance::load_css();
+
+		$this->assertSame(
+			[ 'core/paragraph', 'core/widget-area' ],
+			InitGovernance::$governance_configuration['governanceRules']['allowedBlocks']
+		);
 	}
 
 	public function test_load_css__enqueues_styles_outside_admin(): void {

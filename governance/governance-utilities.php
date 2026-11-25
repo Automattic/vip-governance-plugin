@@ -188,21 +188,21 @@ class GovernanceUtilities {
 	 *
 	 * The default rule is the base upon which the other rules are built. Currently, that's postType and role.
 	 *
-	 * @param array  $governance_rules Governance rules, not filtered based on the user role.
-	 * @param array  $user_roles       User roles for the current WP site.
-	 * @param string $post_type Post type for the current post.
+	 * @param array       $governance_rules Governance rules, not filtered based on the user role.
+	 * @param array       $user_roles       User roles for the current WP site.
+	 * @param string|null $post_type Post type for the current post, or null to skip post-type rules.
 	 *
 	 * @return array Governance rules, filtered by the matching user role or post type.
 	 *
 	 * @access private
 	 */
-	public static function get_rules_by_type( array $governance_rules, array $user_roles = [], string $post_type = '' ): array {
+	public static function get_rules_by_type( array $governance_rules, array $user_roles = [], ?string $post_type = '' ): array {
 		if ( empty( $governance_rules ) ) {
 			return [];
 		}
 
 		// This is the case where its not called by the admin UI, but in fact by the editor.
-		if ( empty( $post_type ) ) {
+		if ( null !== $post_type && empty( $post_type ) ) {
 			$post_type = get_post_type();
 		}
 
