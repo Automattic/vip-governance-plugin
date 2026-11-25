@@ -98,7 +98,7 @@ class SettingsTest extends TestCase {
 	}
 
 	public function test_render__shows_registry_labels_and_preserves_preview_option_values(): void {
-		wp_roles()->add_role( 'governance_test_role', 'Editorial & <Review>' );
+		wp_roles()->add_role( 'governance_test_role', 'Editorial & <Review> &quot;Desk&quot;' );
 		wp_roles()->add_role( 'governance_editor', 'Editor' );
 		wp_roles()->add_role( 'governance_unlabeled', '' );
 		register_post_type( 'governance_internal', [
@@ -130,7 +130,7 @@ class SettingsTest extends TestCase {
 		$this->assertSame( $post_type_values, array_keys( $data['postTypes'] ) );
 		$this->assertSame( 'My roles', $data['roles'][''] );
 		$this->assertSame( 'No post type selected', $data['postTypes'][''] );
-		$this->assertSame( 'Editorial & <Review>', $data['roles']['governance_test_role'] );
+		$this->assertSame( 'Editorial & <Review> &quot;Desk&quot;', $data['roles']['governance_test_role'] );
 		$this->assertSame( 'governance_unlabeled', $data['roles']['governance_unlabeled'] );
 		$this->assertSame( 'Internal & <Review>', $data['postTypes']['governance_internal'] );
 		$this->assertSame( 'governance_no_label', $data['postTypes']['governance_no_label'] );
