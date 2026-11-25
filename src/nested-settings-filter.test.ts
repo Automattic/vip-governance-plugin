@@ -24,6 +24,18 @@ describe( 'nested settings filter', () => {
 		} );
 	}
 
+	it( 'passes theme-defined duotone presets to the block editor picker', () => {
+		const presets = [
+			{ slug: 'review-mono', name: 'Review mono', colors: [ '#222222', '#eeeeee' ] },
+		];
+		expect(
+			resolve(
+				{ 'core/image': { color: { duotone: { theme: presets } } } },
+				{ blockNames: [ 'core/image' ], path: 'color.duotone.theme' }
+			)
+		).toEqual( presets );
+	} );
+
 	it( 'prefers an exact block rule over a wildcard at the same depth', () => {
 		expect(
 			resolve( {
